@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>HisRoyalRedness.com</RootNamespace>
+  </PropertyGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)Coco\PreBuild.cmd &quot;$(ProjectDir)&quot; &quot;$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <None Remove="Parser.generated.cs.old" />
+    <None Remove="Scanner.generated.cs.old" />
+    <None Remove="trace.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Coco.atg">
+      <Generator></Generator>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -286,3 +286,9 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+/HackerCalc.Parser/trace.txt
+/HackerCalc.Parser/UserManual.pdf
+/HackerCalc.Parser/Scanner.generated.cs.old
+/HackerCalc.Parser/Parser.generated.cs.old
+/HackerCalc.Parser/Parser.generated.cs
+/HackerCalc.Parser/Scanner.generated.cs
