@@ -21,15 +21,35 @@ namespace HisRoyalRedness.com
             AddToken(new CalcToken(TokenType.Float, tokenValue));
         }
 
-        internal void AddOperator(TokenType tokenType, string tokenValue)
+        internal void AddNotOperator(string tokenValue)
         {
-            AddToken(new CalcToken(tokenType, tokenValue));
+            AddToken(new CalcToken(TokenType.NotOperator, tokenValue));
         }
 
-        internal void AddToken(TokenType tokenType, string tokenValue, string intLength = null)
+        internal void AddAddOperator(string tokenValue)
         {
-            AddToken(new CalcToken(tokenType, tokenValue, intLength));
+            AddToken(new CalcToken(TokenType.AddOperator, tokenValue));
         }
+
+        internal void AddMultOperator(string tokenValue)
+        {
+            AddToken(new CalcToken(TokenType.MultOperator, tokenValue));
+        }
+
+        internal void AddShiftOperator(string tokenValue)
+        {
+            AddToken(new CalcToken(TokenType.ShiftOperator, tokenValue));
+        }
+
+        internal void AddBitOperator(string tokenValue)
+        {
+            AddToken(new CalcToken(TokenType.BitOperator, tokenValue));
+        }
+
+        //internal void AddToken(TokenType tokenType, string tokenValue, string intLength = null)
+        //{
+        //    AddToken(new CalcToken(tokenType, tokenValue, intLength));
+        //}
 
         void AddToken(CalcToken token)
         {
@@ -49,7 +69,8 @@ namespace HisRoyalRedness.com
         AddOperator,
         MultOperator,
         BitOperator,
-        NotOperator
+        NotOperator,
+        ShiftOperator
     }
 
     public class CalcToken

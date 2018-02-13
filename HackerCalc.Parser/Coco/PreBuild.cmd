@@ -9,6 +9,5 @@ echo ProjDir:     %ProjDir%
 echo Config:      %Config%
 
 pushd "%ProjDir%"
-
-
-"%ProjDir%Coco\Coco.exe" Coco.ATG -namespace HisRoyalRedness.com -frames "%ProjDir%Coco" -trace FJSX -symnames
+"%ProjDir%\Coco\Coco.exe" Coco.ATG -namespace HisRoyalRedness.com -frames "%ProjDir%\Coco" -trace FJSX -symnames
+popd

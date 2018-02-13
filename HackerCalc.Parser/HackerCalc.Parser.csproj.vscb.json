@@ -1,0 +1,33 @@
+{
+  "commands": [
+    {
+      "cmdname": "build_atg",
+      "title": "Build $(ProjectDir)Coco.atg",
+      "description": "Builds the Coco.atg file",
+      "cwd": "$(ProjectDir)",
+      "filename": "$(ProjectDir)\\Coco\\PreBuild.cmd",
+      "arguments": "\"$(ProjectDir)\"  Debug",
+      "async": false,
+      "key1": "2",
+      "mod1": "CTRL SHIFT"
+    },
+    {
+      "cmdname": "cmdprompt",
+      "title": "Project Command Prompt",
+      "description": "Opens a command prompt in the project root folder",
+      "cwd": "$(ProjectDir)",
+      "filename": "cmd",
+      "async": true
+    },
+    {
+      "cmdname": "editprojvscb",
+      "title": "Edit project vscb file",
+      "description": "Open notepad to start editing the project vscb file.",
+      "filename": "notepad.exe",
+      "arguments": "$(ProjectDir)$(ProjectVscbFileName)",
+      "async": true
+    }
+  ],
+  "comment": "Project: HackerCalc.Parser" 
+
+}

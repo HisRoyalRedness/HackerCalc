@@ -16,34 +16,31 @@ CHARACTERS
 	stringCh        = ANY - '"' - '\\' - cr - lf.
 	charCh          = ANY - '\'' - '\\' - cr - lf.
 	hex             = "0123456789abcdefABCDEF".
-    notOp           = "~!".
-    addOp           = "+-".
-    multOp          = "*/".
-    bitOp           = "&|^".
+    
+    /* Ordered from tightest to loosest binding order */
+    logNotOp        = '!'.
+    bitNotOp        = '~'.
+    multOp          = '*'.
+    divideOp        = '/'.
+    moduloOp        = '%'.
+    addOp           = '+'.
+    subOp           = '-'.
+    shiftLeftOp     = '<'.
+    shiftRightOp    = '>'.
+    andOp           = '&'.
+    orOp            = '|'.
+    xorOp           = '^'.
 
 TOKENS
 	integer         = digit { digit }. 
     float           = {digit} '.' digit {digit}.
 
-    notToken        = notOp.
-    addToken        = addOp.
-    multToken       = multOp.
-    bitToken        = bitOp.
+    notToken        = logNotOp | bitNotOp.
+    multToken       = multOp | divideOp | moduloOp.
+    addToken        = addOp | subOp.
+    shiftToken      = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
+    bitToken        = andOp | orOp | xorOp.
 
-
-/*
-PRAGMAS
-	ddtSym    = '$' { digit | letter }.  (. tab.SetDDT(la.val); .)
-
-	optionSym = '$' letter { letter } '='
-	            { digit | letter
-	            | '-' | '.' | ':'
-	            }.                       (. tab.SetOption(la.val); .)
-*/
-
-
-COMMENTS FROM "/*" TO "*/" NESTED
-COMMENTS FROM "//" TO lf
 
 IGNORE cr + lf + tab
 
@@ -56,17 +53,27 @@ Coco
 
 
 BitExpr
+=                   
+                    ShiftExpr
+                    [
+                        bitToken            (. AddBitOperator(t.val); .)
+                        BitExpr
+                    ]
+                    
+.
+
+ShiftExpr
 =                   AddExpr
                     [
-                        bitToken            (. AddOperator(TokenType.BitOperator, t.val); .)
-                        BitExpr
+                        shiftToken          (. AddShiftOperator(t.val); .)
+                        ShiftExpr
                     ]
 .
 
 AddExpr 
 =                   MulExpr 
                     [ 
-                        addToken            (. AddOperator(TokenType.AddOperator, t.val); .)
+                        addToken            (. AddAddOperator(t.val); .)
                         AddExpr 
                     ]
 .
@@ -74,28 +81,88 @@ AddExpr
 MulExpr
 =                   NotExpr
                     [
-                        multToken           (. AddOperator(TokenType.MultOperator, t.val); .)
+                        multToken           (. AddMultOperator(t.val); .)
                         MulExpr
                     ]
 .
 
 NotExpr
 =                   Term
-                    [
-                        notToken            (. AddOperator(TokenType.MultOperator, t.val); .)
+                    |
+                        notToken            (. AddNotOperator(t.val); .)
                         NotExpr
-                    ]
 .
 
 Term 
 =                                           (. var intValue = ""; .)
                                             (. var intLen = ""; .)
                     integer                 (. intValue = t.val; .)
-                    /*[
+                    [
                        '_' ( "4" | "8" | "16" | "32" | "64" | "128" | "256" )          (. intLen = t.val; .)
-                    ]*/
+                    ]
                                             (. AddInteger(intValue, intLen); .)
                     | float                 (. AddFloat(t.val); .)
 .
+
+
+
+/*
+Coco
+= BitExpr.
+
+
+BitExpr
+=                   
+                    ShiftExpr
+                    [
+                        bitToken            (. AddBitOperator(t.val); .)
+                        BitExpr
+                    ]
+                    
+.
+
+ShiftExpr
+=                   AddExpr
+                    [
+                        shiftToken          (. AddShiftOperator(t.val); .)
+                        ShiftExpr
+                    ]
+.
+
+AddExpr 
+=                   MulExpr 
+                    [ 
+                        addToken            (. AddAddOperator(t.val); .)
+                        AddExpr 
+                    ]
+.
+
+MulExpr
+=                   NotExpr
+                    [
+                        multToken           (. AddMultOperator(t.val); .)
+                        MulExpr
+                    ]
+.
+
+NotExpr
+=                   Term
+                    |
+                        notToken            (. AddNotOperator(t.val); .)
+                        NotExpr
+.
+
+Term 
+=                                           (. var intValue = ""; .)
+                                            (. var intLen = ""; .)
+                    integer                 (. intValue = t.val; .)
+                    [
+                       '_' ( "4" | "8" | "16" | "32" | "64" | "128" | "256" )          (. intLen = t.val; .)
+                    ]
+                                            (. AddInteger(intValue, intLen); .)
+                    | float                 (. AddFloat(t.val); .)
+.
+*/
+
 
 END Coco.
