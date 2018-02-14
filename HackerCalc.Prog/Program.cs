@@ -8,14 +8,11 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
-            var input = args.Length == 0 ? "1 + !2 * (3 + ~4 & 2) - 4 % 6 << 4 + 10 >> 6" : args[0];
+            var input = args.Length == 0 ? "1 * ~(2 + 3) << 0x5 - 4 & !6 >> 7 | 8 \\ 9" : args[0];
             Console.WriteLine($"Input: {input}");
-            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(input)))
-            {
-                var scanner = new Scanner(ms);
-                var parser = new Parser(scanner);
-                var result = parser.Parse();
-            }
+
+            foreach (var token in Parser.ParseExpression(input))
+                Console.WriteLine(token);
         }
     }
 }

@@ -21,7 +21,7 @@ CHARACTERS
     logNotOp        = '!'.
     bitNotOp        = '~'.
     multOp          = '*'.
-    divideOp        = '/'.
+    divideOp        = "/\\".
     moduloOp        = '%'.
     addOp           = '+'.
     subOp           = '-'.
@@ -33,6 +33,7 @@ CHARACTERS
 
 TOKENS
 	integer         = digit { digit }. 
+    hex_integer     = "0x" hex { hex }.
     float           = {digit} '.' digit {digit}.
 
     notToken        = logNotOp | bitNotOp.
@@ -49,109 +50,65 @@ IGNORE cr + lf + tab
 PRODUCTIONS
 
 Coco
-= BitExpr.
+= Expr.
 
+Expr                = BitExpr.
 
 BitExpr
 =                   
                     ShiftExpr
-                    [
+                    {
                         bitToken            (. AddBitOperator(t.val); .)
-                        BitExpr
-                    ]
-                    
+                        ShiftExpr
+                    }
 .
 
 ShiftExpr
 =                   AddExpr
-                    [
+                    {
                         shiftToken          (. AddShiftOperator(t.val); .)
-                        ShiftExpr
-                    ]
+                        AddExpr
+                    }
 .
 
 AddExpr 
 =                   MulExpr 
-                    [ 
+                    { 
                         addToken            (. AddAddOperator(t.val); .)
-                        AddExpr 
-                    ]
+                        MulExpr 
+                    }
 .
 
 MulExpr
 =                   NotExpr
-                    [
+                    {
                         multToken           (. AddMultOperator(t.val); .)
-                        MulExpr
-                    ]
+                        NotExpr
+                    }
 .
 
 NotExpr
 =                   Term
                     |
                         notToken            (. AddNotOperator(t.val); .)
-                        NotExpr
+                        Term
 .
 
 Term 
-=                                           (. var intValue = ""; .)
-                                            (. var intLen = ""; .)
-                    integer                 (. intValue = t.val; .)
-                    [
-                       '_' ( "4" | "8" | "16" | "32" | "64" | "128" | "256" )          (. intLen = t.val; .)
-                    ]
-                                            (. AddInteger(intValue, intLen); .)
-                    | float                 (. AddFloat(t.val); .)
+=                                           (. var intLen = ""; .)
+                    (
+                        "("                 (. AddLeftBracket(); .)
+                        Expr 
+                        ")"                 (. AddRightBracket(); .)
+                        | integer           (. AddInteger(t.val, intLen); .)
+                        | hex_integer       (. AddInteger(t.val, intLen); .)
+                        | float             (. AddFloat(t.val); .)
+                    )
 .
 
 
 
 /*
-Coco
-= BitExpr.
-
-
-BitExpr
-=                   
-                    ShiftExpr
-                    [
-                        bitToken            (. AddBitOperator(t.val); .)
-                        BitExpr
-                    ]
-                    
-.
-
-ShiftExpr
-=                   AddExpr
-                    [
-                        shiftToken          (. AddShiftOperator(t.val); .)
-                        ShiftExpr
-                    ]
-.
-
-AddExpr 
-=                   MulExpr 
-                    [ 
-                        addToken            (. AddAddOperator(t.val); .)
-                        AddExpr 
-                    ]
-.
-
-MulExpr
-=                   NotExpr
-                    [
-                        multToken           (. AddMultOperator(t.val); .)
-                        MulExpr
-                    ]
-.
-
-NotExpr
-=                   Term
-                    |
-                        notToken            (. AddNotOperator(t.val); .)
-                        NotExpr
-.
-
 Term 
 =                                           (. var intValue = ""; .)
                                             (. var intLen = ""; .)

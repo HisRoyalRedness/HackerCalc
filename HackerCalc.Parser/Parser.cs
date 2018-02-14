@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace HisRoyalRedness.com
 {
     public partial class Parser
     {
+        #region AddToken
         internal void AddInteger(string tokenValue, string intLength = null)
         {
             AddToken(string.IsNullOrEmpty(intLength)
@@ -46,15 +48,33 @@ namespace HisRoyalRedness.com
             AddToken(new CalcToken(TokenType.BitOperator, tokenValue));
         }
 
-        //internal void AddToken(TokenType tokenType, string tokenValue, string intLength = null)
-        //{
-        //    AddToken(new CalcToken(tokenType, tokenValue, intLength));
-        //}
+        internal void AddLeftBracket()
+        {
+            AddToken(new CalcToken(TokenType.Bracket, "("));
+        }
+
+        internal void AddRightBracket()
+        {
+            AddToken(new CalcToken(TokenType.Bracket, ")"));
+        }
 
         void AddToken(CalcToken token)
         {
             _tokens.Add(token);
-            Console.WriteLine(token);
+        }
+        #endregion AddToken
+
+        public static IEnumerable<CalcToken> ParseExpression(string expression)
+        {
+            List<CalcToken> tokens;
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
+            {
+                var scanner = new Scanner(ms);
+                var parser = new Parser(scanner);
+                var result = parser.Parse();
+                tokens = parser.Tokens;
+            }
+            return tokens;
         }
 
         public List<CalcToken> Tokens => _tokens;
@@ -70,7 +90,8 @@ namespace HisRoyalRedness.com
         MultOperator,
         BitOperator,
         NotOperator,
-        ShiftOperator
+        ShiftOperator,
+        Bracket,
     }
 
     public class CalcToken

@@ -10,4 +10,10 @@
     <ProjectReference Include="..\HackerCalc.Parser\HackerCalc.Parser.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

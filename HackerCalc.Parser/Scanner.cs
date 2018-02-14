@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 namespace HisRoyalRedness.com
 {
     #region Scanner
-    public partial class Scanner
+    public partial class Scanner : IDisposable
     {
-        
+
+
+
     }
     #endregion Scanner
 }
