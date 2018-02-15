@@ -1,0 +1,35 @@
+{
+  "vscb_version": "1.0",
+  "description": "This is an example solution vscb config file.",
+  "homepage_url": "https://github.com/PaulHuizer/VsCommandBuddy/",
+  "author": "Paul Huizer",
+  "verbose": true,
+  "macros": {
+    "distDir": "$(SolutionDir)\\dist",
+    "testdataDir": "$(distDir)\\test"
+  },
+  "commands": [
+    {
+      "cmdname": "solutioncmdprompt",
+      "title": "Open Cmdprompt in $(SolutionDir)",
+      "description": "Opens cmd prompt in the solution directory.",
+      "cwd": "$(SolutionDir)",
+      "filename": "cmd",
+      "async": true
+    },
+    {
+      "cmdname": "editsolutionvscb",
+      "title": "Edit the solution vscb file using notepad.exe.",
+      "description": "Opens notepad to start editing the solution vscb file.",
+      "cwd": "$(SolutionDir)",
+      "filename": "notepad.exe",
+      "arguments": "$(SolutionVscbFileName)",
+      "async": true,
+      "key1": "5",
+      "mod1": "CTRL SHIFT",
+      "confirmCaption": "Edit the solution vscb file using notepad?",
+      "confirmMessage": "Are you sure you want to edit: \r\n $(SolutionVscbFileName)?",
+      "confirmIcon": "Warning"
+    }
+  ]
+}

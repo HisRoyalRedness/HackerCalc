@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerCalc", "HackerCalc\HackerCalc.csproj", "{71FDF7D6-518D-4170-8059-5D4F62D87E38}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{04DCBBA9-F33A-4608-9ADE-6141C40F5642}"
+	ProjectSection(SolutionItems) = preProject
+		HackerCalc.sln.vscb.json = HackerCalc.sln.vscb.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerCalc.Test", "HackerCalc.Test\HackerCalc.Test.csproj", "{AB5F6076-BFF5-4BF3-94D0-17B93B985967}"
 EndProject
