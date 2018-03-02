@@ -8,7 +8,7 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
-            var input = args.Length == 0 ? "1 * ~(2 + 3) << 0x5 - 4 & !6 >> 7 | 8 \\ 9" : args[0];
+            var input = args.Length == 0 ? "1 * ~(2U + 0.3) << 0x5 - .4 & !6 >> 7F | 8I \\ 9 ^ 10.1" : args[0];
             Console.WriteLine($"Input: {input}");
 
             foreach (var token in Parser.ParseExpression(input))

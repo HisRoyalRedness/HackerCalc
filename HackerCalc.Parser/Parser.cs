@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,62 +12,81 @@ namespace HisRoyalRedness.com
     public partial class Parser
     {
         #region AddToken
-        internal void AddInteger(string tokenValue, string intLength = null)
+        #region Literals
+        internal void AddInteger(string tokenValue, string intLength = null) => AddToken(new LiteralToken(TokenType.BigInteger, tokenValue.TrimEnd('I')));
+        internal void AddFloat(string tokenValue) => AddToken(new LiteralToken(TokenType.Float, tokenValue.TrimEnd('F')));
+        #endregion Literals
+
+        #region Operators
+        internal IToken AddNotOperator(string tokenValue)
         {
-            AddToken(string.IsNullOrEmpty(intLength)
-                ? new CalcToken(TokenType.BigInteger, tokenValue)
-                : new CalcToken(TokenType.LimitedInteger, tokenValue, intLength));
+            switch (tokenValue)
+            {
+                case "!": return AddToken(new OperatorToken(TokenType.Not));
+                case "~": return AddToken(new OperatorToken(TokenType.Negate));
+            }
+            throw new ApplicationException("Invalid token type");
         }
 
-        internal void AddFloat(string tokenValue)
+        internal IToken AddAddOperator(string tokenValue)
         {
-            AddToken(new CalcToken(TokenType.Float, tokenValue));
+            switch(tokenValue)
+            {
+                case "+":   return AddToken(new OperatorToken(TokenType.Add));
+                case "-":   return AddToken(new OperatorToken(TokenType.Subtract));
+            }
+            throw new ApplicationException("Invalid token type");
         }
 
-        internal void AddNotOperator(string tokenValue)
+        internal IToken AddMultOperator(string tokenValue)
         {
-            AddToken(new CalcToken(TokenType.NotOperator, tokenValue));
+            switch (tokenValue)
+            {
+                case "*": return AddToken(new OperatorToken(TokenType.Multiply));
+                case "/": return AddToken(new OperatorToken(TokenType.Divide));
+                case "\\": return AddToken(new OperatorToken(TokenType.Divide));
+                case "%": return AddToken(new OperatorToken(TokenType.Modulo));
+            }
+            throw new ApplicationException("Invalid token type");
         }
 
-        internal void AddAddOperator(string tokenValue)
+        internal IToken AddShiftOperator(string tokenValue)
         {
-            AddToken(new CalcToken(TokenType.AddOperator, tokenValue));
+            switch (tokenValue)
+            {
+                case "<<": return AddToken(new OperatorToken(TokenType.LeftShift));
+                case ">>": return AddToken(new OperatorToken(TokenType.RightShift));
+            }
+            throw new ApplicationException("Invalid token type");
         }
 
-        internal void AddMultOperator(string tokenValue)
+        internal IToken AddBitOperator(string tokenValue)
         {
-            AddToken(new CalcToken(TokenType.MultOperator, tokenValue));
+            switch (tokenValue)
+            {
+                case "&": return AddToken(new OperatorToken(TokenType.And));
+                case "|": return AddToken(new OperatorToken(TokenType.Or));
+                case "^": return AddToken(new OperatorToken(TokenType.Xor));
+            }
+            throw new ApplicationException("Invalid token type");
         }
+        #endregion Operators
 
-        internal void AddShiftOperator(string tokenValue)
-        {
-            AddToken(new CalcToken(TokenType.ShiftOperator, tokenValue));
-        }
-
-        internal void AddBitOperator(string tokenValue)
-        {
-            AddToken(new CalcToken(TokenType.BitOperator, tokenValue));
-        }
-
-        internal void AddLeftBracket()
-        {
-            AddToken(new CalcToken(TokenType.Bracket, "("));
-        }
-
-        internal void AddRightBracket()
-        {
-            AddToken(new CalcToken(TokenType.Bracket, ")"));
-        }
-
-        void AddToken(CalcToken token)
+        #region Grouping
+        internal IToken AddLeftBracket() => AddToken(new OperatorToken(TokenType.LeftBracket));
+        internal IToken AddRightBracket() => AddToken(new OperatorToken(TokenType.RightBracket));
+        #endregion Grouping
+        
+        IToken AddToken(IToken token)
         {
             _tokens.Add(token);
+            return token;
         }
         #endregion AddToken
 
-        public static IEnumerable<CalcToken> ParseExpression(string expression)
+        public static IEnumerable<IToken> ParseExpression(string expression)
         {
-            List<CalcToken> tokens;
+            List<IToken> tokens;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms);
@@ -77,38 +97,117 @@ namespace HisRoyalRedness.com
             return tokens;
         }
 
-        public List<CalcToken> Tokens => _tokens;
-        readonly List<CalcToken> _tokens = new List<CalcToken>();
+        public List<IToken> Tokens => _tokens;
+        readonly List<IToken> _tokens = new List<IToken>();
     }
+
+    #region Token base
+    public interface IToken
+    { }
 
     public enum TokenType
     {
-        BigInteger,
-        LimitedInteger,
+        [Description("+")]
+        Add,
+        [Description("-")]
+        Subtract,
+        [Description("*")]
+        Multiply,
+        [Description("/")]
+        Divide,
+        [Description("%")]
+        Modulo,
+        [Description("~")]
+        Negate,
+        [Description("<<")]
+        LeftShift,
+        [Description(">>")]
+        RightShift,
+        [Description("&")]
+        And,
+        [Description("|")]
+        Or,
+        [Description("!")]
+        Not,
+        [Description("^")]
+        Xor,
+        [Description("(")]
+        LeftBracket,
+        [Description(")")]
+        RightBracket,
         Float,
-        AddOperator,
-        MultOperator,
-        BitOperator,
-        NotOperator,
-        ShiftOperator,
-        Bracket,
+        BigInteger
     }
 
-    public class CalcToken
+    public abstract class TokenBase : IToken
     {
-        public CalcToken(TokenType tokenType, string value, string intLength = null)
+        protected TokenBase(string rawToken = null)
         {
-            Type = tokenType;
-            Value = value;
-            IntegerLength = string.IsNullOrEmpty(intLength)
-                ? 0
-                : int.Parse(intLength);
+            RawToken = rawToken;
         }
 
-        public TokenType Type { get; private set; }
-        public string Value { get; private set; }
-        public int IntegerLength { get; private set; }
+        public string RawToken { get; private set; }
 
-        public override string ToString() => $"{Value}: {Type}{(IntegerLength > 0 ? IntegerLength.ToString() : "")}";
+        public override string ToString() => $"{RawToken}";
     }
+    #endregion Token base
+
+    #region Operator tokens
+    public interface IOperatorToken : IToken
+    { }
+
+    public class OperatorToken: TokenBase, IOperatorToken
+    {
+        public OperatorToken(TokenType op)
+            : base()
+        {
+            Operator = op;
+        }
+
+        public TokenType Operator { get; private set; }
+
+
+
+        public override string ToString() => $"{Operator.GetEnumDescription()}";
+    }
+    #endregion Operator tokens
+
+    #region Grouping tokens
+    public interface IGroupingToken : IToken
+    { }
+
+    public class GroupingToken : TokenBase, IGroupingToken
+    {
+        public GroupingToken(TokenType op)
+            : base()
+        {
+            Operator = op;
+        }
+
+        public TokenType Operator { get; private set; }
+
+
+        public override string ToString() => $"{Operator.GetEnumDescription()}";
+    }
+    #endregion Grouping tokens
+
+    #region Literal tokens
+    public interface ILiteralToken : IToken
+    { }
+
+    public class LiteralToken : TokenBase, IGroupingToken
+    {
+        public LiteralToken(TokenType dataType, string value)
+            : base()
+        {
+            DataType = dataType;
+            Value = value;
+        }
+
+        public TokenType DataType { get; private set; }
+        public string Value { get; private set; }
+
+        public override string ToString() => $"{Value}{(DataType == TokenType.BigInteger ? "I" : "F")}";
+    }
+    #endregion Literal tokens
 }

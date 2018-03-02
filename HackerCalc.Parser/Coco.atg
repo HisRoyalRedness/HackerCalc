@@ -34,7 +34,7 @@ CHARACTERS
 TOKENS
 	integer         = digit { digit }. 
     hex_integer     = "0x" hex { hex }.
-    float           = {digit} '.' digit {digit}.
+    float           = {digit} '.' digit {digit} [ 'F' ] | digit { digit } 'F'.
 
     notToken        = logNotOp | bitNotOp.
     multToken       = multOp | divideOp | moduloOp.
