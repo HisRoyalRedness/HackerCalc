@@ -12,6 +12,17 @@
       "mod1": "CTRL SHIFT"
     },
     {
+      "cmdname": "update_coco",
+      "title": "Update $(ProjectDir)Coco\\Coco.exe",
+      "description": "Update the Coco.exe file",
+      "cwd": "$(ProjectDir)",
+      "filename": "$(ProjectDir)\\Coco\\UpdateCocoExe.cmd",
+      "arguments": "\"$(ProjectDir)\" ",
+      "async": false,
+      "key1": "3",
+      "mod1": "CTRL SHIFT"
+    },    
+    {
       "cmdname": "cmdprompt",
       "title": "Project Command Prompt",
       "description": "Opens a command prompt in the project root folder",

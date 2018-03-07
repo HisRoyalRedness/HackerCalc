@@ -3,44 +3,64 @@ $namespace=HisRoyalRedness.com
 
 using System.IO;
 
-COMPILER Coco
+COMPILER HackerCalc
 
 /*-------------------------------------------------------------------------*/
 
+IGNORECASE
+
 CHARACTERS
-	letter          = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
-	digit           = "0123456789".
-	cr              = '\r'.
-	lf              = '\n'.
-	tab             = '\t'.
-	stringCh        = ANY - '"' - '\\' - cr - lf.
-	charCh          = ANY - '\'' - '\\' - cr - lf.
-	hex             = "0123456789abcdefABCDEF".
-    
+	letter              = "abcdefghijklmnopqrstuvwxyz_".
+	digit               = "0123456789".
+	cr                  = '\r'.
+	lf                  = '\n'.
+	tab                 = '\t'.
+	stringCh            = ANY - '"' - '\\' - cr - lf.
+	charCh              = ANY - '\'' - '\\' - cr - lf.
+	hex                 = "0123456789abcdef".
+    sen                 = "012345".
+
     /* Ordered from tightest to loosest binding order */
-    logNotOp        = '!'.
-    bitNotOp        = '~'.
-    multOp          = '*'.
-    divideOp        = "/\\".
-    moduloOp        = '%'.
-    addOp           = '+'.
-    subOp           = '-'.
-    shiftLeftOp     = '<'.
-    shiftRightOp    = '>'.
-    andOp           = '&'.
-    orOp            = '|'.
-    xorOp           = '^'.
+    logNotOp            = '!'.
+    bitNotOp            = '~'.
+    multOp              = '*'.
+    divideOp            = "/\\".
+    moduloOp            = '%'.
+    addOp               = '+'.
+    subOp               = '-'.
+    shiftLeftOp         = '<'.
+    shiftRightOp        = '>'.
+    andOp               = '&'.
+    orOp                = '|'.
+    xorOp               = '^'.
+    
+    /* datatype modifiers */
+    signed_int          = 'i'.
+    unsigned_int        = 'u'.
+    flt_type            = 'f'.
+    time_type           = 't'.
+    days_type           = 'd'.
+    
 
 TOKENS
-	integer         = digit { digit }. 
-    hex_integer     = "0x" hex { hex }.
-    float           = {digit} '.' digit {digit} [ 'F' ] | digit { digit } 'F'.
+	dec_integer         = digit { digit }.
+    hex_integer         = "0x" hex { hex }.
+    integer_type        = signed_int | unsigned_int.
+    integer_bitwidth    = '_' ( "4" | "8" | "16" | "32" | "64" | "128" ).
 
-    notToken        = logNotOp | bitNotOp.
-    multToken       = multOp | divideOp | moduloOp.
-    addToken        = addOp | subOp.
-    shiftToken      = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
-    bitToken        = andOp | orOp | xorOp.
+    float               = {digit} '.' digit {digit} | digit { digit } CONTEXT ( flt_type ).
+    float_type          = flt_type.
+
+    timespan            = ( digit | sen digit) [ '.' digit { digit } ] time_type
+                          | digit { digit } ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ] 
+                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ]
+                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ].
+    timespan_day        = digit { digit } ( days_type | "day" | "days" ).
+    notToken            = logNotOp | bitNotOp.
+    multToken           = multOp | divideOp | moduloOp.
+    addToken            = addOp | subOp.
+    shiftToken          = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
+    bitToken            = andOp | orOp | xorOp.
 
 
 IGNORE cr + lf + tab
@@ -49,16 +69,16 @@ IGNORE cr + lf + tab
 
 PRODUCTIONS
 
-Coco
+HackerCalc
 = Expr.
 
 Expr                = BitExpr.
 
 BitExpr
-=                   
+=
                     ShiftExpr
                     {
-                        bitToken            (. AddBitOperator(t.val); .)
+                        bitToken                                (. AddBitOperator(t.val); .)
                         ShiftExpr
                     }
 .
@@ -66,60 +86,71 @@ BitExpr
 ShiftExpr
 =                   AddExpr
                     {
-                        shiftToken          (. AddShiftOperator(t.val); .)
+                        shiftToken                              (. AddShiftOperator(t.val); .)
                         AddExpr
                     }
 .
 
-AddExpr 
-=                   MulExpr 
-                    { 
-                        addToken            (. AddAddOperator(t.val); .)
-                        MulExpr 
+AddExpr
+=                   MulExpr
+                    {
+                        addToken                                (. AddAddOperator(t.val); .)
+                        MulExpr
                     }
 .
 
 MulExpr
 =                   NotExpr
                     {
-                        multToken           (. AddMultOperator(t.val); .)
+                        multToken                               (. AddMultOperator(t.val); .)
                         NotExpr
                     }
 .
 
 NotExpr
-=                   Term
-                    |
-                        notToken            (. AddNotOperator(t.val); .)
-                        Term
-.
-
-Term 
-=                                           (. var intLen = ""; .)
-                    (
-                        "("                 (. AddLeftBracket(); .)
-                        Expr 
-                        ")"                 (. AddRightBracket(); .)
-                        | integer           (. AddInteger(t.val, intLen); .)
-                        | hex_integer       (. AddInteger(t.val, intLen); .)
-                        | float             (. AddFloat(t.val); .)
-                    )
-.
-
-
-
-/*
-Term 
-=                                           (. var intValue = ""; .)
-                                            (. var intLen = ""; .)
-                    integer                 (. intValue = t.val; .)
-                    [
-                       '_' ( "4" | "8" | "16" | "32" | "64" | "128" | "256" )          (. intLen = t.val; .)
+=                   [
+                        notToken                                (. AddNotOperator(t.val); .)
                     ]
-                                            (. AddInteger(intValue, intLen); .)
-                    | float                 (. AddFloat(t.val); .)
+                    Term
 .
-*/
 
+Integer
+=                   (
+                        dec_integer                             (. AddDecInteger(t.val); .)
+                        |
+                        hex_integer                             (. AddHexInteger(t.val); .)
+                    ) 
+                    [ 
+                        integer_type 
+                    ]
+                    [
+                        integer_bitwidth
+                    ]
+.
 
-END Coco.
+Float
+=                   float                                       (. AddFloat(t.val); .)
+                    [
+                        float_type
+                    ]
+.
+
+Term
+=                   (
+                        "("                                     (. AddLeftBracket(); .)
+                        Expr
+                        ")"                                     (. AddRightBracket(); .)
+                    )
+                    | Integer
+                    | Float
+                    /*|
+                        dec_integer                             (. AddDecInteger(t.val); .)
+                    | 
+                        hex_integer                             (. AddHexInteger(t.val); .)
+                    | 
+                        float                                   (. AddFloat(t.val); .)*/
+                    |
+                        timespan                                (. AddTimespan(t.val); .)
+.
+
+END HackerCalc.
