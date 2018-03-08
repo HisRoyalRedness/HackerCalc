@@ -16,8 +16,7 @@ namespace HisRoyalRedness.com
     {
         #region AddToken
         #region Literals
-        internal void AddDecInteger(string tokenValue) => AddToken(IntegerToken.Parse(tokenValue, false));
-        internal void AddHexInteger(string tokenValue) => AddToken(IntegerToken.Parse(tokenValue, true));
+        internal void AddInteger(string tokenValue, bool isHex = false, bool isSigned = true, IntegerToken.IntegerBitWidth bitWidth = IntegerToken.IntegerBitWidth._32) => AddToken(IntegerToken.Parse(tokenValue, isHex, isSigned, bitWidth));
         internal void AddFloat(string tokenValue) => AddToken(FloatToken.Parse(tokenValue));
         internal void AddTimespan(string tokenValue) => AddToken(TimespanToken.Parse(tokenValue));
         #endregion Literals
@@ -115,6 +114,11 @@ namespace HisRoyalRedness.com
                     yield return token;
                 }
             }
+        }
+
+        public void AddSeconds(string value)
+        {
+            Console.WriteLine(value);
         }
 
         public List<IToken> Tokens => _tokens;
@@ -263,13 +267,28 @@ namespace HisRoyalRedness.com
             BitWidth = bitWidth;
         }
 
-        public static IntegerToken Parse(string value, bool isHex)
+        public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
             => isHex
-                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00", StringComparison.CurrentCultureIgnoreCase), NumberStyles.HexNumber))
-                : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer));
+                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00", StringComparison.CurrentCultureIgnoreCase), NumberStyles.HexNumber), isSigned, bitWidth)
+                : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
 
         public bool IsSigned { get; private set; }
         public IntegerBitWidth BitWidth { get; private set; }
+        public static IntegerBitWidth ParseBitWidth(string bitWidth)
+        {
+            switch(bitWidth)
+            {
+                case "_4": return IntegerBitWidth._4;
+                case "_8": return IntegerBitWidth._8;
+                case "_16": return IntegerBitWidth._16;
+                case "":
+                case null: // the default
+                case "_32": return IntegerBitWidth._32;
+                case "_64": return IntegerBitWidth._64;
+                case "_128": return IntegerBitWidth._128;
+                default: throw new ArgumentOutOfRangeException("Invalid bit width");
+            }
+        }
 
         public override string ToString() => $"{Value}_{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}  -  {TypedValue}";
     }
@@ -298,8 +317,7 @@ namespace HisRoyalRedness.com
 
         public static TimespanToken Parse(string value)
         {
-            var trimValue = value.TrimEnd(new[] { 't', 'T' });
-            var portions = new Stack<double>(trimValue.Split(':').Select(s => double.Parse(s)));
+            var portions = new Stack<double>(value.Split(':').Select(s => double.Parse(s)));
             var ts = TimeSpan.FromSeconds(portions.Pop());
             if (portions.Count > 0)
                 ts += TimeSpan.FromMinutes(portions.Pop());
@@ -309,7 +327,7 @@ namespace HisRoyalRedness.com
                 ts += TimeSpan.FromDays(portions.Pop());
             if (portions.Count > 0)
                 throw new ArgumentException($"Too many timespan portions for {value}.");
-            return new TimespanToken(trimValue, ts);
+            return new TimespanToken(value, ts);
         }
 
         public override string ToString() => $"{Value}T  -  {TypedValue}";

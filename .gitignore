@@ -292,3 +292,5 @@ __pycache__/
 /HackerCalc.Parser/Parser.generated.cs.old
 /HackerCalc.Parser/Parser.generated.cs
 /HackerCalc.Parser/Scanner.generated.cs
+/HackerCalc
+/Parser

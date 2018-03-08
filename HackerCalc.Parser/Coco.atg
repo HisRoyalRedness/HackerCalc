@@ -48,13 +48,18 @@ TOKENS
     integer_type        = signed_int | unsigned_int.
     integer_bitwidth    = '_' ( "4" | "8" | "16" | "32" | "64" | "128" ).
 
-    float               = {digit} '.' digit {digit} | digit { digit } CONTEXT ( flt_type ).
+    true_float          = {digit} '.' digit {digit}.
+    typed_float         = digit { digit } CONTEXT ( flt_type ).
     float_type          = flt_type.
 
-    timespan            = ( digit | sen digit) [ '.' digit { digit } ] time_type
+    seconds_only_1      = {digit} '.' digit {digit} CONTEXT ( time_type ).
+    seconds_only_2      = {digit} '.' digit {digit} CONTEXT ( "sec" ).
+    timespan_type       = time_type.
+
+    /*timespan            = ( digit | sen digit) [ '.' digit { digit } ] time_type
                           | digit { digit } ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ] 
                           | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ]
-                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ].
+                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ].*/
     timespan_day        = digit { digit } ( days_type | "day" | "days" ).
     notToken            = logNotOp | bitNotOp.
     multToken           = multOp | divideOp | moduloOp.
@@ -114,27 +119,6 @@ NotExpr
                     Term
 .
 
-Integer
-=                   (
-                        dec_integer                             (. AddDecInteger(t.val); .)
-                        |
-                        hex_integer                             (. AddHexInteger(t.val); .)
-                    ) 
-                    [ 
-                        integer_type 
-                    ]
-                    [
-                        integer_bitwidth
-                    ]
-.
-
-Float
-=                   float                                       (. AddFloat(t.val); .)
-                    [
-                        float_type
-                    ]
-.
-
 Term
 =                   (
                         "("                                     (. AddLeftBracket(); .)
@@ -143,14 +127,49 @@ Term
                     )
                     | Integer
                     | Float
-                    /*|
-                        dec_integer                             (. AddDecInteger(t.val); .)
-                    | 
-                        hex_integer                             (. AddHexInteger(t.val); .)
-                    | 
-                        float                                   (. AddFloat(t.val); .)*/
-                    |
-                        timespan                                (. AddTimespan(t.val); .)
+                    | TimeSpan
 .
+
+Integer
+=                                                               (. var isHex = false; .)
+                    (
+                        dec_integer                             
+                        |
+                        hex_integer                             (. isHex = true; .)
+                    )                                           (. var intVal = t.val; .)
+                                                                (. var isSigned = true; .)
+                    [ 
+                        integer_type                            (. isSigned = t.val.ToUpper() == "I"; .)
+                    ]
+                                                                (. var bitWidth = IntegerToken.ParseBitWidth(null); .)
+                    [
+                        integer_bitwidth                        (. bitWidth = IntegerToken.ParseBitWidth(t.val); .)
+                    ]
+                                                                (. AddInteger(intVal, isHex, isSigned, bitWidth); .)
+.
+
+Float
+=                   ( true_float | typed_float )                (. AddFloat(t.val); .)
+                    [
+                        float_type
+                    ]
+.
+
+Seconds
+=                   seconds_only_1                              (. AddTimespan(t.val); .)
+                    timespan_type
+                    |
+                    seconds_only_2                              (. AddTimespan(t.val); .)
+                    "sec"
+.
+
+TimeSpan
+=                   Seconds                                     
+                    [
+                        timespan_type
+                    ]
+.
+
+
 
 END HackerCalc.

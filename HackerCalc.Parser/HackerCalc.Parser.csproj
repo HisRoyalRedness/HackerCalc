@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RootNamespace>HisRoyalRedness.com</RootNamespace>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
@@ -20,5 +21,9 @@
       <Generator></Generator>
     </None>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)PostBuildWithTest.cmd &quot;$(ProjectDir)&quot; &quot;$(ConfigurationName)&quot;" />
+  </Target>
 
 </Project>
