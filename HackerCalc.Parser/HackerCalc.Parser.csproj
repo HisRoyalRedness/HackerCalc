@@ -1,29 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>HisRoyalRedness.com</RootNamespace>
-    <Platforms>AnyCPU;x86;x64</Platforms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)Coco\PreBuild.cmd &quot;$(ProjectDir)&quot; &quot;$(ConfigurationName)&quot;" />
   </Target>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(SolutionDir)RunTests.cmd &quot;$(SolutionDir)&quot; &quot;$(ConfigurationName)&quot;" />
+  </Target>
+
   <ItemGroup>
     <None Remove="Parser.generated.cs.old" />
     <None Remove="Scanner.generated.cs.old" />
-    <None Remove="trace.txt" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Coco.atg">
-      <Generator></Generator>
-    </None>
-  </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(ProjectDir)PostBuildWithTest.cmd &quot;$(ProjectDir)&quot; &quot;$(ConfigurationName)&quot;" />
-  </Target>
 
 </Project>

@@ -15,4 +15,4 @@ Todo
 
 * Do type checking in scanner definition so we don't allow whitespace between a numeric and it's type
 * Add validation to ensure timespan digits are within range (e.g. 1 - 24, 0 - 59 etc).
-* Get dotnet test working properly
+* Implement full set of unit tests

@@ -43,8 +43,10 @@ CHARACTERS
     
 
 TOKENS
-	dec_integer         = digit { digit }.
+    dec_integer         = digit { digit }.
+    signed_dec_integer  = digit { digit } CONTEXT ( signed_int | unsigned_int ).
     hex_integer         = "0x" hex { hex }.
+    signed_hex_integer  = "0x" hex { hex } CONTEXT ( signed_int | unsigned_int ).
     integer_type        = signed_int | unsigned_int.
     integer_bitwidth    = '_' ( "4" | "8" | "16" | "32" | "64" | "128" ).
 
@@ -132,16 +134,24 @@ Term
 
 Integer
 =                                                               (. var isHex = false; .)
-                    (
-                        dec_integer                             
-                        |
-                        hex_integer                             (. isHex = true; .)
-                    )                                           (. var intVal = t.val; .)
                                                                 (. var isSigned = true; .)
-                    [ 
-                        integer_type                            (. isSigned = t.val.ToUpper() == "I"; .)
-                    ]
-                                                                (. var bitWidth = IntegerToken.ParseBitWidth(null); .)
+                                                                (. var intVal = ""; .)
+                    (
+                        (
+                            dec_integer
+                            |
+                            hex_integer                         (. isHex = true; .)
+                        )                                       (. intVal = t.val; .)
+                        |
+                        (
+                            (
+                                signed_dec_integer
+                                |
+                                signed_hex_integer              (. isHex = true; .)
+                            )                                   (. intVal = t.val; .)
+                            integer_type                        (. isSigned = t.val.ToUpper() == "I"; .)
+                        )
+                    )                                           (. var bitWidth = IntegerToken.ParseBitWidth(null); .)
                     [
                         integer_bitwidth                        (. bitWidth = IntegerToken.ParseBitWidth(t.val); .)
                     ]

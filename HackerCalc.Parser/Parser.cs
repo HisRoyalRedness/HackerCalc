@@ -91,14 +91,15 @@ namespace HisRoyalRedness.com
         public static IEnumerable<IToken> ParseExpression(string expression)
         {
             List<IToken> tokens;
+            var result = false;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms);
                 var parser = new Parser(scanner);
-                var result = parser.Parse();
+                result = parser.Parse();
                 tokens = parser.Tokens;
             }
-            return tokens;
+            return result ? tokens : Enumerable.Empty<IToken>();
         }
 
         public static IEnumerable<Token> ScanExpression(string expression)
@@ -269,7 +270,7 @@ namespace HisRoyalRedness.com
 
         public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
             => isHex
-                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00", StringComparison.CurrentCultureIgnoreCase), NumberStyles.HexNumber), isSigned, bitWidth)
+                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
                 : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
 
         public bool IsSigned { get; private set; }
