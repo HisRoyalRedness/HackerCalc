@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
@@ -270,7 +267,7 @@ namespace HisRoyalRedness.com
 
         public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
             => isHex
-                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
+                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
                 : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
 
         public bool IsSigned { get; private set; }

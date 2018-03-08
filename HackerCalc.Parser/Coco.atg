@@ -44,10 +44,15 @@ CHARACTERS
 
 TOKENS
     dec_integer         = digit { digit }.
+    hex_integer         = ("0x" | "0X" ) hex { hex }.
+    
+    /* signs are added with CONTEXT to ensure that we parse them with no whitespace between the number and either I or U */
     signed_dec_integer  = digit { digit } CONTEXT ( signed_int | unsigned_int ).
-    hex_integer         = "0x" hex { hex }.
-    signed_hex_integer  = "0x" hex { hex } CONTEXT ( signed_int | unsigned_int ).
+    signed_hex_integer  = ("0x" | "0X" ) hex { hex } CONTEXT ( signed_int | unsigned_int ).
     integer_type        = signed_int | unsigned_int.
+
+    bw_dec_integer      = digit { digit } ( signed_int | unsigned_int ) CONTEXT ( "4" | "8" | "16" | "32" | "64" | "128" ).
+    bw_hex_integer      = ("0x" | "0X" ) hex { hex } ( signed_int | unsigned_int ) CONTEXT ( "4" | "8" | "16" | "32" | "64" | "128" ).
     integer_bitwidth    = '_' ( "4" | "8" | "16" | "32" | "64" | "128" ).
 
     true_float          = {digit} '.' digit {digit}.
@@ -157,6 +162,7 @@ Integer
                     ]
                                                                 (. AddInteger(intVal, isHex, isSigned, bitWidth); .)
 .
+
 
 Float
 =                   ( true_float | typed_float )                (. AddFloat(t.val); .)
