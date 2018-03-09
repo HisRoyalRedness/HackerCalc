@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>HisRoyalRedness.com</RootNamespace>
-    <Platforms>AnyCPU;x64;x86</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
@@ -11,7 +11,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(SolutionDir)RunTests.cmd &quot;$(SolutionDir)&quot; &quot;$(ConfigurationName)&quot;" />
+    <Exec Command="rem $(ProjectDir)..\RunTests.cmd &quot;$(ProjectDir)..\&quot; &quot;$(ConfigurationName)&quot;" />
   </Target>
 
   <ItemGroup>

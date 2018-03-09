@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,11 +13,6 @@ namespace HisRoyalRedness.com
     public partial class Parser
     {
         #region AddToken
-        #region Literals
-        internal void AddInteger(string tokenValue, bool isHex = false, bool isSigned = true, IntegerToken.IntegerBitWidth bitWidth = IntegerToken.IntegerBitWidth._32) => AddToken(IntegerToken.Parse(tokenValue, isHex, isSigned, bitWidth));
-        internal void AddFloat(string tokenValue) => AddToken(FloatToken.Parse(tokenValue));
-        internal void AddTimespan(string tokenValue) => AddToken(TimespanToken.Parse(tokenValue));
-        #endregion Literals
 
         #region Operators
         internal IToken AddNotOperator(string tokenValue)
@@ -114,9 +110,142 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public void AddSeconds(string value)
+        public bool IsSeconds()
         {
-            Console.WriteLine(value);
+            switch(la.kind)
+            {
+                // Definately seconds
+                case _typed_ts_seconds:
+                    return true;
+
+                // Maybe seconds. Need to check further
+                case _dec_integer:
+                case _true_float:
+                    // true_float could be a time portion or just a numeric value.
+                    // Return true if it's a time portion. Assume anything else is a numeric
+                    var next = scanner.Peek().kind;
+                    scanner.ResetPeek();
+                    switch (next)
+                    {
+                        case _seconds_type:
+                            return true;
+                        default:
+                            return false;
+                    }
+                // Anything else is a syntax error
+                default:
+                    SynErr(la.kind);
+                    return false;
+            }
+        }
+
+        public bool IsMinutes()
+        {
+            switch (la.kind)
+            {
+                // Maybe minutes. Need to check further
+                case _dec_integer:
+                case _true_float:
+                    // true_float could be a time portion or just a numeric value.
+                    // Return true if it's a time portion. Assume anything else is a numeric
+                    var next = scanner.Peek().kind;
+                    scanner.ResetPeek();
+                    switch (next)
+                    {
+                        case _minutes_type:
+                            return true;
+                        default:
+                            return false;
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        public bool IsHours()
+        {
+            switch (la.kind)
+            {
+                // Maybe minutes. Need to check further
+                case _dec_integer:
+                case _true_float:
+                    // true_float could be a time portion or just a numeric value.
+                    // Return true if it's a time portion. Assume anything else is a numeric
+                    var next = scanner.Peek().kind;
+                    scanner.ResetPeek();
+                    switch (next)
+                    {
+                        case _hours_type:
+                            return true;
+                        default:
+                            return false;
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        public bool IsDays()
+        {
+            switch (la.kind)
+            {
+                // Maybe minutes. Need to check further
+                case _dec_integer:
+                case _true_float:
+                    // true_float could be a time portion or just a numeric value.
+                    // Return true if it's a time portion. Assume anything else is a numeric
+                    var next = scanner.Peek().kind;
+                    scanner.ResetPeek();
+                    switch (next)
+                    {
+                        case _days_type:
+                            return true;
+                        default:
+                            return false;
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        public bool IsTimespanNumber()
+        {
+            switch(la.kind)
+            {
+                // Integers, floats and time
+                case _hex_integer:
+                case _signed_dec_integer:
+                case _signed_hex_integer:
+                case _typed_float:
+                case _typed_time_seconds:
+                    return false;
+
+                // Typed timespan
+                case _typed_ts_seconds:
+                    return true;
+
+                // Stuff that could be either an integer, float or timespan
+                case _true_float:
+                case _dec_integer:
+                    // true_float could be a time portion or just a numeric value.
+                    // Return true if it's a time portion. Assume anything else is a numeric
+                    var next = scanner.Peek().kind;
+                    scanner.ResetPeek();
+                    switch (next)
+                    {
+                        case _seconds_type:
+                        case _minutes_type:
+                        case _hours_type:
+                        case _days_type:
+                            return true;
+                        default:
+                            return false;
+                    }
+
+                // Assume anything else is a TimeSpan
+                default:
+                    return true;
+            }
         }
 
         public List<IToken> Tokens => _tokens;
@@ -245,17 +374,17 @@ namespace HisRoyalRedness.com
         public enum IntegerBitWidth
         {
             [Description("4")]
-            _4,
+            _4 = 4,
             [Description("8")]
-            _8,
+            _8 = 8,
             [Description("16")]
-            _16,
+            _16 = 16,
             [Description("32")]
-            _32,
+            _32 = 32,
             [Description("64")]
-            _64,
+            _64 = 64,
             [Description("128")]
-            _128
+            _128 = 128
         }
 
         public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth._32)
@@ -265,7 +394,7 @@ namespace HisRoyalRedness.com
             BitWidth = bitWidth;
         }
 
-        public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
+        public static IntegerToken Parse(string value, bool isHex, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth._32)
             => isHex
                 ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
                 : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
@@ -276,14 +405,14 @@ namespace HisRoyalRedness.com
         {
             switch(bitWidth)
             {
-                case "_4": return IntegerBitWidth._4;
-                case "_8": return IntegerBitWidth._8;
-                case "_16": return IntegerBitWidth._16;
+                case "4": return IntegerBitWidth._4;
+                case "8": return IntegerBitWidth._8;
+                case "16": return IntegerBitWidth._16;
                 case "":
                 case null: // the default
-                case "_32": return IntegerBitWidth._32;
-                case "_64": return IntegerBitWidth._64;
-                case "_128": return IntegerBitWidth._128;
+                case "32": return IntegerBitWidth._32;
+                case "64": return IntegerBitWidth._64;
+                case "128": return IntegerBitWidth._128;
                 default: throw new ArgumentOutOfRangeException("Invalid bit width");
             }
         }
@@ -313,22 +442,17 @@ namespace HisRoyalRedness.com
             : base(TokenType.Timespan, value, typedValue)
         { }
 
-        public static TimespanToken Parse(string value)
-        {
-            var portions = new Stack<double>(value.Split(':').Select(s => double.Parse(s)));
-            var ts = TimeSpan.FromSeconds(portions.Pop());
-            if (portions.Count > 0)
-                ts += TimeSpan.FromMinutes(portions.Pop());
-            if (portions.Count > 0)
-                ts += TimeSpan.FromHours(portions.Pop());
-            if (portions.Count > 0)
-                ts += TimeSpan.FromDays(portions.Pop());
-            if (portions.Count > 0)
-                throw new ArgumentException($"Too many timespan portions for {value}.");
-            return new TimespanToken(value, ts);
-        }
+        public TimespanToken()
+            : base(TokenType.Timespan, "", TimeSpan.Zero)
+        { }
 
-        public override string ToString() => $"{Value}T  -  {TypedValue}";
+        public static TimespanToken Parse(string value, TimeSpan timespan)
+            => new TimespanToken(value, timespan);
+
+        public static TimespanToken operator +(TimespanToken a, TimespanToken b)
+            => new TimespanToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
+
+        public override string ToString() => $"{Value}  -  {TypedValue}";
     }
     #endregion TimespanToken
     #endregion Literal tokens
