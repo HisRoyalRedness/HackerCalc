@@ -110,7 +110,7 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool IsSeconds()
+        public bool IsTimespanSeconds()
         {
             switch(la.kind)
             {
@@ -127,7 +127,7 @@ namespace HisRoyalRedness.com
                     scanner.ResetPeek();
                     switch (next)
                     {
-                        case _seconds_type:
+                        case _ts_seconds_type:
                             return true;
                         default:
                             return false;
@@ -139,7 +139,7 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool IsMinutes()
+        public bool IsTimespanMinutes()
         {
             switch (la.kind)
             {
@@ -152,7 +152,7 @@ namespace HisRoyalRedness.com
                     scanner.ResetPeek();
                     switch (next)
                     {
-                        case _minutes_type:
+                        case _ts_minutes_type:
                             return true;
                         default:
                             return false;
@@ -162,7 +162,7 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool IsHours()
+        public bool IsTimespanHours()
         {
             switch (la.kind)
             {
@@ -175,7 +175,7 @@ namespace HisRoyalRedness.com
                     scanner.ResetPeek();
                     switch (next)
                     {
-                        case _hours_type:
+                        case _ts_hours_type:
                             return true;
                         default:
                             return false;
@@ -185,7 +185,7 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public bool IsDays()
+        public bool IsTimespanDays()
         {
             switch (la.kind)
             {
@@ -198,7 +198,7 @@ namespace HisRoyalRedness.com
                     scanner.ResetPeek();
                     switch (next)
                     {
-                        case _days_type:
+                        case _ts_days_type:
                             return true;
                         default:
                             return false;
@@ -212,14 +212,6 @@ namespace HisRoyalRedness.com
         {
             switch(la.kind)
             {
-                // Integers, floats and time
-                case _hex_integer:
-                case _signed_dec_integer:
-                case _signed_hex_integer:
-                case _typed_float:
-                case _typed_time_seconds:
-                    return false;
-
                 // Typed timespan
                 case _typed_ts_seconds:
                     return true;
@@ -233,19 +225,31 @@ namespace HisRoyalRedness.com
                     scanner.ResetPeek();
                     switch (next)
                     {
-                        case _seconds_type:
-                        case _minutes_type:
-                        case _hours_type:
-                        case _days_type:
+                        case _ts_seconds_type:
+                        case _ts_minutes_type:
+                        case _ts_hours_type:
+                        case _ts_days_type:
                             return true;
                         default:
                             return false;
                     }
 
-                // Assume anything else is a TimeSpan
+                // Assume anything else is not a TimeSpan
                 default:
-                    return true;
+                    return false;
             }
+        }
+
+        public bool IsDateTime()
+        {
+            if (la.kind == _date)
+            {
+                var next = scanner.Peek().kind;
+                scanner.ResetPeek();
+                return next == _time;
+            }
+            else
+                return false;
         }
 
         public List<IToken> Tokens => _tokens;
@@ -288,7 +292,8 @@ namespace HisRoyalRedness.com
         RightBracket,
         Float,
         Integer,
-        Timespan
+        Timespan,
+        Time
     }
 
     public abstract class TokenBase : IToken
@@ -455,6 +460,55 @@ namespace HisRoyalRedness.com
         public override string ToString() => $"{Value}  -  {TypedValue}";
     }
     #endregion TimespanToken
+
+    #region TimeToken
+    public class TimeToken : LiteralToken<TimeSpan>
+    {
+        public TimeToken(string value, TimeSpan typedValue)
+            : base(TokenType.Time, value, typedValue)
+        { }
+
+        public TimeToken()
+            : base(TokenType.Time, "", TimeSpan.Zero)
+        { }
+
+        public static TimeToken Parse(string value)
+        {
+            var time = TimeSpan.Parse(value);
+            return new TimeToken(value, time);
+        }
+
+        public override string ToString() => $"{Value}  -  {TypedValue}";
+    }
+    #endregion TimeToken
+
+    #region DateToken
+    public class DateToken : LiteralToken<DateTime>
+    {
+        public DateToken(string value, DateTime typedValue)
+            : base(TokenType.Time, value, typedValue)
+        { }
+
+        public DateToken()
+            : base(TokenType.Time, "now", DateTime.Now)
+        { }
+
+        public static DateToken Parse(string value, bool dmy = false)
+        {
+            var dateTime = DateTime.Parse(dmy ? string.Join("-", value.Split('-').Reverse())  : value);
+            return new DateToken(value, DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
+        }
+
+        public static DateToken operator +(DateToken a, TimeToken b)
+            => new DateToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
+
+        public static DateToken operator +(TimeToken b, DateToken a)
+            => new DateToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
+
+        public override string ToString() => $"{Value}  -  {TypedValue}";
+    }
+    #endregion DateToken
+
     #endregion Literal tokens
 
     #region Errors

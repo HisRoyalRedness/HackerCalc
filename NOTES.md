@@ -16,9 +16,12 @@ Change log
 |               | Added resolver for true_float to differentiate seconds and floats                                         |
 |               | Compound time portions working correctly                                                                  |
 |               | Unit testing for all types currently implemented                                                          |
+| 2018-03-12    | Rename timespan tokens and productions to differentiate then from time values                             |
+| 2018-03-13    | Handle dates, times and date times                                                                        |
+|               | Better validation of date and time ranges                                                                 |
 
 Todo
 ----
 
-* Differentiate between timestamp values and time (local and universal) values
-* Add validation to ensure timespan digits are within range (e.g. 1 - 24, 0 - 59 etc).
+* Unit tests for date time
+* Better error handling of tokens that don't parse correctly (e.g. dates and times)

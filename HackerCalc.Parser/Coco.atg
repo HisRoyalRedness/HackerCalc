@@ -18,7 +18,11 @@ CHARACTERS
 	stringCh            = ANY - '"' - '\\' - cr - lf.
 	charCh              = ANY - '\'' - '\\' - cr - lf.
 	hex                 = "0123456789abcdef".
-    sen                 = "012345".
+    zero_to_one         = "01".
+    zero_to_two         = "012".
+    zero_to_three       = "0123".
+    zero_to_five        = "012345".
+
 
     /* Ordered from tightest to loosest binding order */
     logNotOp            = '!'.
@@ -56,20 +60,24 @@ TOKENS
     typed_ts_seconds    = ( digit { digit } | {digit} '.' digit {digit} ) CONTEXT ( "ts" ).
     timespan_type       = "ts".
 
+    /*
     typed_time_seconds  = ( digit { digit } | {digit} '.' digit {digit} ) CONTEXT ( "lt" | "ut" ).
-    time_type           = "lt" | "ut".
+    time_type           = "lt" | "ut".*/
 
 
-    seconds_type        = "s" | "se" | "sec" | "secs" | "seco" | "secon" | "second" | "seconds".
-    minutes_type        = "m" | "mi" | "min" | "mins" | "minu" | "minut" | "minute" | "minutes".
-    hours_type          = "h" | "ho" | "hou" | "hour" | "hours" | "hr" | "hrs".
-    days_type           = "d" | "da" | "day" | "days".
+    ts_seconds_type     = "s" | "se" | "sec" | "secs" | "seco" | "secon" | "second" | "seconds".
+    ts_minutes_type     = "m" | "mi" | "min" | "mins" | "minu" | "minut" | "minute" | "minutes".
+    ts_hours_type       = "h" | "ho" | "hou" | "hour" | "hours" | "hr" | "hrs".
+    ts_days_type        = "d" | "da" | "day" | "days".
 
-    /*timespan            = ( digit | sen digit) [ '.' digit { digit } ] time_type
-                          | digit { digit } ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ] 
-                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ]
-                          | digit { digit } ':' ( digit | sen digit ) ':' ( digit | sen digit ) ':' ( digit | sen digit ) [ '.' digit { digit } ] [ time_type ].
-    timespan_day        = digit { digit } ( days_type | "day" | "days" ).*/
+    date                = digit digit [ digit digit ] '-' ( [ '0' ] digit | '1' zero_to_two ) '-' ( [ zero_to_two ] digit | '3' zero_to_one ).
+    date_rev            = ( [ zero_to_two ] digit | '3' zero_to_one ) '-' ( [ '0' ] digit | '1' zero_to_two ) '-' digit digit digit digit.
+
+    time                =   ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
+                          | ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit.
+
+    now                 = "NOW".
+
     notToken            = logNotOp | bitNotOp.
     multToken           = multOp | divideOp | moduloOp.
     addToken            = addOp | subOp.
@@ -137,10 +145,35 @@ Term                                                            (. IToken token 
                     )
                     | IF(IsTimespanNumber()) 
                         Timespan<out token>                     (. AddToken(token); .)
+                    | IF(IsDateTime())
+                        DateTime<out token>                     (. AddToken(token); .)
+                    | Date<out token>                           (. AddToken(token); .)
+                    | Time<out token>                           (. AddToken(token); .)
                     | Integer<out token>                        (. AddToken(token); .)
                     | Float<out token>                          (. AddToken(token); .)
+                    | Now<out token>                            (. AddToken(token); .)
 .
 
+DateTime<out IToken token>                                      (. token = null; .)
+=                                                               (. DateToken dt = null; .)
+                    (
+                        date                                    (. dt = DateToken.Parse(t.val); .)
+                        |
+                        date_rev                                (. dt = DateToken.Parse(t.val, true); .)
+                    )
+                    time                                        (. token = dt + TimeToken.Parse(t.val); .)
+.
+
+Date<out IToken token>                                          (. token = null; .)
+=
+                    date                                        (. token = DateToken.Parse(t.val); .)
+                    | date_rev                                  (. token = DateToken.Parse(t.val, true); .)
+.
+
+Time<out IToken token>                                          (. token = null; .)
+=
+                    time                                        (. token = TimeToken.Parse(t.val); .)
+.
 
 Integer<out IToken token>                                       (. token = null; .)
 =
@@ -158,9 +191,13 @@ Float<out IToken token>
                     ]
 .
 
+Now<out IToken token>
+=                   now                                         (. token = new DateToken(); .)
+.
+
 Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
 =
-                    CompoundTimePortion<out tk>                 (. token = tk; .)
+                    CompoundTimespanPortion<out tk>             (. token = tk; .)
 .
 
 NonSignedInteger<out IToken token>
@@ -184,76 +221,76 @@ SignedInteger<out IToken token>
                                                                 (. token = IntegerToken.Parse(intVal, isHex, isSigned, bitWidth); .)
 .
 
-CompoundTimePortion<out TimespanToken token>                    (. token = new TimespanToken(); .)
+CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)
 =                                                               (. TimespanToken tk = null; .)
                     (
-                        IF(IsDays())
+                        IF(IsTimespanDays())
                         (
-                            Days<out tk>                        (. token += tk; .)
+                            TimespanDays<out tk>                (. token += tk; .)
                             [
-                                IF(IsHours())
+                                IF(IsTimespanHours())
                                 (
-                                    Hours<out tk>               (. token += tk; .)
+                                    TimespanHours<out tk>               (. token += tk; .)
                                     [
-                                        IF(IsMinutes())
+                                        IF(IsTimespanMinutes())
                                         (
-                                            Minutes<out tk>     (. token += tk; .)
+                                            TimespanMinutes<out tk>     (. token += tk; .)
                                             [
-                                                Seconds<out tk> (. token += tk; .)
+                                                TimespanSeconds<out tk> (. token += tk; .)
                                             ]
                                         )
                                         |
                                         (
-                                            Seconds<out tk>     (. token += tk; .)
+                                            TimespanSeconds<out tk>     (. token += tk; .)
                                         )
                                     ]
 
                                 )
-                                | IF(IsMinutes())
+                                | IF(IsTimespanMinutes())
                                 (
-                                    Minutes<out tk>             (. token += tk; .)
+                                    TimespanMinutes<out tk>     (. token += tk; .)
                                     [
-                                        Seconds<out tk>         (. token += tk; .)
+                                        TimespanSeconds<out tk> (. token += tk; .)
                                     ]
                                 )
                                 |
                                 (
-                                    Seconds<out tk>             (. token += tk; .)
+                                    TimespanSeconds<out tk>     (. token += tk; .)
                                 )
                             ]
                         )
-                        | IF(IsHours())
+                        | IF(IsTimespanHours())
                         (
-                            Hours<out tk>                       (. token += tk; .)
+                            TimespanHours<out tk>               (. token += tk; .)
                             [
-                                IF(IsMinutes())
+                                IF(IsTimespanMinutes())
                                 (
-                                    Minutes<out tk>             (. token += tk; .)
+                                    TimespanMinutes<out tk>     (. token += tk; .)
                                     [
-                                        Seconds<out tk>         (. token += tk; .)
+                                        TimespanSeconds<out tk> (. token += tk; .)
                                     ]
                                 )
                                 |
                                 (
-                                    Seconds<out tk>             (. token += tk; .)
+                                    TimespanSeconds<out tk>     (. token += tk; .)
                                 )
                             ]
                         )
-                        | IF(IsMinutes())
+                        | IF(IsTimespanMinutes())
                         (
-                            Minutes<out tk>                     (. token += tk; .)
+                            TimespanMinutes<out tk>             (. token += tk; .)
                             [
-                                Seconds<out tk>                 (. token += tk; .)
+                                TimespanSeconds<out tk>         (. token += tk; .)
                             ]
                         )
                         | 
                         (
-                            Seconds<out tk>                     (. token += tk; .)
+                            TimespanSeconds<out tk>             (. token += tk; .)
                         )
                     )
 .
 
-Seconds<out TimespanToken token>                                (. var seconds = ""; .)
+TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; .)
 =                   (
                         (
                             typed_ts_seconds                    (. seconds = t.val; .)
@@ -262,60 +299,60 @@ Seconds<out TimespanToken token>                                (. var seconds =
                         |
                         (
                             true_float                          (. seconds = t.val; .)
-                            seconds_type
+                            ts_seconds_type
                         )
                         |
                         (
                             dec_integer                         (. seconds = t.val; .)
-                            seconds_type
+                            ts_seconds_type
                         )
                     )                                           (. token = TimespanToken.Parse($"{seconds}sec", TimeSpan.FromSeconds(double.Parse(seconds))); .)
 .
 
-Minutes<out TimespanToken token>
+TimespanMinutes<out TimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var minutes = ""; .)
                     (
                         (
                             true_float                          (. minutes = t.val; .)
-                            minutes_type
+                            ts_minutes_type
                         )
                         |
                         (
                             dec_integer                         (. minutes = t.val; .)
-                            minutes_type
+                            ts_minutes_type
                         )
                     )                                           (. token = TimespanToken.Parse($"{minutes}min", TimeSpan.FromMinutes(double.Parse(minutes))); .)
 .
 
-Hours<out TimespanToken token>
+TimespanHours<out TimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var hours = ""; .)
                     (
                         (
                             true_float                          (. hours = t.val; .)
-                            hours_type
+                            ts_hours_type
                         )
                         |
                         (
                             dec_integer                         (. hours = t.val; .)
-                            hours_type
+                            ts_hours_type
                         )
                     )                                           (. token = TimespanToken.Parse($"{hours}hrs", TimeSpan.FromHours(double.Parse(hours))); .)
 .
 
-Days<out TimespanToken token>
+TimespanDays<out TimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var days = ""; .)
                     (
                         (
                             true_float                          (. days = t.val; .)
-                            days_type
+                            ts_days_type
                         )
                         |
                         (
                             dec_integer                         (. days = t.val; .)
-                            days_type
+                            ts_days_type
                         )
                     )                                           (. token = TimespanToken.Parse($"{days}days", TimeSpan.FromDays(double.Parse(days))); .)
 .
