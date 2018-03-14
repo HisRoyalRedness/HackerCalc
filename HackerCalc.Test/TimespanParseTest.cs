@@ -31,10 +31,10 @@ namespace HisRoyalRedness.com
         [DataRow("100 seconds")]
         public void DecimalSecondsAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalSeconds = tokens.First()?.TypedValue.TotalSeconds ?? 0;
+            var totalSeconds = token.TypedValue.TotalSeconds;
             Assert.AreEqual(100.0, totalSeconds, PRECISION);
         }
 
@@ -58,10 +58,10 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 seconds")]
         public void FloatSecondsAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalSeconds = tokens.First()?.TypedValue.TotalSeconds ?? 0;
+            var totalSeconds = token.TypedValue.TotalSeconds;
             Assert.AreEqual(100.1, totalSeconds, PRECISION);
         }
 
@@ -70,9 +70,8 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 ts")]
         public void SeperatedTimeStampFlagDoesntParse(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input);
+            Assert.IsNull(token);
         }
 
         [DataTestMethod]
@@ -94,10 +93,10 @@ namespace HisRoyalRedness.com
         [DataRow("100 minutes")]
         public void DecimalMinutesAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalMinutes = tokens.First()?.TypedValue.TotalMinutes ?? 0;
+            var totalMinutes = token.TypedValue.TotalMinutes;
             Assert.AreEqual(100.0, totalMinutes, PRECISION);
         }
 
@@ -120,10 +119,10 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 minutes")]
         public void FloatMinutesAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalMinutes = tokens.First()?.TypedValue.TotalMinutes ?? 0;
+            var totalMinutes = token.TypedValue.TotalMinutes;
             Assert.AreEqual(100.1, totalMinutes, PRECISION);
         }
 
@@ -144,10 +143,10 @@ namespace HisRoyalRedness.com
         [DataRow("100 hrs")]
         public void DecimalHoursAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalHours = tokens.First()?.TypedValue.TotalHours ?? 0;
+            var totalHours = token.TypedValue.TotalHours;
             Assert.AreEqual(100.0, totalHours, PRECISION);
         }
 
@@ -168,10 +167,10 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 hrs")]
         public void FloatHoursAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalHours = tokens.First()?.TypedValue.TotalHours ?? 0;
+            var totalHours = token.TypedValue.TotalHours;
             Assert.AreEqual(100.1, totalHours, PRECISION);
         }
 
@@ -186,10 +185,10 @@ namespace HisRoyalRedness.com
         [DataRow("100 days")]
         public void DecimalDaysAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalDays = tokens.First()?.TypedValue.TotalDays ?? 0;
+            var totalDays = token.TypedValue.TotalDays;
             Assert.AreEqual(100.0, totalDays, PRECISION);
         }
 
@@ -204,10 +203,10 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 days")]
         public void FloatDaysAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalDays = tokens.First()?.TypedValue.TotalDays ?? 0;
+            var totalDays = token.TypedValue.TotalDays;
             Assert.AreEqual(100.1, totalDays, PRECISION);
 
         }
@@ -230,10 +229,10 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "10 day 10 hrs 10 min 10 sec", "900610" })]
         public void CompoundTimePartsCombineCorrectly(string[] input)
         {
-            var tokens = Parser.ParseExpression(input[0]).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input[0]) as TimespanToken;
+            Assert.IsNotNull(token);
 
-            var totalSeconds = tokens.First()?.TypedValue.TotalSeconds ?? 0;
+            var totalSeconds = token.TypedValue.TotalSeconds;
             var expectedSeconds = double.Parse(input[1]);
             Assert.AreEqual(expectedSeconds, totalSeconds, PRECISION);
         }
@@ -247,9 +246,8 @@ namespace HisRoyalRedness.com
         [DataRow("10 min 10 hour")]
         public void InvalidCompoundCombinationsDontParse(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimespanToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input);
+            Assert.IsNull(token);
         }
     }
 }

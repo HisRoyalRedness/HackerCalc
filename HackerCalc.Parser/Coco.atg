@@ -91,67 +91,67 @@ IGNORE cr + lf + tab
 
 PRODUCTIONS
 
-HackerCalc
-= Expr.
-
-Expr                = BitExpr.
-
-BitExpr
-=
-                    ShiftExpr
-                    {
-                        bitToken                                (. AddBitOperator(t.val); .)
-                        ShiftExpr
-                    }
+HackerCalc                                                      (. IToken token = null; .)
+= Expr<out token>                                               (. RootToken = token; .)
 .
 
-ShiftExpr
-=                   AddExpr
-                    {
-                        shiftToken                              (. AddShiftOperator(t.val); .)
-                        AddExpr
-                    }
+Expr<out IToken token>                                          
+=                   BitExpr<out token>
 .
 
-AddExpr
-=                   MulExpr
+BitExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   ShiftExpr<out tk>
                     {
-                        addToken                                (. AddAddOperator(t.val); .)
-                        MulExpr
-                    }
+                        bitToken                                (. op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); .)
+                        ShiftExpr<out tk>                       (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 
-MulExpr
-=                   NotExpr
+ShiftExpr<out IToken token>                                     (. IToken tk = null; OperatorToken op = null; .)
+=                   AddExpr<out tk>
                     {
-                        multToken                               (. AddMultOperator(t.val); .)
-                        NotExpr
-                    }
+                        shiftToken                              (. op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); .)
+                        AddExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 
-NotExpr
+AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   MulExpr<out tk>
+                    {
+                        addToken                                (. op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); .)
+                        MulExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+MulExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   NotExpr<out tk>
+                    {
+                        multToken                               (. op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); .)
+                        NotExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+NotExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   [
-                        notToken                                (. AddNotOperator(t.val); .)
+                        notToken                                (. op = OperatorToken.Parse(t.val); .)
                     ]
-                    Term
+                    Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
 .
 
-Term                                                            (. IToken token = null; .)
+Term<out IToken token>                                          (. token = null; .)
 =
-                    (
-                        "("                                     (. AddLeftBracket(); .)
-                        Expr
-                        ")"                                     (. AddRightBracket(); .)
-                    )
+                    "("
+                    Expr<out token>
+                    ")"
                     | IF(IsTimespanNumber()) 
-                        Timespan<out token>                     (. AddToken(token); .)
+                        Timespan<out token>
                     | IF(IsDateTime())
-                        DateTime<out token>                     (. AddToken(token); .)
-                    | Date<out token>                           (. AddToken(token); .)
-                    | Time<out token>                           (. AddToken(token); .)
-                    | Integer<out token>                        (. AddToken(token); .)
-                    | Float<out token>                          (. AddToken(token); .)
-                    | Now<out token>                            (. AddToken(token); .)
+                        DateTime<out token>
+                    | Date<out token>
+                    | Time<out token>
+                    | Integer<out token>
+                    | Float<out token>
+                    | Now<out token>
 .
 
 DateTime<out IToken token>                                      (. token = null; .)

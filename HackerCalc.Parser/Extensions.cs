@@ -24,4 +24,16 @@ namespace HisRoyalRedness.com
                 return value.ToString();
         }
     }
+
+    public static class GeneralExtensions
+    {
+        public static T Tap<T>(this T item, Action<T> action)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            if (action != null)
+                action(item);
+            return item;
+        }
+    }
 }

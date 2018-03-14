@@ -23,5 +23,7 @@ Change log
 Todo
 ----
 
+* Literal bitwidths  interpretted as decimals
+* Reimplement ATG to pass IToken to the root token
 * Unit tests for date time
 * Better error handling of tokens that don't parse correctly (e.g. dates and times)

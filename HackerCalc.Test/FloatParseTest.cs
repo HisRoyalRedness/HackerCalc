@@ -12,20 +12,20 @@ namespace HisRoyalRedness.com
         [DataRow("1.0")]
         public void TrueFloatValueIsParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as FloatToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as FloatToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(1.0, tokens.First()?.TypedValue);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(1.0, token.TypedValue);
         }
 
         [DataTestMethod]
         [DataRow("1F")]
         public void TypedFloatValueIsParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as FloatToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as FloatToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(1.0, tokens.First()?.TypedValue);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(1.0, token.TypedValue);
         }
     }
 }

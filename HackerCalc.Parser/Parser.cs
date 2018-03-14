@@ -14,65 +14,10 @@ namespace HisRoyalRedness.com
     {
         #region AddToken
 
-        #region Operators
-        internal IToken AddNotOperator(string tokenValue)
-        {
-            switch (tokenValue)
-            {
-                case "!": return AddToken(new OperatorToken(TokenType.Not));
-                case "~": return AddToken(new OperatorToken(TokenType.Negate));
-            }
-            throw new ApplicationException("Invalid token type");
-        }
-
-        internal IToken AddAddOperator(string tokenValue)
-        {
-            switch(tokenValue)
-            {
-                case "+":   return AddToken(new OperatorToken(TokenType.Add));
-                case "-":   return AddToken(new OperatorToken(TokenType.Subtract));
-            }
-            throw new ApplicationException("Invalid token type");
-        }
-
-        internal IToken AddMultOperator(string tokenValue)
-        {
-            switch (tokenValue)
-            {
-                case "*": return AddToken(new OperatorToken(TokenType.Multiply));
-                case "/": return AddToken(new OperatorToken(TokenType.Divide));
-                case "\\": return AddToken(new OperatorToken(TokenType.Divide));
-                case "%": return AddToken(new OperatorToken(TokenType.Modulo));
-            }
-            throw new ApplicationException("Invalid token type");
-        }
-
-        internal IToken AddShiftOperator(string tokenValue)
-        {
-            switch (tokenValue)
-            {
-                case "<<": return AddToken(new OperatorToken(TokenType.LeftShift));
-                case ">>": return AddToken(new OperatorToken(TokenType.RightShift));
-            }
-            throw new ApplicationException("Invalid token type");
-        }
-
-        internal IToken AddBitOperator(string tokenValue)
-        {
-            switch (tokenValue)
-            {
-                case "&": return AddToken(new OperatorToken(TokenType.And));
-                case "|": return AddToken(new OperatorToken(TokenType.Or));
-                case "^": return AddToken(new OperatorToken(TokenType.Xor));
-            }
-            throw new ApplicationException("Invalid token type");
-        }
-        #endregion Operators
-
-        #region Grouping
-        internal IToken AddLeftBracket() => AddToken(new OperatorToken(TokenType.LeftBracket));
-        internal IToken AddRightBracket() => AddToken(new OperatorToken(TokenType.RightBracket));
-        #endregion Grouping
+        //#region Grouping
+        //internal IToken AddLeftBracket() => AddToken(new OperatorToken(TokenType.LeftBracket));
+        //internal IToken AddRightBracket() => AddToken(new OperatorToken(TokenType.RightBracket));
+        //#endregion Grouping
 
         IToken AddToken(IToken token)
         {
@@ -81,18 +26,17 @@ namespace HisRoyalRedness.com
         }
         #endregion AddToken
 
-        public static IEnumerable<IToken> ParseExpression(string expression)
+        public static IToken ParseExpression(string expression)
         {
-            List<IToken> tokens;
-            var result = false;
+            IToken rootToken = null;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms);
                 var parser = new Parser(scanner);
-                result = parser.Parse();
-                tokens = parser.Tokens;
+                if (parser.Parse())
+                    rootToken = parser.RootToken;
             }
-            return result ? tokens : Enumerable.Empty<IToken>();
+            return rootToken;
         }
 
         public static IEnumerable<Token> ScanExpression(string expression)
@@ -110,6 +54,7 @@ namespace HisRoyalRedness.com
             }
         }
 
+        #region Resolvers
         public bool IsTimespanSeconds()
         {
             switch(la.kind)
@@ -251,14 +196,32 @@ namespace HisRoyalRedness.com
             else
                 return false;
         }
+        #endregion Resolvers
+
+        public IToken RootToken { get; private set; }
 
         public List<IToken> Tokens => _tokens;
         readonly List<IToken> _tokens = new List<IToken>();
     }
 
+    #region Visitor interface
+    public interface ITokenVisitor
+    {
+        void Visit<TToken>(TToken token);
+    }
+
+    public interface ITokenVisitor<TAggregate> : ITokenVisitor
+    {
+        TAggregate VisitAndAggregate<TToken>(TToken token);
+    }
+    #endregion Visitor interface
+
     #region Token base
     public interface IToken
-    { }
+    {
+        void Accept(ITokenVisitor visitor);
+        TAggregate Aggregate<TAggregate>(ITokenVisitor<TAggregate> visitor);
+    }
 
     public enum TokenType
     {
@@ -286,22 +249,29 @@ namespace HisRoyalRedness.com
         Not,
         [Description("^")]
         Xor,
-        [Description("(")]
-        LeftBracket,
-        [Description(")")]
-        RightBracket,
+        //[Description("(")]
+        //LeftBracket,
+        //[Description(")")]
+        //RightBracket,
         Float,
         Integer,
         Timespan,
         Time
     }
 
-    public abstract class TokenBase : IToken
+    public abstract class TokenBase<TToken> : IToken
+        where TToken : class, IToken
     {
         protected TokenBase(string rawToken = null)
         {
             RawToken = rawToken;
         }
+
+        public virtual void Accept(ITokenVisitor visitor)
+            => visitor.Visit<TToken>(this as TToken);
+
+        public TAggregate Aggregate<TAggregate>(ITokenVisitor<TAggregate> visitor)
+            => visitor.VisitAndAggregate<TToken>(this as TToken);
 
         public string RawToken { get; private set; }
 
@@ -311,49 +281,78 @@ namespace HisRoyalRedness.com
 
     #region Operator tokens
     public interface IOperatorToken : IToken
-    { }
-
-    public class OperatorToken: TokenBase, IOperatorToken
     {
-        public OperatorToken(TokenType op)
+        bool IsUnary { get; }
+        IToken Left { get; }
+        IToken Right { get; }
+    }
+
+    public class OperatorToken: TokenBase<OperatorToken>, IOperatorToken
+    {
+        public OperatorToken(TokenType op, bool isUnary = false)
             : base()
         {
             Operator = op;
+            IsUnary = isUnary;
         }
 
         public TokenType Operator { get; private set; }
 
+        public bool IsUnary { get; private set; }
 
+        public IToken Left { get; set; }
+        public IToken Right { get; set; }
+
+        public static OperatorToken Parse(string value)
+        {
+            switch(value)
+            {
+                case "!": return new OperatorToken(TokenType.Not, true);
+                case "~": return new OperatorToken(TokenType.Negate, true);
+                case "*": return new OperatorToken(TokenType.Multiply);
+                case "/": return new OperatorToken(TokenType.Divide);
+                case "\\": return new OperatorToken(TokenType.Divide);
+                case "%": return new OperatorToken(TokenType.Modulo);
+                case "+": return new OperatorToken(TokenType.Add);
+                case "-": return new OperatorToken(TokenType.Subtract);
+                case "<<": return new OperatorToken(TokenType.LeftShift);
+                case ">>": return new OperatorToken(TokenType.RightShift);
+                case "&": return new OperatorToken(TokenType.And);
+                case "|": return new OperatorToken(TokenType.Or);
+                case "^": return new OperatorToken(TokenType.Xor);
+                default: throw new ParseException($"Unrecognised operator {value}.");
+            }
+        }
 
         public override string ToString() => $"{Operator.GetEnumDescription()}";
     }
     #endregion Operator tokens
 
-    #region Grouping tokens
-    public interface IGroupingToken : IToken
-    { }
+    //#region Grouping tokens
+    //public interface IGroupingToken : IToken
+    //{ }
 
-    public class GroupingToken : TokenBase, IGroupingToken
-    {
-        public GroupingToken(TokenType op)
-            : base()
-        {
-            Operator = op;
-        }
+    //public class GroupingToken : TokenBase, IGroupingToken
+    //{
+    //    public GroupingToken(TokenType op)
+    //        : base()
+    //    {
+    //        Operator = op;
+    //    }
 
-        public TokenType Operator { get; private set; }
+    //    public TokenType Operator { get; private set; }
 
 
-        public override string ToString() => $"{Operator.GetEnumDescription()}";
-    }
-    #endregion Grouping tokens
+    //    public override string ToString() => $"{Operator.GetEnumDescription()}";
+    //}
+    //#endregion Grouping tokens
 
     #region Literal tokens
     public interface ILiteralToken : IToken
     { }
 
     #region LiteralToken
-    public class LiteralToken<T> : TokenBase, ILiteralToken
+    public class LiteralToken<T> : TokenBase<LiteralToken<T>>, ILiteralToken
     {
         public LiteralToken(TokenType dataType, string value, T typedValue)
             : base()
@@ -548,4 +547,58 @@ namespace HisRoyalRedness.com
         }
     }
     #endregion Errors
+
+    #region TokenPrinter
+    public class TokenPrinter : ITokenVisitor<string>
+    {
+        public void Visit<T>(T token)
+        {
+            switch(token.GetType().Name)
+            {
+                case nameof(OperatorToken):
+                    Console.WriteLine();
+                    break;
+            }
+        }
+
+        public string VisitAndAggregate<TToken>(TToken token)
+        {
+            StringBuilder sb = new StringBuilder();
+            InternalVisitAndAggregate(sb, token);
+            return sb.ToString();
+        }
+
+
+        void InternalVisitAndAggregate<TToken>(StringBuilder sb, TToken token)
+        {
+            switch (token.GetType().Name)
+            {
+                case nameof(OperatorToken):
+                    var opToken = token as OperatorToken;
+                    InternalVisitAndAggregate(sb, opToken.Left);
+                    if (!opToken.IsUnary)
+                        InternalVisitAndAggregate(sb, opToken.Right);
+                    sb.Append($"{opToken.Operator.GetEnumDescription()} ");
+                    break;
+
+                case nameof(IntegerToken):
+                    var intToken = token as IntegerToken;
+                    sb.Append($"{intToken.TypedValue} ");
+                    break;
+            }
+        }
+
+    }
+    #endregion TokenPrinter
+
+    public class ParseException : ApplicationException
+    {
+        public ParseException(string message)
+            : base(message)
+        { }
+
+        public ParseException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
+    }
 }

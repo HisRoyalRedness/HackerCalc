@@ -17,10 +17,10 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "23:59", "86340" })]
         public void HoursAndMinutesAreParsedCorrectly(string[] input)
         {
-            var tokens = Parser.ParseExpression(input[0]).Select(t => t as TimeToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input[0]) as TimeToken;
+            Assert.IsNotNull(token);
 
-            var actualSeconds = (tokens.First()?.TypedValue ?? TimeSpan.Zero).TotalSeconds;
+            var actualSeconds = token.TypedValue.TotalSeconds;
             var expectedSeconds = int.Parse(input[1]);
 
             Assert.AreEqual(expectedSeconds, actualSeconds, PRECISION);
@@ -40,9 +40,8 @@ namespace HisRoyalRedness.com
         [DataRow("1:00:60")]
         public void InvalidTimesAreNotParsed(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as TimeToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input);
+            Assert.IsNull(token);
         }
 
         [DataTestMethod]
@@ -52,10 +51,10 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "23:59:59", "86399" })]
         public void HoursMinutesAndSecondsAreParsedCorrectly(string[] input)
         {
-            var tokens = Parser.ParseExpression(input[0]).Select(t => t as TimeToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input[0]) as TimeToken;
+            Assert.IsNotNull(token);
 
-            var actualSeconds = (tokens.First()?.TypedValue ?? TimeSpan.Zero).TotalSeconds;
+            var actualSeconds = token.TypedValue.TotalSeconds;
             var expectedSeconds = int.Parse(input[1]);
 
             Assert.AreEqual(expectedSeconds, actualSeconds, PRECISION);
@@ -73,10 +72,10 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "2018-12-31", "2018-12-31" })]
         public void DatesAreParsedCorrectly(string[] input)
         {
-            var tokens = Parser.ParseExpression(input[0]).Select(t => t as DateToken).Where(t => t != null).ToList();
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
+            var token = Parser.ParseExpression(input[0]) as DateToken;
+            Assert.IsNotNull(token);
 
-            var actualDate = tokens.First()?.TypedValue ?? DateTime.MinValue;
+            var actualDate = token.TypedValue;
             var expectedDate = DateTime.Parse(input[1]);
 
             Assert.AreEqual(expectedDate, actualDate);
@@ -91,9 +90,8 @@ namespace HisRoyalRedness.com
         [DataRow("2018-21-01")]
         public void InvalidDatesAreNotParsed(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as DateToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input);
+            Assert.IsNull(token);
         }
     }
 }

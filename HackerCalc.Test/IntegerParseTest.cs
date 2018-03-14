@@ -14,10 +14,10 @@ namespace HisRoyalRedness.com
         [DataRow("255I32")]
         public void DecimalIntegerValueIsParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(255, tokens.First()?.TypedValue);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(255, token.TypedValue);
         }
 
         [DataTestMethod]
@@ -27,10 +27,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xffI32")]
         public void HexadecimalIntegerValueIsParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(255, tokens.First()?.TypedValue);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(255, token.TypedValue);
         }
 
         [DataTestMethod]
@@ -40,10 +40,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xffU32")]
         public void IntegerWithAttachedSignFlagAndBitwidthIsParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(255, tokens.First()?.TypedValue);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(255, token.TypedValue);
         }
 
         [DataTestMethod]
@@ -53,9 +53,8 @@ namespace HisRoyalRedness.com
         [DataRow("0xff U32")]
         public void IntegerWithUnattachedSignFlagIsNotParsed(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input);
+            Assert.IsNull(token);
         }
 
         [DataTestMethod]
@@ -65,9 +64,8 @@ namespace HisRoyalRedness.com
         [DataRow("0xffU 32")]
         public void IntegerWithUnattachedBitwidthIsNotParsed(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
-
-            Assert.AreEqual(0, tokens.Count, "no tokens are expected");
+            var token = Parser.ParseExpression(input) as IntegerToken;
+            Assert.IsNull(token);
         }
 
         [DataTestMethod]
@@ -97,10 +95,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xffi128")]
         public void SignedIntegerSignFlagsAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(true, tokens.First()?.IsSigned);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(true, token.IsSigned);
         }
 
         [DataTestMethod]
@@ -130,10 +128,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xffu128")]
         public void UnsignedIntegerSignFlagsAreParsedCorrectly(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(false, tokens.First()?.IsSigned);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(false, token.IsSigned);
         }
 
         [DataTestMethod]
@@ -141,10 +139,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xff")]        
         public void IntegerDefaultSignFlagIsSigned(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(true, tokens.First()?.IsSigned);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(true, token.IsSigned);
         }
 
         [DataTestMethod]
@@ -152,10 +150,10 @@ namespace HisRoyalRedness.com
         [DataRow("0xff")]
         public void IntegerDefaultBitWidthIs32(string input)
         {
-            var tokens = Parser.ParseExpression(input).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input) as IntegerToken;
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual(IntegerToken.IntegerBitWidth._32, tokens.First()?.BitWidth);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(IntegerToken.IntegerBitWidth._32, token.BitWidth);
         }
 
         [DataTestMethod]
@@ -185,10 +183,11 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "0xffu128", "128" })]
         public void IntegerBitwidthIsParsedCorrectly(string[] input)
         {
-            var tokens = Parser.ParseExpression(input[0]).Select(t => t as IntegerToken).Where(t => t != null).ToList();
+            var token = Parser.ParseExpression(input[0]) as IntegerToken;
+            var expectedBitwidth = (IntegerToken.IntegerBitWidth)(int.Parse(input[1]));
 
-            Assert.AreEqual(1, tokens.Count, "only a single token is expected");
-            Assert.AreEqual((IntegerToken.IntegerBitWidth)(int.Parse(input[1])), tokens.First()?.BitWidth);
+            Assert.IsNotNull(token);
+            Assert.AreEqual(expectedBitwidth, token.BitWidth);
         }
     }
 }
