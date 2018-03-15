@@ -19,6 +19,7 @@ Change log
 | 2018-03-12    | Rename timespan tokens and productions to differentiate then from time values                             |
 | 2018-03-13    | Handle dates, times and date times                                                                        |
 |               | Better validation of date and time ranges                                                                 |
+| 2018-03-15    | Visitor pattern for tokens                                                                               |
 
 Todo
 ----

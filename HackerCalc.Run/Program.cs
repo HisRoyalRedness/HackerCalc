@@ -13,7 +13,7 @@ namespace HisRoyalRedness.com
         {
             //var input = args.Length == 0 ? "1I * ~(2U + 0.3) << 0X50 - .4 & !6 >> 7F | 8U64 \\ 9 ^ 10.1F - 11t + 12:33.123 * 23:44:12 / 1:23:45:36.32" : args[0];
             //var input = args.Length == 0 ? "1 + (2 _64 - 3u) * 4I_16 / 5U_4 + 6.0 - 7f + 0x88 * 92.345t" : args[0];
-            var input = args.Length == 0 ? "3U4" : args[0];
+            var input = args.Length == 0 ? "(1 + 2) * 3 - 44 / 55 sec" : args[0];
 
 
             Console.WriteLine($"                1         2         3         4         5         6         7         8         9         ");
@@ -24,14 +24,14 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine("Parser");
             Console.WriteLine("-------");
-            var token = Parser.ParseExpression(input);
-            Console.WriteLine(token);
+            var rootToken = Parser.ParseExpression(input);
+            Console.WriteLine(rootToken);
 
             Console.WriteLine();
 
             Console.WriteLine("Expression");
             Console.WriteLine("----------");
-            var expr = token?.Aggregate(new TokenPrinter()) ?? "<no token>";
+            var expr = rootToken?.Aggregate(new TokenPrinter(TokenPrinter.FixType.Infix)) ?? "<no token>";
             Console.WriteLine(expr);
 
             Console.WriteLine();
