@@ -39,6 +39,7 @@ public partial class Scanner : IDisposable {
 
 	public Buffer buffer; // scanner buffer
 	
+    Token prevt;      // previous token (or null if the current token is the first token)
 	Token t;          // current token
 	int ch;           // current input character
 	int pos;          // byte position of current character
@@ -120,7 +121,12 @@ public partial class Scanner : IDisposable {
 -->comments
 
 	void CheckLiteral() {
+        switch(prevt?.val.ToLower()) {
+            case "u": case "U": case "i": case "I": {
 -->literals
+            }
+            break;
+        }
 	}
 
 	Token NextToken() {
@@ -130,6 +136,7 @@ public partial class Scanner : IDisposable {
 -->scan2
 		int recKind = noSym;
 		int recEnd = pos;
+        prevt = t;
 		t = new Token();
 		t.pos = pos; t.col = col; t.line = line; t.charPos = charPos;
 		int state;

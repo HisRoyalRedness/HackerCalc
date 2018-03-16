@@ -19,12 +19,12 @@ Change log
 | 2018-03-12    | Rename timespan tokens and productions to differentiate then from time values                             |
 | 2018-03-13    | Handle dates, times and date times                                                                        |
 |               | Better validation of date and time ranges                                                                 |
-| 2018-03-15    | Visitor pattern for tokens                                                                               |
+| 2018-03-15    | Visitor pattern for tokens                                                                                |
+|               | Reimplemented to pass an AST of ITokens from a root token, rather than an enumeration of tokens           |
+| 2018-03-16    | DateTime unit test                                                                                        |
 
 Todo
 ----
 
-* Literal bitwidths  interpretted as decimals
-* Reimplement ATG to pass IToken to the root token
-* Unit tests for date time
+* Literal bitwidths interpretted as decimals
 * Better error handling of tokens that don't parse correctly (e.g. dates and times)
