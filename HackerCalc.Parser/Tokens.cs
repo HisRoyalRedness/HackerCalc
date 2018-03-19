@@ -120,9 +120,20 @@ namespace HisRoyalRedness.com
     #endregion Operator token
 
     #region Literal tokens
+    public enum DataType
+    {
+        Float,
+        Integer,
+        Timespan,
+        Time
+    }
+
     public interface ILiteralToken : IToken
     {
         object ObjectValue { get; }
+        DataType DataType { get; }
+        TToken CastTo<TToken>()
+            where TToken : class, ILiteralToken;
     }
 
     public interface ILiteralToken<T> : ILiteralToken
@@ -131,23 +142,25 @@ namespace HisRoyalRedness.com
     }
 
     #region LiteralToken
-    public class LiteralToken<T> : TokenBase<LiteralToken<T>>, ILiteralToken<T>
+    public abstract class LiteralToken<T> : TokenBase<LiteralToken<T>>, ILiteralToken<T>
     {
-        public LiteralToken(TokenType dataType, string value, T typedValue)
+        public LiteralToken(TokenType tokenType, string value, T typedValue)
             : base()
         {
-            DataType = dataType;
+            DataType = (DataType)((int)(tokenType - TokenType.Float) + (int)DataType.Float);
             Value = value;
             TypedValue = typedValue;
         }
 
-        public TokenType DataType { get; private set; }
+        public DataType DataType { get; private set; }
         public string Value { get; private set; }
-        public bool IsFloat => DataType == TokenType.Float;
-        public bool IsInteger => DataType == TokenType.Integer;
+        public bool IsFloat => DataType == DataType.Float;
+        public bool IsInteger => DataType == DataType.Integer;
         public T TypedValue { get; private set; }
         public object ObjectValue => TypedValue;
 
+        public abstract TToken CastTo<TToken>()
+            where TToken : class, ILiteralToken;
         public override string ToString() => $"{Value}";
     }
     #endregion LiteralToken
@@ -157,6 +170,8 @@ namespace HisRoyalRedness.com
     {
         public enum IntegerBitWidth
         {
+            [Description("None")]
+            None = 0,
             [Description("4")]
             _4 = 4,
             [Description("8")]
@@ -171,14 +186,14 @@ namespace HisRoyalRedness.com
             _128 = 128
         }
 
-        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth._32)
+        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.None)
             : base(TokenType.Integer, value, typedValue)
         {
             IsSigned = isSigned;
             BitWidth = bitWidth;
         }
 
-        public static IntegerToken Parse(string value, bool isHex, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth._32)
+        public static IntegerToken Parse(string value, bool isHex, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.None)
             => isHex
                 ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
                 : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
@@ -202,6 +217,20 @@ namespace HisRoyalRedness.com
         }
 
         public override string ToString() => $"{Value}_{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}  -  {TypedValue}";
+
+        public override TToken CastTo<TToken>()
+        {
+            switch (typeof(TToken).Name)
+            {
+                case nameof(FloatToken):
+                    var val = (double)TypedValue;
+                    return new FloatToken(val.ToString(), val) as TToken;
+                case nameof(IntegerToken):
+                    return new IntegerToken(Value, TypedValue) as TToken;
+                default:
+                    throw new InvalidCastException(this.GetType(), typeof(TToken));
+            }
+        }
     }
     #endregion IntegerToken
 
@@ -216,6 +245,20 @@ namespace HisRoyalRedness.com
             => new FloatToken(value, double.Parse(value));
 
         public override string ToString() => $"{Value}F  -  {TypedValue:0.000}";
+
+        public override TToken CastTo<TToken>()
+        {
+            switch(typeof(TToken).Name)
+            {
+                case nameof(FloatToken):
+                    return new FloatToken(Value, TypedValue) as TToken;
+                case nameof(IntegerToken):
+                    var val = new BigInteger(TypedValue);
+                    return new IntegerToken(val.ToString(), val) as TToken;
+                default:
+                    throw new InvalidCastException(this.GetType(), typeof(TToken));
+            }
+        }
     }
     #endregion FloatToken
 
@@ -237,6 +280,17 @@ namespace HisRoyalRedness.com
             => new TimespanToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
 
         public override string ToString() => $"{Value}  -  {TypedValue}";
+
+        public override TToken CastTo<TToken>()
+        {
+            switch (typeof(TToken).Name)
+            {
+                case nameof(TimespanToken):
+                    return new TimespanToken(Value, TypedValue) as TToken;
+                default:
+                    throw new InvalidCastException(this.GetType(), typeof(TToken));
+            }
+        }
     }
     #endregion TimespanToken
 
@@ -258,6 +312,17 @@ namespace HisRoyalRedness.com
         }
 
         public override string ToString() => $"{Value}  -  {TypedValue}";
+
+        public override TToken CastTo<TToken>()
+        {
+            switch (typeof(TToken).Name)
+            {
+                case nameof(TimeToken):
+                    return new TimeToken(Value, TypedValue) as TToken;
+                default:
+                    throw new InvalidCastException(this.GetType(), typeof(TToken));
+            }
+        }
     }
     #endregion TimeToken
 
@@ -285,6 +350,17 @@ namespace HisRoyalRedness.com
             => new DateToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
 
         public override string ToString() => $"{Value}  -  {TypedValue}";
+
+        public override TToken CastTo<TToken>()
+        {
+            switch (typeof(TToken).Name)
+            {
+                case nameof(DateToken):
+                    return new DateToken(Value, TypedValue) as TToken;
+                default:
+                    throw new InvalidCastException(this.GetType(), typeof(TToken));
+            }
+        }
     }
     #endregion DateToken
 

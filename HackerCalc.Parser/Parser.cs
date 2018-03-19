@@ -173,7 +173,7 @@ namespace HisRoyalRedness.com
 
         public bool IsDateTime()
         {
-            if (la.kind == _date)
+            if (la.kind == _date || la.kind == _date_rev)
             {
                 var next = scanner.Peek().kind;
                 scanner.ResetPeek();
@@ -235,6 +235,26 @@ namespace HisRoyalRedness.com
         public ParseException(string message, Exception innerException)
             : base(message, innerException)
         { }
+    }
+
+    public class InvalidCastException : ApplicationException
+    {
+        public InvalidCastException(string message)
+            : base(message)
+        { }
+
+        public InvalidCastException(Type typeFrom, Type typeTo)
+            : base($"Cannot cast from a {typeFrom.Name} to a {typeTo.Name}.")
+        { }
+
+        public InvalidCastException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
+
+        public InvalidCastException(Type typeFrom, Type typeTo, Exception innerException)
+            : base($"Cannot cast from a {typeFrom.Name} to a {typeTo.Name}.", innerException)
+        { }
+
     }
     #endregion Exceptions
 }

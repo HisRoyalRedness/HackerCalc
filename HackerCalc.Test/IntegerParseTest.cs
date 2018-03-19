@@ -189,5 +189,21 @@ namespace HisRoyalRedness.com
             Assert.IsNotNull(token);
             Assert.AreEqual(expectedBitwidth, token.BitWidth);
         }
+
+        [DataTestMethod]
+        [DataRow("4")]
+        [DataRow("8")]
+        [DataRow("16")]
+        [DataRow("32")]
+        [DataRow("64")]
+        [DataRow("128")]
+        public void IntegersAreNotParsedAsBitwidthLiterals(string input)
+        {
+            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expectedValue = int.Parse(input);
+
+            Assert.IsNotNull(token);
+            Assert.AreEqual(expectedValue, token.TypedValue);
+        }
     }
 }

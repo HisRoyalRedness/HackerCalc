@@ -22,9 +22,12 @@ Change log
 | 2018-03-15    | Visitor pattern for tokens                                                                                |
 |               | Reimplemented to pass an AST of ITokens from a root token, rather than an enumeration of tokens           |
 | 2018-03-16    | DateTime unit test                                                                                        |
+|               | Fix integers being interpreted as bitwidth literals                                                       |
+| 2018-03-19    | More DateTime test                                                                                        |
+|               | Start of precedence and grouping tests                                                                    |
 
 Todo
 ----
 
-* Literal bitwidths interpretted as decimals
+* Add tests for TokenPrinter
 * Better error handling of tokens that don't parse correctly (e.g. dates and times)

@@ -1,0 +1,128 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace HisRoyalRedness.com
+{
+    [TestClass]
+    public class BasicParseTest
+    {
+        [DataTestMethod]
+        [DataRow("1+2")]
+        [DataRow("1+ 2")]
+        [DataRow("1 +2")]
+        [DataRow("1 + 2")]
+        public void AdditionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Add);
+
+        [DataTestMethod]
+        [DataRow("1-2")]
+        [DataRow("1- 2")]
+        [DataRow("1 -2")]
+        [DataRow("1 - 2")]
+        public void SubtractionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Subtract);
+
+        [DataTestMethod]
+        [DataRow("1*2")]
+        [DataRow("1* 2")]
+        [DataRow("1 *2")]
+        [DataRow("1 * 2")]
+        public void MultiplicationParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Multiply);
+
+        [DataTestMethod]
+        [DataRow("1/2")]
+        [DataRow("1/ 2")]
+        [DataRow("1 /2")]
+        [DataRow("1 / 2")]
+        [DataRow("1\\2")]
+        public void DivisionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Divide);
+
+        [DataTestMethod]
+        [DataRow("1%2")]
+        [DataRow("1% 2")]
+        [DataRow("1 %2")]
+        [DataRow("1 % 2")]
+        public void ModuloParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Modulo);
+
+        [DataTestMethod]
+        [DataRow("1<<2")]
+        [DataRow("1<< 2")]
+        [DataRow("1 <<2")]
+        [DataRow("1 << 2")]
+        public void ShiftLeftParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.LeftShift);
+
+        [DataTestMethod]
+        [DataRow("1>>2")]
+        [DataRow("1>> 2")]
+        [DataRow("1 >>2")]
+        [DataRow("1 >> 2")]
+        public void ShiftRightParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.RightShift);
+
+        [DataTestMethod]
+        [DataRow("1&2")]
+        [DataRow("1& 2")]
+        [DataRow("1 &2")]
+        [DataRow("1 & 2")]
+        public void AndParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.And);
+
+        [DataTestMethod]
+        [DataRow("1|2")]
+        [DataRow("1| 2")]
+        [DataRow("1 |2")]
+        [DataRow("1 | 2")]
+        public void OrParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Or);
+
+        [DataTestMethod]
+        [DataRow("1^2")]
+        [DataRow("1^ 2")]
+        [DataRow("1 ^2")]
+        [DataRow("1 ^ 2")]
+        public void XorParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, TokenType.Xor);
+
+        [DataTestMethod]
+        [DataRow("!1")]
+        [DataRow("! 1")]
+        public void LogicalNotParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, TokenType.Not);
+
+        [DataTestMethod]
+        [DataRow("~1")]
+        [DataRow("~ 1")]
+        public void BitwiseNegateParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, TokenType.Negate);
+
+
+        void BinaryOperatorParsesCorrectly(string input, TokenType expectedType)
+        {
+            var token = Parser.ParseExpression(input) as OperatorToken;
+            Assert.IsNotNull(token);
+
+            Assert.IsFalse(token.IsUnary);
+
+            var leftToken = token.Left as IntegerToken;
+            Assert.IsNotNull(leftToken);
+            Assert.AreEqual(1, leftToken.TypedValue);
+
+            var rightToken = token.Right as IntegerToken;
+            Assert.IsNotNull(rightToken);
+            Assert.AreEqual(2, rightToken.TypedValue);
+
+            Assert.AreEqual(expectedType, token.Operator);
+        }
+
+        void UnaryOperatorParsesCorrectly(string input, TokenType expectedType)
+        {
+            var token = Parser.ParseExpression(input) as OperatorToken;
+            Assert.IsNotNull(token);
+
+            Assert.IsTrue(token.IsUnary);
+
+            var leftToken = token.Left as IntegerToken;
+            Assert.IsNotNull(leftToken);
+            Assert.AreEqual(1, leftToken.TypedValue);
+
+            Assert.IsNull(token.Right);
+
+            Assert.AreEqual(expectedType, token.Operator);
+        }
+    }
+}
