@@ -170,8 +170,8 @@ namespace HisRoyalRedness.com
     {
         public enum IntegerBitWidth
         {
-            [Description("None")]
-            None = 0,
+            [Description("Unbound")]
+            Unbound = 0,
             [Description("4")]
             _4 = 4,
             [Description("8")]
@@ -186,17 +186,23 @@ namespace HisRoyalRedness.com
             _128 = 128
         }
 
-        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.None)
+        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
             : base(TokenType.Integer, value, typedValue)
         {
             IsSigned = isSigned;
             BitWidth = bitWidth;
         }
 
-        public static IntegerToken Parse(string value, bool isHex, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.None)
+        public static IntegerToken Parse(string value, bool isHex)
+            => isHex
+                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), true, IntegerBitWidth.Unbound)
+                : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), true, IntegerBitWidth.Unbound);
+
+        public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
             => isHex
                 ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
                 : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
+
 
         public bool IsSigned { get; private set; }
         public IntegerBitWidth BitWidth { get; private set; }
@@ -207,8 +213,6 @@ namespace HisRoyalRedness.com
                 case "4": return IntegerBitWidth._4;
                 case "8": return IntegerBitWidth._8;
                 case "16": return IntegerBitWidth._16;
-                case "":
-                case null: // the default
                 case "32": return IntegerBitWidth._32;
                 case "64": return IntegerBitWidth._64;
                 case "128": return IntegerBitWidth._128;
@@ -225,8 +229,10 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     var val = (double)TypedValue;
                     return new FloatToken(val.ToString(), val) as TToken;
+
                 case nameof(IntegerToken):
-                    return new IntegerToken(Value, TypedValue) as TToken;
+                    return new IntegerToken(Value, TypedValue, IsSigned, BitWidth) as TToken;
+
                 default:
                     throw new InvalidCastException(this.GetType(), typeof(TToken));
             }

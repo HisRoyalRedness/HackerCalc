@@ -148,12 +148,12 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         [DataRow("255")]
         [DataRow("0xff")]
-        public void IntegerDefaultBitWidthIs32(string input)
+        public void IntegerDefaultBitWidthIsUnbound(string input)
         {
             var token = Parser.ParseExpression(input) as IntegerToken;
 
             Assert.IsNotNull(token);
-            Assert.AreEqual(IntegerToken.IntegerBitWidth._32, token.BitWidth);
+            Assert.AreEqual(IntegerToken.IntegerBitWidth.Unbound, token.BitWidth);
         }
 
         [DataTestMethod]

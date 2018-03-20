@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj" />
     <ProjectReference Include="..\HackerCalc.Parser\HackerCalc.Parser.csproj" />
   </ItemGroup>
 

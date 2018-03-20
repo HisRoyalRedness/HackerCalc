@@ -20,41 +20,41 @@ namespace HisRoyalRedness.com
         public IToken VisitAndAggregate<TToken>(TToken token)
             where TToken : IToken
         {
-            //switch (token.GetType().Name)
-            //{
-            //    case nameof(OperatorToken):
-            //        var opToken = token as OperatorToken;
-            //        var tree = new TokenTree
-            //        {
-            //            Left = VisitAndAggregate(opToken.Left),
-            //            Right = VisitAndAggregate(opToken.Right)
-            //        };
+            switch (token.GetType().Name)
+            {
+                case nameof(OperatorToken):
+                    var opToken = token as OperatorToken;
+                    var pair = new TokenPair(
+                        VisitAndAggregate(opToken.Left) as ILiteralToken,
+                        VisitAndAggregate(opToken.Right) as ILiteralToken);
 
-            //        switch (opToken.Operator)
-            //        {
-            //            case TokenType.Add: return Add(leftToken, rightToken);
-            //            case TokenType.Subtract: return Subtract(leftToken, rightToken);
-            //            case TokenType.Multiply: return Subtract(leftToken, rightToken);
-            //            case TokenType.Divide: return Subtract(leftToken, rightToken);
+                    switch (opToken.Operator)
+                    {
+                        case TokenType.Add: return Add(pair);
+                        case TokenType.Subtract: return Subtract(pair);
+                        case TokenType.Multiply: return Subtract(pair);
+                        case TokenType.Divide: return Subtract(pair);
 
-            //            default:
-            //                throw new ApplicationException($"Unhandled operator type {opToken.Operator}");
-            //        }
+                        default:
+                            throw new ApplicationException($"Unhandled operator type {opToken.Operator}");
+                    }
 
-            //    case nameof(IntegerToken):
-            //        return token;
+                case nameof(IntegerToken):
+                    return token;
 
-            //    default:
-            //        throw new ApplicationException($"Unhandled token type {token.GetType().Name}");
-            //}
-
-            return null;
+                default:
+                    throw new ApplicationException($"Unhandled token type {token.GetType().Name}");
+            }
         }
 
-        public class TokenTree
+        public class TokenPair
         {
-            public TokenTree(ILiteralToken left, ILiteralToken right)
+            public TokenPair(ILiteralToken left, ILiteralToken right)
             {
+                if (left == null)
+                    throw new ArgumentNullException(nameof(left));
+                if (right == null)
+                    throw new ArgumentNullException(nameof(right));
                 Left = left;
                 Right = right;
             }
@@ -62,45 +62,72 @@ namespace HisRoyalRedness.com
             public ILiteralToken Left { get; set; }
             public ILiteralToken Right { get; set; }
 
-            public TokenTree ConvertToCommonType()
+            public TokenPair ConvertToCommonType()
             {
-                if (Left.DataType == DataType.Float || Right.DataType == DataType.Float)
-                    return new TokenTree(Left.CastTo<FloatToken>(), Right.CastTo<FloatToken>());
+                if (Left.DataType == DataType.Float && Right.DataType == DataType.Float)
+                    return this;
+
+                if (Left.DataType == DataType.Float && Right.DataType == DataType.Integer)
+                    return new TokenPair(Left, Right.CastTo<FloatToken>());
+
+                if (Left.DataType == DataType.Integer && Right.DataType == DataType.Float)
+                    return new TokenPair(Left.CastTo<FloatToken>(), Right);
+
+                if (Left.DataType == DataType.Integer && Right.DataType == DataType.Integer)
+                {
+                    var leftI = Left as IntegerToken;
+                    var rightI = Right as IntegerToken;
+
+                    if (leftI.IsSigned == rightI.IsSigned)
+                    {
+
+                    }
+
+                }
+
 
                 return null;
             }
         }
 
-        IToken Add(IToken left, IToken right)
+        IToken Add(TokenPair pair)
         {
-            var leftI = left as IntegerToken;
-            var rightI = right as IntegerToken;
-            var result = leftI.TypedValue + rightI.TypedValue;
-            return new IntegerToken(result.ToString(), result);
+            pair = pair.ConvertToCommonType();
+            //var leftI = left as IntegerToken;
+            //var rightI = right as IntegerToken;
+            //var result = leftI.TypedValue + rightI.TypedValue;
+            //return new IntegerToken(result.ToString(), result);
+            return null;
         }
 
-        IToken Subtract(IToken left, IToken right)
+        IToken Subtract(TokenPair pair)
         {
-            var leftI = left as IntegerToken;
-            var rightI = right as IntegerToken;
-            var result = leftI.TypedValue - rightI.TypedValue;
-            return new IntegerToken(result.ToString(), result);
+            pair = pair.ConvertToCommonType();
+            //var leftI = left as IntegerToken;
+            //var rightI = right as IntegerToken;
+            //var result = leftI.TypedValue - rightI.TypedValue;
+            //return new IntegerToken(result.ToString(), result);
+            return null;
         }
 
-        IToken Multiply(IToken left, IToken right)
+        IToken Multiply(TokenPair pair)
         {
-            var leftI = left as IntegerToken;
-            var rightI = right as IntegerToken;
-            var result = leftI.TypedValue * rightI.TypedValue;
-            return new IntegerToken(result.ToString(), result);
+            pair = pair.ConvertToCommonType();
+            //var leftI = left as IntegerToken;
+            //var rightI = right as IntegerToken;
+            //var result = leftI.TypedValue * rightI.TypedValue;
+            //return new IntegerToken(result.ToString(), result);
+            return null;
         }
 
-        IToken Divide(IToken left, IToken right)
+        IToken Divide(TokenPair pair)
         {
-            var leftI = left as IntegerToken;
-            var rightI = right as IntegerToken;
-            var result = leftI.TypedValue / rightI.TypedValue;
-            return new IntegerToken(result.ToString(), result);
+            pair = pair.ConvertToCommonType();
+            //var leftI = left as IntegerToken;
+            //var rightI = right as IntegerToken;
+            //var result = leftI.TypedValue / rightI.TypedValue;
+            //return new IntegerToken(result.ToString(), result);
+            return null;
         }
 
     }
