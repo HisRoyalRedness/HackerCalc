@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
             var token = Parser.ParseExpression(input[0]) as OperatorToken;
             Assert.IsNotNull(token);
 
-            var expr = token.Aggregate(new TokenPrinter(TokenPrinter.FixType.Postfix)).Trim();
+            var expr = token.Print(TokenPrinter.FixType.Postfix).Trim();
             Assert.AreEqual(input[1], expr);
         }
     }

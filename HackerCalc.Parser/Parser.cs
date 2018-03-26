@@ -224,37 +224,4 @@ namespace HisRoyalRedness.com
         }
     }
     #endregion Errors
-
-    #region Exceptions
-    public class ParseException : ApplicationException
-    {
-        public ParseException(string message)
-            : base(message)
-        { }
-
-        public ParseException(string message, Exception innerException)
-            : base(message, innerException)
-        { }
-    }
-
-    public class InvalidCastException : ApplicationException
-    {
-        public InvalidCastException(string message)
-            : base(message)
-        { }
-
-        public InvalidCastException(Type typeFrom, Type typeTo)
-            : base($"Cannot cast from a {typeFrom.Name} to a {typeTo.Name}.")
-        { }
-
-        public InvalidCastException(string message, Exception innerException)
-            : base(message, innerException)
-        { }
-
-        public InvalidCastException(Type typeFrom, Type typeTo, Exception innerException)
-            : base($"Cannot cast from a {typeFrom.Name} to a {typeTo.Name}.", innerException)
-        { }
-
-    }
-    #endregion Exceptions
 }

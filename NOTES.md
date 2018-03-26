@@ -25,9 +25,13 @@ Change log
 |               | Fix integers being interpreted as bitwidth literals                                                       |
 | 2018-03-19    | More DateTime test                                                                                        |
 |               | Start of precedence and grouping tests                                                                    |
+| 2018-03-26    | Refactor: Seperate token classes and parsing                                                              |
+|               | Tests and implementation for casting between token types                                                  |
+|               | Add, subtract, multiply and divide implemented, for all data types                                        |
 
 Todo
 ----
 
+* Add operation unit tests
 * Add tests for TokenPrinter
 * Better error handling of tokens that don't parse correctly (e.g. dates and times)

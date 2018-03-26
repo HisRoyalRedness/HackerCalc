@@ -6,6 +6,8 @@ namespace HisRoyalRedness.com
 {
     public class TokenPrinter : ITokenVisitor<string>
     {
+        public const FixType DefaultFixType = FixType.Postfix;
+
         public enum FixType
         {
             Infix,
@@ -13,30 +15,18 @@ namespace HisRoyalRedness.com
             Postfix
         }
 
-        public TokenPrinter(FixType fixType = FixType.Postfix)
+        public TokenPrinter(FixType fixType = DefaultFixType)
         {
             _fixType = fixType;
         }
 
-        public void Visit<TToken>(TToken token)
-            where TToken : IToken
-        {
-            switch (token.GetType().Name)
-            {
-                case nameof(OperatorToken):
-                    Console.WriteLine();
-                    break;
-            }
-        }
-
-        public string VisitAndAggregate<TToken>(TToken token)
+        public string Visit<TToken>(TToken token)
             where TToken : IToken
         {
             StringBuilder sb = new StringBuilder();
             InternalVisitAndAggregate(sb, token);
             return sb.ToString();
         }
-
 
         void InternalVisitAndAggregate<TToken>(StringBuilder sb, TToken token)
         {
@@ -80,11 +70,17 @@ namespace HisRoyalRedness.com
                         sb.Append($"{((ILiteralToken)token).ObjectValue} ");
 
                     else
-                        throw new ApplicationException($"Unhandled token type {token.GetType().Name}");
+                        throw new UnrecognisedTokenException($"Unrecognised token type {token.GetType().Name}");
                     break;
             }
         }
 
         FixType _fixType = FixType.Postfix;
+    }
+
+    public static class TokenPrinterExtensions
+    {
+        public static string Print(this IToken token, TokenPrinter.FixType fixType = TokenPrinter.DefaultFixType)
+            => token.Accept(new TokenPrinter(fixType));
     }
 }
