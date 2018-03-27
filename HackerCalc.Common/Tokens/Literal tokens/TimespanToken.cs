@@ -47,5 +47,25 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         public override string ToString() => $"{Value}  -  {TypedValue}";
+
+        public string ToLongString()
+            => string.Join(", ", LongStringPortions(TypedValue));
+
+        IEnumerable<string> LongStringPortions(TimeSpan ts)
+        {
+            if (ts.Days > 0)
+                yield return LongStringPortions(ts.Days, "day");
+            if (ts.Hours > 0)
+                yield return LongStringPortions(ts.Hours, "hour");
+            if (ts.Minutes > 0)
+                yield return LongStringPortions(ts.Minutes, "minute");
+            if (ts.Seconds > 0)
+                yield return LongStringPortions(ts.Seconds, "second");
+            if (ts.Milliseconds > 0)
+                yield return LongStringPortions(ts.Milliseconds, "millisecond");
+        }
+
+        string LongStringPortions(int value, string singular)
+            => value == 1 ? $"1 {singular}" : $"{value} {singular}s";
     }
 }

@@ -11,10 +11,31 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
-            //var input = args.Length == 0 ? "1I * ~(2U + 0.3) << 0X50 - .4 & !6 >> 7F | 8U64 \\ 9 ^ 10.1F - 11t + 12:33.123 * 23:44:12 / 1:23:45:36.32" : args[0];
-            //var input = args.Length == 0 ? "1 + (2 _64 - 3u) * 4I_16 / 5U_4 + 6.0 - 7f + 0x88 * 92.345t" : args[0];
-            var input = args.Length == 0 ? "(i32)1+2*3-4/5" : args[0];
+            if (args.Length > 0)
+            {
+                switch(args[0].ToLower())
+                {
+                    case "i":
+                        Interative();
+                        break;
 
+                    case "d":
+                        Debug("(i32)1+2*3-4/5");
+                        break;
+                }
+            }
+        }
+
+        static void Interative()
+        {
+            Console.WriteLine("Enter an expression, or an empty line to quit");
+            string input = null;
+            while(!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
+                Console.WriteLine($" = {PrintToken(Parser.ParseExpression(input)?.Evaluate(), true)}");
+        }
+
+        static void Debug(string input)
+        {
             Console.WriteLine($"                1         2         3         4         5         6         7         8         9         ");
             Console.WriteLine($"       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             Console.WriteLine($"Input: {input}");
@@ -32,7 +53,7 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine("Evaluation");
             Console.WriteLine("----------");
-            var eval = rootToken?.Evaluate();
+            var eval = PrintToken(rootToken?.Evaluate(), true);
             Console.WriteLine(eval);
 
             Console.WriteLine();
@@ -44,5 +65,76 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine();
         }
+
+        static string PrintToken(IToken token, bool includeType = true)
+        {
+            var literalToken = token as ILiteralToken;
+            if (literalToken != null)
+            {
+                string val = "";
+                string dataType = "";
+
+                switch(literalToken.DataType)
+                {
+                    case TokenDataType.Integer:
+                        {
+                            var typedToken = literalToken as IntegerToken;
+                            val = typedToken.TypedValue.ToString();
+                            dataType = includeType
+                                ? (typedToken.BitWidth == IntegerToken.IntegerBitWidth.Unbound
+                                    ? "Unbound integer"
+                                    : $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}")
+                                : null;
+                        }
+                        break;
+                    case TokenDataType.Float:
+                        {
+                            var typedToken = literalToken as FloatToken;
+                            val = typedToken.TypedValue.ToString("0.000");
+                            dataType = includeType ? "Float" : null;
+                        }
+                        break;
+                    case TokenDataType.Timespan:
+                        {
+                            var typedToken = literalToken as TimespanToken;
+                            val = typedToken.ToLongString();
+                            dataType = includeType ? "Timespan" : null;
+                        }
+                        break;
+                    case TokenDataType.Time:
+                        {
+                            var typedToken = literalToken as TimeToken;
+                            val = typedToken.TypedValue.ToString();
+                            dataType = includeType ? "Time" : null;
+                        }
+                        break;
+                    case TokenDataType.Date:
+                        {
+                            var typedToken = literalToken as DateToken;
+                            val = typedToken.TypedValue.ToString("yyyy-MM-dd HH:mm:ss");
+                            dataType = includeType ? "Date" : null;
+                        }
+                        break;
+                    default:
+                        return $"Unrecognised data type {literalToken.DataType}";
+                }
+
+                return string.IsNullOrWhiteSpace(dataType)
+                    ? val
+                    : $"{val}   -   {dataType}";
+            }
+
+            var opToken = token as OperatorToken;
+            if (opToken != null)
+            {
+                return opToken.Operator.ToString();
+            }
+
+            return null;
+        }
+
+
     }
+
+    
 }

@@ -96,6 +96,6 @@ namespace HisRoyalRedness.com
         public bool IsSigned { get; private set; }
         public IntegerBitWidth BitWidth { get; private set; }
 
-        public override string ToString() => $"{Value}_{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}  -  {TypedValue}";
+        public override string ToString() => $"{TypedValue}  -  {Value}_{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
     }
 }
