@@ -10,6 +10,8 @@ namespace HisRoyalRedness.com
     {
         public static string GetEnumDescription(this Enum value)
         {
+            if (value == (Enum)OperatorType.Cast)
+                Console.WriteLine();
             FieldInfo fi = value.GetType().GetField(value.ToString());
 
             DescriptionAttribute[] attributes =

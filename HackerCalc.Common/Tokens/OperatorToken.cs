@@ -30,7 +30,9 @@ namespace HisRoyalRedness.com
         [Description("!")]
         Not,
         [Description("^")]
-        Xor
+        Xor,
+
+        Cast
     }
 
     public interface IOperatorToken : IToken
@@ -74,6 +76,61 @@ namespace HisRoyalRedness.com
                 case "|": return new OperatorToken(OperatorType.Or);
                 case "^": return new OperatorToken(OperatorType.Xor);
                 default: throw new ParseException($"Unrecognised operator {value}.");
+            }
+        }
+
+        public override string ToString() => $"{Operator.GetEnumDescription()}";
+    }
+
+    public class CastOperatorToken : OperatorToken
+    {
+        public CastOperatorToken(TokenDataType castToType)
+            : base(OperatorType.Cast, true)
+        {
+            CastToType = castToType;
+        }
+
+        public TokenDataType CastToType { get; private set; }
+
+        public static new CastOperatorToken Parse(string value)
+        {
+            switch (value.ToLower())
+            {
+                case "(i4)":
+                case "(i8)":
+                case "(i16)":
+                case "(i32)":
+                case "(i64)":
+                case "(i128)":
+                case "(u4)":
+                case "(u8)":
+                case "(u16)":
+                case "(u32)":
+                case "(u64)":
+                case "(u128)":
+                    return new CastOperatorToken(TokenDataType.Integer);
+
+                case "(f)":
+                case "(fl)":
+                case "(flt)":
+                case "(float)":
+                    return new CastOperatorToken(TokenDataType.Float);
+
+                case "(ts)":
+                case "(timespan)":
+                    return new CastOperatorToken(TokenDataType.Timespan);
+
+                case "(t)":
+                case "(ti)":
+                case "(time)":
+                    return new CastOperatorToken(TokenDataType.Time);
+
+                case "(d)":
+                case "(dt)":
+                case "(date)":
+                    return new CastOperatorToken(TokenDataType.Date);
+
+                default: throw new ParseException($"Unrecognised cast operator type {value}.");
             }
         }
 

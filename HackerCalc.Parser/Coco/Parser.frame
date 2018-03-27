@@ -29,7 +29,6 @@ using System;
 
 -->namespace
 
-#region Parser
 public partial class Parser {
 -->constants
 	const bool _T = true;
@@ -116,7 +115,6 @@ public partial class Parser {
 -->initialization
 	};
 }
-#endregion Parser
 
 #region Errors
 public partial class Errors {

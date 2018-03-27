@@ -31,7 +31,6 @@ using System.Collections.Generic;
 
 -->namespace
 
-#region Scanner
 public partial class Scanner : IDisposable {
 	const char EOL = '\n';
 	const int eofSym = 0; /* pdt */
@@ -121,12 +120,7 @@ public partial class Scanner : IDisposable {
 -->comments
 
 	void CheckLiteral() {
-        switch(prevt?.val.ToLower()) {
-            case "u": case "U": case "i": case "I": {
 -->literals
-            }
-            break;
-        }
 	}
 
 	Token NextToken() {
@@ -216,5 +210,4 @@ public partial class Scanner : IDisposable {
     #endregion IDisposable
 
 }
-#endregion Scanner
 

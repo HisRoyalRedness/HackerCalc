@@ -18,19 +18,39 @@ namespace HisRoyalRedness.com
             else if (token is IOperatorToken)
             {
                 var opToken = token as OperatorToken;
-                var pair = new TokenPair(
-                    Visit(opToken.Left) as ILiteralToken,
-                    Visit(opToken.Right) as ILiteralToken);
 
-                switch (opToken.Operator)
+                if (opToken.IsUnary)
                 {
-                    case OperatorType.Add: return Add(pair);
-                    case OperatorType.Subtract: return Subtract(pair);
-                    case OperatorType.Multiply: return Multiply(pair);
-                    case OperatorType.Divide: return Divide(pair);
+                    var litToken = Visit(opToken.Left) as ILiteralToken;
 
-                    default:
-                        throw new ApplicationException($"Unhandled operator type {opToken.Operator}");
+                    switch (opToken.Operator)
+                    {
+                        case OperatorType.Cast:
+                            {
+                                var castOp = opToken as CastOperatorToken;
+                                return litToken.CastTo(castOp.CastToType);
+                            }
+
+                        default:
+                            throw new ApplicationException($"Unhandled unary operator type {opToken.Operator}");
+                    }
+                }
+                else
+                {
+                    var pair = new TokenPair(
+                        Visit(opToken.Left) as ILiteralToken,
+                        Visit(opToken.Right) as ILiteralToken);
+
+                    switch (opToken.Operator)
+                    {
+                        case OperatorType.Add: return Add(pair);
+                        case OperatorType.Subtract: return Subtract(pair);
+                        case OperatorType.Multiply: return Multiply(pair);
+                        case OperatorType.Divide: return Divide(pair);
+
+                        default:
+                            throw new ApplicationException($"Unhandled operator type {opToken.Operator}");
+                    }
                 }
             }
             else

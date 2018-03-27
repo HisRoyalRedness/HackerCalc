@@ -33,6 +33,7 @@ namespace HisRoyalRedness.com
             switch (token.GetType().Name)
             {
                 case nameof(OperatorToken):
+                case nameof(CastOperatorToken):
                     var opToken = token as OperatorToken;
                     switch (_fixType)
                     {

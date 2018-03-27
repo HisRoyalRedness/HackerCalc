@@ -28,10 +28,14 @@ Change log
 | 2018-03-26    | Refactor: Seperate token classes and parsing                                                              |
 |               | Tests and implementation for casting between token types                                                  |
 |               | Add, subtract, multiply and divide implemented, for all data types                                        |
+| 2018-03-27    | Added type cast to parser                                                                                 |
 
 Todo
 ----
 
+* Implement cast operator
+* Implement other operators
+* Casting for bound integers (and bitwidths)
 * Add operation unit tests
 * Add tests for TokenPrinter
 * Better error handling of tokens that don't parse correctly (e.g. dates and times)
