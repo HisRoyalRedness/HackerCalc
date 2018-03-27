@@ -14,14 +14,11 @@ namespace HisRoyalRedness.com
         }
 
         public TimeToken(TimeSpan typedValue)
-            : base(TokenDataType.Time, typedValue)
-        {
-            if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
-                throw new OverflowException("Time must be within the range of a single day");
-        }
+            : this(typedValue.ToString(), typedValue)
+        { }
 
         public TimeToken()
-            : base(TokenDataType.Time, "", TimeSpan.Zero)
+            : this(TimeSpan.Zero)
         { }
 
         #region Parsing

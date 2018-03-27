@@ -9,6 +9,11 @@ namespace HisRoyalRedness.com
 
     public class TokenEvaluator : ITokenVisitor<IToken>
     {
+        public TokenEvaluator(EvaluatorSettings settings)
+        {
+            _settings = settings;
+        }
+
         public IToken Visit<TToken>(TToken token)
             where TToken : IToken
         {
@@ -28,7 +33,10 @@ namespace HisRoyalRedness.com
                         case OperatorType.Cast:
                             {
                                 var castOp = opToken as CastOperatorToken;
-                                return litToken.CastTo(castOp.CastToType);
+                                var castToken = litToken.CastTo(castOp.CastToType);
+                                return castOp.CastToType == TokenDataType.Integer
+                                    ? (castToken as IntegerToken).Cast(castOp.IsSigned, castOp.BitWidth)
+                                    : castToken;
                             }
 
                         default:
@@ -375,11 +383,18 @@ namespace HisRoyalRedness.com
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan) }
         };
         #endregion Divide
+
+        readonly EvaluatorSettings _settings;
     }
 
     public static class TokenEvaluatorExtensions
     {
-        public static IToken Evaluate(this IToken token)
-            => token.Accept(new TokenEvaluator());
+        public static IToken Evaluate(this IToken token, EvaluatorSettings settings = null)
+            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings()));
+    }
+
+    public class EvaluatorSettings
+    {
+        public bool ErrorOnOverflow { get; set; }
     }
 }

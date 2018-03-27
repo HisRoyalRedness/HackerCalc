@@ -38,13 +38,13 @@ namespace HisRoyalRedness.com
             TypedValue = typedValue;
         }
 
-        public LiteralToken(TokenDataType dataType, T typedValue)
-            : base()
-        {
-            DataType = dataType;
-            Value = typedValue.ToString();
-            TypedValue = typedValue;
-        }
+        //public LiteralToken(TokenDataType dataType, T typedValue)
+        //    : base()
+        //{
+        //    DataType = dataType;
+        //    Value = typedValue.ToString();
+        //    TypedValue = typedValue;
+        //}
 
         public TokenDataType DataType { get; private set; }
         public string Value { get; private set; }
@@ -53,6 +53,7 @@ namespace HisRoyalRedness.com
         public T TypedValue { get; private set; }
         public object ObjectValue => TypedValue;
 
+        #region Casting
         protected virtual TToken InternalCastTo<TToken>()
             where TToken : class, ILiteralToken
         {
@@ -81,6 +82,7 @@ namespace HisRoyalRedness.com
                 default: throw new InvalidCastException($"Could not cast from a {GetType().Name} to {dataType}.");
             }
         }
+        #endregion Casting
 
         public override string ToString() => $"{Value}";
     }

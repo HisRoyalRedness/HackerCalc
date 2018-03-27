@@ -7,6 +7,9 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
+    //using SignAndBitwidthPair = Tuple<bool, IntegerToken.IntegerBitWidth>;
+
+
     public class IntegerToken : LiteralToken<BigInteger>
     {
         public enum IntegerBitWidth
@@ -35,11 +38,8 @@ namespace HisRoyalRedness.com
         }
 
         public IntegerToken(BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
-            : base(TokenDataType.Integer, typedValue)
-        {
-            IsSigned = isSigned;
-            BitWidth = bitWidth;
-        }
+            : this(typedValue.ToString(), typedValue, isSigned, bitWidth)
+        { }
 
         #region Parsing
         public static IntegerToken Parse(string value, bool isHex)
@@ -54,20 +54,45 @@ namespace HisRoyalRedness.com
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)
         {
-            switch (bitWidth)
+            switch (bitWidth.ToLower())
             {
-                case "4": return IntegerBitWidth._4;
-                case "8": return IntegerBitWidth._8;
-                case "16": return IntegerBitWidth._16;
-                case "32": return IntegerBitWidth._32;
-                case "64": return IntegerBitWidth._64;
-                case "128": return IntegerBitWidth._128;
+                case "4":
+                case "(i4)":
+                case "(u4)":
+                    return IntegerBitWidth._4;
+                case "8":
+                case "(i8)":
+                case "(u8)":
+                    return IntegerBitWidth._8;
+                case "16":
+                case "(i16)":
+                case "(u16)":
+                    return IntegerBitWidth._16;
+                case "32":
+                case "(i32)":
+                case "(u32)":
+                    return IntegerBitWidth._32;
+                case "64":
+                case "(i64)":
+                case "(u64)":
+                    return IntegerBitWidth._64;
+                case "128":
+                case "(i128)":
+                case "(u128)":
+                    return IntegerBitWidth._128;
                 default: throw new ArgumentOutOfRangeException("Invalid bit width");
             }
         }
         #endregion Parsing
 
         #region Casting
+        public IntegerToken Cast(bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
+        {
+            if (bitWidth == BitWidth && isSigned == IsSigned)
+                    return this;
+            return new IntegerToken(Value, TypedValue, isSigned, bitWidth);
+        }
+
         protected override TToken InternalCastTo<TToken>()
         {
             if (typeof(TToken).Name == GetType().Name)
@@ -92,6 +117,41 @@ namespace HisRoyalRedness.com
             }
         }
         #endregion Casting
+
+        struct SignAndBitwidthPair
+        {
+            public SignAndBitwidthPair(bool isSigned, IntegerBitWidth bitWidth)
+            {
+                IsSigned = isSigned;
+                BitWidth = bitWidth;
+            }
+
+            public bool IsSigned;
+            public IntegerBitWidth BitWidth;
+        }
+
+        struct MinAndMax
+        {
+            public MinAndMax(BigInteger min, BigInteger max)
+            {
+                Min = min;
+                Max = max;
+            }
+
+            public BigInteger Min;
+            public BigInteger Max;
+        }
+
+        static readonly Dictionary<SignAndBitwidthPair, MinAndMax> _minAndMax = new Dictionary<SignAndBitwidthPair, MinAndMax>()
+        {
+            { new SignAndBitwidthPair(false, IntegerBitWidth._4), new MinAndMax(0, 15) },
+            { new SignAndBitwidthPair(false, IntegerBitWidth._8), new MinAndMax(0, 15) },
+            { new SignAndBitwidthPair(false, IntegerBitWidth._16), new MinAndMax(0, 15) },
+            { new SignAndBitwidthPair(false, IntegerBitWidth._32), new MinAndMax(0, 15) },
+            { new SignAndBitwidthPair(false, IntegerBitWidth._64), new MinAndMax(0, 15) },
+            { new SignAndBitwidthPair(false, IntegerBitWidth._128), new MinAndMax(0, 15) },
+
+        };
 
         public bool IsSigned { get; private set; }
         public IntegerBitWidth BitWidth { get; private set; }

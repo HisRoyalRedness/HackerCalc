@@ -12,12 +12,11 @@ namespace HisRoyalRedness.com
         { }
 
         public DateToken(DateTime typedValue)
-            : base(TokenDataType.Date, typedValue)
+            : this(typedValue.ToString("yyyy-MM-dd HH:mm:ss"), typedValue)
         { }
 
-
         public DateToken()
-            : base(TokenDataType.Date, "now", DateTime.Now)
+            : this("now", DateTime.Now)
         { }
 
         #region Parsing

@@ -12,7 +12,7 @@ namespace HisRoyalRedness.com
         { }
 
         public FloatToken(double typedValue)
-            : base(TokenDataType.Float, typedValue)
+            : this(typedValue.ToString(), typedValue)
         { }
 
         #region Parsing

@@ -11,11 +11,11 @@ namespace HisRoyalRedness.com
         { }
 
         public TimespanToken(TimeSpan typedValue)
-            : base(TokenDataType.Timespan, typedValue)
+            : this(typedValue.ToString(), typedValue)
         { }
 
         public TimespanToken()
-            : base(TokenDataType.Timespan, "", TimeSpan.Zero)
+            : this(TimeSpan.Zero)
         { }
 
         #region Parsing

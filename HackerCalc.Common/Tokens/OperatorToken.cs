@@ -92,47 +92,15 @@ namespace HisRoyalRedness.com
 
         public TokenDataType CastToType { get; private set; }
 
-        public static new CastOperatorToken Parse(string value)
-        {
-            switch (value.ToLower())
-            {
-                case "(i4)":
-                case "(i8)":
-                case "(i16)":
-                case "(i32)":
-                case "(i64)":
-                case "(i128)":
-                case "(u4)":
-                case "(u8)":
-                case "(u16)":
-                case "(u32)":
-                case "(u64)":
-                case "(u128)":
-                    return new CastOperatorToken(TokenDataType.Integer);
+        public bool IsSigned { get; private set; }
+        public IntegerToken.IntegerBitWidth BitWidth { get; private set; }
 
-                case "(f)":
-                case "(fl)":
-                case "(flt)":
-                case "(float)":
-                    return new CastOperatorToken(TokenDataType.Float);
-
-                case "(ts)":
-                case "(timespan)":
-                    return new CastOperatorToken(TokenDataType.Timespan);
-
-                case "(t)":
-                case "(ti)":
-                case "(time)":
-                    return new CastOperatorToken(TokenDataType.Time);
-
-                case "(d)":
-                case "(dt)":
-                case "(date)":
-                    return new CastOperatorToken(TokenDataType.Date);
-
-                default: throw new ParseException($"Unrecognised cast operator type {value}.");
-            }
-        }
+        public static CastOperatorToken IntegerCast(bool isSigned = true, IntegerToken.IntegerBitWidth bitWidth = IntegerToken.IntegerBitWidth.Unbound) 
+            => new CastOperatorToken(TokenDataType.Integer) { IsSigned = isSigned, BitWidth = bitWidth };
+        public static CastOperatorToken FloatCast() => new CastOperatorToken(TokenDataType.Float);
+        public static CastOperatorToken TimespanCast() => new CastOperatorToken(TokenDataType.Timespan);
+        public static CastOperatorToken TimeCast() => new CastOperatorToken(TokenDataType.Time);
+        public static CastOperatorToken DateCast() => new CastOperatorToken(TokenDataType.Date);
 
         public override string ToString() => $"{Operator.GetEnumDescription()}";
     }
