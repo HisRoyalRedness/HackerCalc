@@ -49,7 +49,7 @@ namespace HisRoyalRedness.com
         public override string ToString() => $"{Value}  -  {TypedValue}";
 
         public string ToLongString()
-            => string.Join(", ", LongStringPortions(TypedValue));
+            => string.Join(" ", LongStringPortions(TypedValue));
 
         IEnumerable<string> LongStringPortions(TimeSpan ts)
         {
@@ -59,10 +59,10 @@ namespace HisRoyalRedness.com
                 yield return LongStringPortions(ts.Hours, "hour");
             if (ts.Minutes > 0)
                 yield return LongStringPortions(ts.Minutes, "minute");
-            if (ts.Seconds > 0)
-                yield return LongStringPortions(ts.Seconds, "second");
-            if (ts.Milliseconds > 0)
-                yield return LongStringPortions(ts.Milliseconds, "millisecond");
+            if (ts.Seconds > 0 || ts.Milliseconds > 0)
+                yield return ts.Milliseconds > 0
+                    ? $"{ts.Seconds}.{ts.Milliseconds} seconds"
+                    : LongStringPortions(ts.Seconds, "second");
         }
 
         string LongStringPortions(int value, string singular)
