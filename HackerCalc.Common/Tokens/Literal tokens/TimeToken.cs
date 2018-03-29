@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class TimeToken : LiteralToken<TimeSpan>
+    public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
         public TimeToken(string value, TimeSpan typedValue)
             : base(TokenDataType.Time, value, typedValue)
@@ -49,6 +49,19 @@ namespace HisRoyalRedness.com
         }
         #endregion Casting
 
-        public override string ToString() => $"{Value}  -  {TypedValue}";
+        #region Equality
+        public override bool Equals(TimeToken other) => other == null ? false : (TypedValue == other.TypedValue);
+        public static bool operator ==(TimeToken a, TimeToken b)
+        {
+            if (object.ReferenceEquals(null, a) && object.ReferenceEquals(null, b))
+                return true;
+            if (object.ReferenceEquals(null, a) || object.ReferenceEquals(null, b))
+                return false;
+            return a.TypedValue == b.TypedValue;
+        }
+        public static bool operator !=(TimeToken a, TimeToken b) => !(a == b);
+        #endregion Equality
+
+        public override string ToString() => $"{Value}";
     }
 }

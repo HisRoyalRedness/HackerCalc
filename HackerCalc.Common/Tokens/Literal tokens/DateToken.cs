@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HisRoyalRedness.com
 {
-    public class DateToken : LiteralToken<DateTime>
+    public class DateToken : LiteralToken<DateTime, DateToken>
     {
         public DateToken(string value, DateTime typedValue)
             : base(TokenDataType.Date, value, typedValue)
@@ -47,6 +47,19 @@ namespace HisRoyalRedness.com
         }
         #endregion Casting
 
-        public override string ToString() => $"{Value}  -  {TypedValue}";
+        #region Equality
+        public override bool Equals(DateToken other) => other == null ? false : (TypedValue == other.TypedValue);
+        public static bool operator ==(DateToken a, DateToken b)
+        {
+            if (object.ReferenceEquals(null, a) && object.ReferenceEquals(null, b))
+                return true;
+            if (object.ReferenceEquals(null, a) || object.ReferenceEquals(null, b))
+                return false;
+            return a.TypedValue == b.TypedValue;
+        }
+        public static bool operator !=(DateToken a, DateToken b) => !(a == b);
+        #endregion Equality
+
+        public override string ToString() => $"{TypedValue}";
     }
 }

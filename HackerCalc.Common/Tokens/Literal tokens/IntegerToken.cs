@@ -10,7 +10,7 @@ namespace HisRoyalRedness.com
     //using SignAndBitwidthPair = Tuple<bool, IntegerToken.IntegerBitWidth>;
 
 
-    public class IntegerToken : LiteralToken<BigInteger>
+    public class IntegerToken : LiteralToken<BigInteger, IntegerToken>
     {
         public enum IntegerBitWidth
         {
@@ -156,6 +156,21 @@ namespace HisRoyalRedness.com
         public bool IsSigned { get; private set; }
         public IntegerBitWidth BitWidth { get; private set; }
 
-        public override string ToString() => $"{TypedValue}  -  {Value}_{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
+        #region Equality
+        public override bool Equals(IntegerToken other) => other == null ? false : (TypedValue == other.TypedValue);
+        public static bool operator ==(IntegerToken a, IntegerToken b)
+        {
+            if (a is null && b is null)
+                return true;
+            if (a is null || b is null)
+                return false;
+            return a.TypedValue == b.TypedValue;
+        }
+        public static bool operator !=(IntegerToken a, IntegerToken b) => !(a == b);
+        #endregion Equality
+
+        public override string ToString() => BitWidth == IntegerBitWidth.Unbound
+            ? $"{TypedValue}"
+            : $"{TypedValue}{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
     }
 }

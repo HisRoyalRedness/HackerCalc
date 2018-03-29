@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 using System.Numerics;
+using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
@@ -14,10 +15,13 @@ namespace HisRoyalRedness.com
         [DataRow("255I32")]
         public void DecimalIntegerValueIsParsedCorrectly(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(255, token.TypedValue);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.TypedValue.Should().Be(255);
         }
 
         [DataTestMethod]
@@ -27,10 +31,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xffI32")]
         public void HexadecimalIntegerValueIsParsedCorrectly(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(255, token.TypedValue);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.TypedValue.Should().Be(255);
         }
 
         [DataTestMethod]
@@ -40,10 +47,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xffU32")]
         public void IntegerWithAttachedSignFlagAndBitwidthIsParsedCorrectly(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(255, token.TypedValue);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.TypedValue.Should().Be(255);
         }
 
         [DataTestMethod]
@@ -53,8 +63,7 @@ namespace HisRoyalRedness.com
         [DataRow("0xff U32")]
         public void IntegerWithUnattachedSignFlagIsNotParsed(string input)
         {
-            var token = Parser.ParseExpression(input);
-            Assert.IsNull(token);
+            Parser.ParseExpression(input).Should().BeNull($"'{input}' should not parse");
         }
 
         [DataTestMethod]
@@ -64,8 +73,7 @@ namespace HisRoyalRedness.com
         [DataRow("0xffU 32")]
         public void IntegerWithUnattachedBitwidthIsNotParsed(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
-            Assert.IsNull(token);
+            Parser.ParseExpression(input).Should().BeNull($"'{input}' should not parse");
         }
 
         [DataTestMethod]
@@ -95,10 +103,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xffi128")]
         public void SignedIntegerSignFlagsAreParsedCorrectly(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(true, token.IsSigned);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.IsSigned.Should().BeTrue();
         }
 
         [DataTestMethod]
@@ -128,10 +139,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xffu128")]
         public void UnsignedIntegerSignFlagsAreParsedCorrectly(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(false, token.IsSigned);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.IsSigned.Should().BeFalse();
         }
 
         [DataTestMethod]
@@ -139,10 +153,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xff")]        
         public void IntegerDefaultSignFlagIsSigned(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(true, token.IsSigned);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.IsSigned.Should().BeTrue();
         }
 
         [DataTestMethod]
@@ -150,10 +167,13 @@ namespace HisRoyalRedness.com
         [DataRow("0xff")]
         public void IntegerDefaultBitWidthIsUnbound(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(IntegerToken.IntegerBitWidth.Unbound, token.BitWidth);
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
+            token.BitWidth.Should().Be(IntegerToken.IntegerBitWidth.Unbound);
         }
 
         [DataTestMethod]
@@ -183,11 +203,17 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "0xffu128", "128" })]
         public void IntegerBitwidthIsParsedCorrectly(string[] input)
         {
-            var token = Parser.ParseExpression(input[0]) as IntegerToken;
+            input.Should().HaveCount(2);
+
+            var expr = Parser.ParseExpression(input[0]);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
             var expectedBitwidth = (IntegerToken.IntegerBitWidth)(int.Parse(input[1]));
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(expectedBitwidth, token.BitWidth);
+            token.BitWidth.Should().Be(expectedBitwidth);
         }
 
         [DataTestMethod]
@@ -199,11 +225,15 @@ namespace HisRoyalRedness.com
         [DataRow("128")]
         public void IntegersAreNotParsedAsBitwidthLiterals(string input)
         {
-            var token = Parser.ParseExpression(input) as IntegerToken;
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as IntegerToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid IntegerToken.");
+
             var expectedValue = int.Parse(input);
 
-            Assert.IsNotNull(token);
-            Assert.AreEqual(expectedValue, token.TypedValue);
+            token.TypedValue.Should().Be(expectedValue);
         }
     }
 }

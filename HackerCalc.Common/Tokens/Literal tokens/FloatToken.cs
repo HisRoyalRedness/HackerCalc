@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class FloatToken : LiteralToken<double>
+    public class FloatToken : LiteralToken<double, FloatToken>
     {
         public FloatToken(string value, double typedValue)
             : base(TokenDataType.Float, value, typedValue)
@@ -46,6 +46,19 @@ namespace HisRoyalRedness.com
         }
         #endregion Casting
 
-        public override string ToString() => $"{Value}F  -  {TypedValue:0.000}";
+        #region Equality
+        public override bool Equals(FloatToken other) => other == null ? false : (TypedValue == other.TypedValue);
+        public static bool operator ==(FloatToken a, FloatToken b)
+        {
+            if (object.ReferenceEquals(null, a) && object.ReferenceEquals(null, b))
+                return true;
+            if (object.ReferenceEquals(null, a) || object.ReferenceEquals(null, b))
+                return false;
+            return a.TypedValue == b.TypedValue;
+        }
+        public static bool operator !=(FloatToken a, FloatToken b) => !(a == b);
+        #endregion Equality
+
+        public override string ToString() => $"{TypedValue:0.000}F";
     }
 }

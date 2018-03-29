@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
@@ -26,13 +27,15 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "1/(2-3)", "1 2 3 - /" })]
         [DataRow(new[] { "(1/2)-3", "1 2 / 3 -" })]
         [DataRow(new[] { "(1/2-3)", "1 2 / 3 -" })]
-        public void AddAndMultiplyPrecedenceIsDeterminedCorrectly(string[] input)
+        public void BasicPrecedenceIsDeterminedCorrectly(string[] input)
         {
+            input.Should().HaveCount(2);
+
             var token = Parser.ParseExpression(input[0]) as OperatorToken;
-            Assert.IsNotNull(token);
+            token.Should().NotBeNull($"{input[0]} should always parse");
 
             var expr = token.Print(TokenPrinter.FixType.Postfix).Trim();
-            Assert.AreEqual(input[1], expr);
+            expr.Should().Be(input[1]);
         }
     }
 }

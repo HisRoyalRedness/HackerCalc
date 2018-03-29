@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
@@ -59,17 +60,22 @@ namespace HisRoyalRedness.com
 
 
         public void TokenCastBase<TToken, TType>(string[] input)
-            where TToken : class, ILiteralToken, ILiteralToken<TType>
+            where TToken : class, ILiteralToken, ILiteralToken<TType, TToken>
         {
+            input.Should().HaveCount(2);
+
             var expectedRepl = input[1]?.Replace("<DATE>", DateTime.Now.ToString("yyyy-MM-dd"));
 
-            var token = Parser.ParseExpression(input[0]) as ILiteralToken;
-            Assert.IsNotNull(token, $"while parsing {input[0]}");
+            var expr = Parser.ParseExpression(input[0]);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as ILiteralToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid ILiteralToken.");
 
             TType expectedValue = default(TType);
             if (input[1] != null)
             {
-                ILiteralToken<TType> expectedToken = Parser.ParseExpression(expectedRepl) as ILiteralToken<TType>;
+                var expectedToken = Parser.ParseExpression(expectedRepl) as TToken;
 
                 if (expectedToken != null)
                     expectedValue = expectedToken.TypedValue;
@@ -84,21 +90,23 @@ namespace HisRoyalRedness.com
                     expectedValue = (TType)methodInfo.Invoke(null, new[] { expectedRepl });
                 }
 
-                Assert.IsFalse(expectedValue.Equals(default(TType)), $"while parsing expected value {input[1]} as a {typeof(TToken).Name}");
+                expectedValue.Should().NotBe(default(TType), $"value {input[1]} should not parse as a {typeof(TToken).Name} into its default value");
             }
 
+            // If expected is null, we expect the cast to fail
             if (input[1] == null)
             {
-                // If expected is null, we expect the cast to fail
-                Assert.ThrowsException<InvalidCastException>(() => token.CastTo<TToken>(), $"Expected the cast to fail when casting input {input[0]} as a {typeof(TToken).Name}");
+                Action cast = () => token.CastTo<TToken>();
+                cast.Should().Throw<InvalidCastException>($"{input[0]} should not be able to be cast to a {typeof(TToken).Name}");
             }
+
+            // ...else we expect the cast to succeed and we should test the result
             else
             {
-                // ...else we expect the cast to succeed and we should test the result
                 var castToken = token.CastTo<TToken>();
-                Assert.IsNotNull(castToken, $"Expected the cast to fail when casting input {input[0]} as a {typeof(TToken).Name}");
-                Assert.IsInstanceOfType(castToken, typeof(TToken), $"for input {input[0]}");
-                Assert.AreEqual(expectedValue, castToken.TypedValue, $"for input {input[0]}");
+                castToken.Should().NotBeNull($"input {input[0]} should be able to cast to a {typeof(TToken).Name}");
+                castToken.Should().BeAssignableTo<TToken>($"for input {input[0]}");
+                castToken.TypedValue.Should().Be(expectedValue, $"for input {input[0]}");
             }
         }
     }

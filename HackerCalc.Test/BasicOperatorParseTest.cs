@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
     [TestClass]
-    public class BasicParseTest
+    public class BasicOperatorParseTest
     {
         [DataTestMethod]
         [DataRow("1+2")]
@@ -93,36 +94,42 @@ namespace HisRoyalRedness.com
 
         void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType)
         {
-            var token = Parser.ParseExpression(input) as OperatorToken;
-            Assert.IsNotNull(token);
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsFalse(token.IsUnary);
+            var token = expr as OperatorToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
+
+            token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
             var leftToken = token.Left as IntegerToken;
-            Assert.IsNotNull(leftToken);
-            Assert.AreEqual(1, leftToken.TypedValue);
+            leftToken.Should().NotBeNull("the left token is expected to be an IntegerToken");
+            leftToken.TypedValue.Should().Be(1);
 
             var rightToken = token.Right as IntegerToken;
-            Assert.IsNotNull(rightToken);
-            Assert.AreEqual(2, rightToken.TypedValue);
+            rightToken.Should().NotBeNull("the right token is expected to be an IntegerToken");
+            rightToken.TypedValue.Should().Be(2);
 
-            Assert.AreEqual(expectedType, token.Operator);
+            token.Operator.Should().Be(expectedType);
         }
 
         void UnaryOperatorParsesCorrectly(string input, OperatorType expectedType)
         {
-            var token = Parser.ParseExpression(input) as OperatorToken;
-            Assert.IsNotNull(token);
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
 
-            Assert.IsTrue(token.IsUnary);
+            var token = expr as OperatorToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
+
+            token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
             var leftToken = token.Left as IntegerToken;
-            Assert.IsNotNull(leftToken);
-            Assert.AreEqual(1, leftToken.TypedValue);
+            leftToken.Should().NotBeNull("the left token is expected to be an IntegerToken");
+            leftToken.TypedValue.Should().Be(1);
 
-            Assert.IsNull(token.Right);
+            token.Right.Should().BeNull("the right token is always null for a unary operator");
 
-            Assert.AreEqual(expectedType, token.Operator);
+            token.Operator.Should().Be(expectedType);
         }
     }
 }

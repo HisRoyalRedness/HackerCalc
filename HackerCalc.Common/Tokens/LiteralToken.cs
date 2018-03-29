@@ -23,14 +23,16 @@ namespace HisRoyalRedness.com
         ILiteralToken CastTo(TokenDataType dataType);
     }
 
-    public interface ILiteralToken<T> : ILiteralToken
+    public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable<TTypedToken>
+        where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
-        T TypedValue { get; }
+        TBaseType TypedValue { get; }
     }
 
-    public abstract class LiteralToken<T> : TokenBase<LiteralToken<T>>, ILiteralToken<T>
+    public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>
+        where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
-        public LiteralToken(TokenDataType dataType, string value, T typedValue)
+        public LiteralToken(TokenDataType dataType, string value, TBaseType typedValue)
             : base()
         {
             DataType = dataType;
@@ -38,19 +40,11 @@ namespace HisRoyalRedness.com
             TypedValue = typedValue;
         }
 
-        //public LiteralToken(TokenDataType dataType, T typedValue)
-        //    : base()
-        //{
-        //    DataType = dataType;
-        //    Value = typedValue.ToString();
-        //    TypedValue = typedValue;
-        //}
-
         public TokenDataType DataType { get; private set; }
         public string Value { get; private set; }
         public bool IsFloat => DataType == TokenDataType.Float;
         public bool IsInteger => DataType == TokenDataType.Integer;
-        public T TypedValue { get; private set; }
+        public TBaseType TypedValue { get; private set; }
         public object ObjectValue => TypedValue;
 
         #region Casting
@@ -84,6 +78,22 @@ namespace HisRoyalRedness.com
         }
         #endregion Casting
 
+        #region Equality
+        public virtual bool Equals(TTypedToken other) => other == null ? false : TypedValue.Equals(other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as TTypedToken);
+        public bool Equals(ILiteralToken<TBaseType, TTypedToken> other) => Equals(other as TTypedToken);
+
+        #endregion Equality
+
+        public int CompareTo(TTypedToken other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode() => TypedValue.GetHashCode();
+
         public override string ToString() => $"{Value}";
+
+
     }
 }

@@ -29,10 +29,13 @@ Change log
 |               | Tests and implementation for casting between token types                                                  |
 |               | Add, subtract, multiply and divide implemented, for all data types                                        |
 | 2018-03-27    | Added type cast to parser                                                                                 |
+| 2018-03-29    | Added equality                                                                                            |
 
 Todo
 ----
 
+* Get equality working for IntegerTokens, to account for sign and bitwidth
+* Implement comparison
 * Implement cast operator
 * Implement other operators
 * Casting for bound integers (and bitwidths)
