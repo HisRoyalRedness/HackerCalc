@@ -11,7 +11,7 @@ namespace HisRoyalRedness.com
     public interface IToken
     {
         // Visitor pattern
-        TVisitRet Accept<TVisitRet>(ITokenVisitor<TVisitRet> visitor);        
+        TVisitRet Accept<TVisitRet>(ITokenVisitor<TVisitRet> visitor);
     }
 
     public abstract class TokenBase<TToken> : IToken

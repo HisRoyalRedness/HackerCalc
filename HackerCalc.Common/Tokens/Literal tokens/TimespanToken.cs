@@ -50,9 +50,9 @@ namespace HisRoyalRedness.com
         public override bool Equals(TimespanToken other) => other == null ? false : (TypedValue == other.TypedValue);
         public static bool operator ==(TimespanToken a, TimespanToken b)
         {
-            if (object.ReferenceEquals(null, a) && object.ReferenceEquals(null, b))
+            if (a is null && b is null)
                 return true;
-            if (object.ReferenceEquals(null, a) || object.ReferenceEquals(null, b))
+            if (a is null || b is null)
                 return false;
             return a.TypedValue == b.TypedValue;
         }

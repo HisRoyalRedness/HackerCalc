@@ -30,6 +30,14 @@ namespace HisRoyalRedness.com
 
         void InternalVisitAndAggregate<TToken>(StringBuilder sb, TToken token)
         {
+#if INCOMPLETE_EQ
+            if (token == null)
+            {
+                sb.Append("<null> ");
+                return;
+            }
+#endif
+
             switch (token.GetType().Name)
             {
                 case nameof(OperatorToken):

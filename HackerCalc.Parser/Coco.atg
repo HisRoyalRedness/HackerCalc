@@ -122,7 +122,9 @@ BitExpr<out IToken token>                                       (. IToken tk = n
                     {
                         bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        ShiftExpr<out tk>                       (. op.Right = tk; .)
+                        [
+                            ShiftExpr<out tk>                   (. op.Right = tk; .)
+                        ]
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 
@@ -131,7 +133,9 @@ ShiftExpr<out IToken token>                                     (. IToken tk = n
                     {
                         shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        AddExpr<out tk>                         (. op.Right = tk; .)
+                        [
+                            AddExpr<out tk>                     (. op.Right = tk; .)
+                        ]
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 
@@ -140,7 +144,9 @@ AddExpr<out IToken token>                                       (. IToken tk = n
                     {
                         addToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        MulExpr<out tk>                         (. op.Right = tk; .)
+                        [
+                            MulExpr<out tk>                     (. op.Right = tk; .)
+                        ]
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 
@@ -149,7 +155,9 @@ MulExpr<out IToken token>                                       (. IToken tk = n
                     {
                         multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        NotExpr<out tk>                         (. op.Right = tk; .)
+                        [
+                            NotExpr<out tk>                     (. op.Right = tk; .)
+                        ]
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
 

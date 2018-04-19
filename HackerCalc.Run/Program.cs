@@ -13,14 +13,14 @@ namespace HisRoyalRedness.com
         {
             if (args.Length > 0)
             {
-                switch(args[0].ToLower())
+                switch (args[0].ToLower())
                 {
                     case "i":
                         Interative();
                         break;
 
                     case "d":
-                        Debug("(i32)1+2*3-4/5");
+                        Debug("1+2+3*4*");
                         break;
                 }
             }

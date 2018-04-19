@@ -7,6 +7,14 @@ namespace HisRoyalRedness.com
     using TypeTuple = Tuple<TokenDataType, TokenDataType>;
     using TypeMap = Dictionary<Tuple<TokenDataType, TokenDataType>, Tuple<TokenDataType, TokenDataType>>;
 
+    public interface ILiteralTokenEval : ILiteralToken
+    {
+        // Returns true if we have an incomplete equation, and this token
+        // is the last token that we can evaluate
+        bool IsTermToken { get; set; }
+    }
+
+
     public class TokenEvaluator : ITokenVisitor<IToken>
     {
         public TokenEvaluator(EvaluatorSettings settings)
@@ -17,6 +25,11 @@ namespace HisRoyalRedness.com
         public IToken Visit<TToken>(TToken token)
             where TToken : IToken
         {
+#if INCOMPLETE_EQ
+            if (token == null)
+                return null;
+#endif
+
             if (token is ILiteralToken)
                 return token;
 
@@ -49,6 +62,20 @@ namespace HisRoyalRedness.com
                         Visit(opToken.Left) as ILiteralToken,
                         Visit(opToken.Right) as ILiteralToken);
 
+#if INCOMPLETE_EQ
+                    if (pair.Left as ILiteralTokenEval != null)
+                    {
+                        if ((pair.Left as ILiteralTokenEval).IsTermToken)
+                            return pair.Left;
+
+                        if ((pair.Right as ILiteralTokenEval)?.IsTermToken ?? false)
+                            return pair.Right;
+
+                        if (pair.Right == null)
+                            return pair.Left.Tap(t => ((ILiteralTokenEval)t).IsTermToken = true);
+                    }
+#endif
+
                     switch (opToken.Operator)
                     {
                         case OperatorType.Add: return Add(pair);
@@ -72,8 +99,11 @@ namespace HisRoyalRedness.com
             {
                 if (left == null)
                     throw new ArgumentNullException(nameof(left));
+#if INCOMPLETE_EQ
+#else
                 if (right == null)
                     throw new ArgumentNullException(nameof(right));
+#endif
                 Left = left;
                 Right = right;
             }
@@ -97,9 +127,9 @@ namespace HisRoyalRedness.com
                 return new TokenPair(Left.CastTo(newPairType.Item1), Right.CastTo(newPairType.Item2));
             }
         }
-        #endregion TokenPair
+#endregion TokenPair
 
-        #region Add
+#region Add
         static IToken Add(TokenPair pair)
         {
             var opTypes = pair.TypesFromMap(_addMapping);
@@ -172,9 +202,9 @@ namespace HisRoyalRedness.com
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Time),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Time) },
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan) }
         };
-        #endregion Add
+#endregion Add
 
-        #region Subtract
+#region Subtract
         static IToken Subtract(TokenPair pair)
         {
             var opTypes = pair.TypesFromMap(_subtractMapping);
@@ -252,9 +282,9 @@ namespace HisRoyalRedness.com
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Time),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Time) },
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan) }
         };
-        #endregion Subtract
+#endregion Subtract
 
-        #region Multiply
+#region Multiply
         static IToken Multiply(TokenPair pair)
         {
             var opTypes = pair.TypesFromMap(_multiplyMapping);
@@ -317,9 +347,9 @@ namespace HisRoyalRedness.com
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Time),  null },
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan),  null }
         };
-        #endregion Multiply
+#endregion Multiply
 
-        #region Divide
+#region Divide
         static IToken Divide(TokenPair pair)
         {
             var opTypes = pair.TypesFromMap(_divideMapping);
@@ -382,7 +412,7 @@ namespace HisRoyalRedness.com
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Time),  null },
             { new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan),  new TypeTuple(TokenDataType.Timespan, TokenDataType.Timespan) }
         };
-        #endregion Divide
+#endregion Divide
 
         readonly EvaluatorSettings _settings;
     }

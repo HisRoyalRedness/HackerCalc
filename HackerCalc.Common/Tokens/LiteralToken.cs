@@ -29,7 +29,7 @@ namespace HisRoyalRedness.com
         TBaseType TypedValue { get; }
     }
 
-    public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>
+    public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>, ILiteralTokenEval
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
         public LiteralToken(TokenDataType dataType, string value, TBaseType typedValue)
@@ -44,7 +44,7 @@ namespace HisRoyalRedness.com
         public string Value { get; private set; }
         public bool IsFloat => DataType == TokenDataType.Float;
         public bool IsInteger => DataType == TokenDataType.Integer;
-        public TBaseType TypedValue { get; private set; }
+        public TBaseType TypedValue { get; protected set; }
         public object ObjectValue => TypedValue;
 
         #region Casting
@@ -82,8 +82,11 @@ namespace HisRoyalRedness.com
         public virtual bool Equals(TTypedToken other) => other == null ? false : TypedValue.Equals(other.TypedValue);
         public override bool Equals(object obj) => Equals(obj as TTypedToken);
         public bool Equals(ILiteralToken<TBaseType, TTypedToken> other) => Equals(other as TTypedToken);
-
         #endregion Equality
+
+        #region ILiteralTokenEval implementation
+        bool ILiteralTokenEval.IsTermToken { get; set; } = false;
+        #endregion ILiteralTokenEval implementation
 
         public int CompareTo(TTypedToken other)
         {
