@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("1+2+3*4*");
+                        Debug("1+(2+3)*");
                         break;
                 }
             }
@@ -47,7 +47,9 @@ namespace HisRoyalRedness.com
             Console.WriteLine("Expression");
             Console.WriteLine("----------");
             var expr = rootToken?.Print(TokenPrinter.FixType.Postfix);
-            Console.WriteLine(expr);
+            Console.WriteLine($"Postfix: {expr}");
+            Console.WriteLine($"Infix:   {rootToken?.Print(TokenPrinter.FixType.Infix)}");
+            Console.WriteLine($"Prefix:  {rootToken?.Print(TokenPrinter.FixType.Prefix)}");
 
             Console.WriteLine();
 

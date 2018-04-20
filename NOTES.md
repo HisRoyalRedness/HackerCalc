@@ -35,6 +35,7 @@ Change log
 Todo
 ----
 
+* Handle the negative sign (e.g. -1)
 * Tests for IntegerToken normalisation
 * Get equality working for IntegerTokens, to account for sign and bitwidth
 * Implement comparison
