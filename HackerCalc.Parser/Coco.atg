@@ -175,6 +175,11 @@ Cast<out IToken token>                                          (. IToken tk = n
 
 Term<out IToken token>                                          (. token = null; .)
 =
+                    IF(IsPartialEquationAllowed())
+                    (
+                        EOF
+                    )
+                    |
                     "("
                     Expr<out token>
                     ")"
@@ -187,7 +192,6 @@ Term<out IToken token>                                          (. token = null;
                     | Integer<out token>
                     | Float<out token>
                     | Now<out token>
-                    | EOF
 .
 
 DateTime<out IToken token>                                      (. token = null; .)

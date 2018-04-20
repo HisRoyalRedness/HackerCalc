@@ -182,6 +182,8 @@ namespace HisRoyalRedness.com
             else
                 return false;
         }
+
+        public bool IsPartialEquationAllowed() => Constants.IsPartialEquationAllowed;
         #endregion Resolvers
 
         public IToken RootToken { get; private set; }
