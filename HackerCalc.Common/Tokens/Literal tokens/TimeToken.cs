@@ -6,6 +6,7 @@ namespace HisRoyalRedness.com
 {
     public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
+        #region Constructors
         public TimeToken(string value, TimeSpan typedValue)
             : base(TokenDataType.Time, value, typedValue)
         {
@@ -20,6 +21,7 @@ namespace HisRoyalRedness.com
         public TimeToken()
             : this(TimeSpan.Zero)
         { }
+        #endregion Constructors
 
         #region Parsing
         public static TimeToken Parse(string value)
@@ -28,6 +30,14 @@ namespace HisRoyalRedness.com
             return new TimeToken(value, time);
         }
         #endregion Parsing
+
+        #region Operator overloads
+        public static TimeToken operator +(TimeToken a, TimespanToken b)
+            => new TimeToken(a.TypedValue + b.TypedValue);
+        public static TimeToken operator +(TimespanToken a, TimeToken b) => b + a;
+        public static TimeToken operator -(TimeToken a, TimespanToken b)
+            => new TimeToken(a.TypedValue - b.TypedValue);
+        #endregion Operator overloads
 
         #region Casting
         protected override TToken InternalCastTo<TToken>()
@@ -50,7 +60,10 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public override bool Equals(TimeToken other) => other == null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as TimeToken);
+        public override bool Equals(TimeToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override int GetHashCode() => TypedValue.GetHashCode();
+
         public static bool operator ==(TimeToken a, TimeToken b)
         {
             if (a is null && b is null)
@@ -62,6 +75,8 @@ namespace HisRoyalRedness.com
         public static bool operator !=(TimeToken a, TimeToken b) => !(a == b);
         #endregion Equality
 
-        public override string ToString() => $"{Value}";
+        #region Comparison
+        public override int CompareTo(TimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        #endregion Comparison
     }
 }

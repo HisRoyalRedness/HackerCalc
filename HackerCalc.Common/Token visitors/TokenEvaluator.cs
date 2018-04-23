@@ -140,34 +140,34 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.Date:
                         if (opTypes.Item2 == TokenDataType.Timespan)
-                            return new DateToken(((DateToken)castPair.Left).TypedValue + ((TimespanToken)castPair.Right).TypedValue);
+                            return ((DateToken)castPair.Left) + ((TimespanToken)castPair.Right);
                         break;
                     case TokenDataType.Float:
                         if (opTypes.Item2 == TokenDataType.Float)
-                            return new FloatToken(((FloatToken)castPair.Left).TypedValue + ((FloatToken)castPair.Right).TypedValue);
+                            return ((FloatToken)castPair.Left) + ((FloatToken)castPair.Right);
                         break;
                     case TokenDataType.Integer:
                         if (opTypes.Item2 == TokenDataType.Integer)
-                            return new IntegerToken(((IntegerToken)castPair.Left).TypedValue + ((IntegerToken)castPair.Right).TypedValue);
+                            return ((IntegerToken)castPair.Left) + ((IntegerToken)castPair.Right);
                         break;
                     case TokenDataType.Time:
                         if (opTypes.Item2 == TokenDataType.Timespan)
-                            return new TimeToken(((TimeToken)castPair.Left).TypedValue + ((TimespanToken)castPair.Right).TypedValue);
+                            return ((TimeToken)castPair.Left) + ((TimespanToken)castPair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (opTypes.Item2)
                         {
                             case TokenDataType.Date:
-                                return new DateToken(((DateToken)castPair.Right).TypedValue + ((TimespanToken)castPair.Left).TypedValue);
+                                return ((DateToken)castPair.Right) + ((TimespanToken)castPair.Left);
                             case TokenDataType.Time:
-                                return new TimeToken(((TimespanToken)castPair.Left).TypedValue + ((TimeToken)castPair.Right).TypedValue);
+                                return ((TimespanToken)castPair.Left) + ((TimeToken)castPair.Right);
                             case TokenDataType.Timespan:
-                                return new TimespanToken(((TimespanToken)castPair.Left).TypedValue + ((TimespanToken)castPair.Right).TypedValue);
+                                return ((TimespanToken)castPair.Left) + ((TimespanToken)castPair.Right);
                         }
                         break;
                 }
             }
-            throw new InvalidOperationException($"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})");
+            throw new InvalidCalcOperationException($"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})");
         }
 
         static readonly TypeMap _addMapping = new TypeMap()
@@ -217,37 +217,35 @@ namespace HisRoyalRedness.com
                         switch(opTypes.Item2)
                         {
                             case TokenDataType.Timespan:
-                                return new DateToken(((DateToken)castPair.Left).TypedValue - ((TimespanToken)castPair.Right).TypedValue);
+                                return ((DateToken)castPair.Left) - ((TimespanToken)castPair.Right);
                             case TokenDataType.Date:
-                                return new TimespanToken(((DateToken)castPair.Left).TypedValue - ((DateToken)castPair.Right).TypedValue);
+                                return ((DateToken)castPair.Left) - ((DateToken)castPair.Right);
                         }
                         break;
                     case TokenDataType.Float:
                         if (opTypes.Item2 == TokenDataType.Float)
-                            return new FloatToken(((FloatToken)castPair.Left).TypedValue - ((FloatToken)castPair.Right).TypedValue);
+                            return ((FloatToken)castPair.Left) - ((FloatToken)castPair.Right);
                         break;
                     case TokenDataType.Integer:
                         if (opTypes.Item2 == TokenDataType.Integer)
-                            return new IntegerToken(((IntegerToken)castPair.Left).TypedValue - ((IntegerToken)castPair.Right).TypedValue);
+                            return ((IntegerToken)castPair.Left) - ((IntegerToken)castPair.Right);
                         break;
                     case TokenDataType.Time:
                         if (opTypes.Item2 == TokenDataType.Timespan)
-                            return new TimeToken(((TimeToken)castPair.Left).TypedValue - ((TimespanToken)castPair.Right).TypedValue);
+                            return ((TimeToken)castPair.Left) - ((TimespanToken)castPair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (opTypes.Item2)
                         {
                             case TokenDataType.Date:
-                                return new DateToken(((DateToken)castPair.Right).TypedValue - ((TimespanToken)castPair.Left).TypedValue);
-                            case TokenDataType.Time:
-                                return new TimeToken(((TimespanToken)castPair.Left).TypedValue - ((TimeToken)castPair.Right).TypedValue);
+                                return ((DateToken)castPair.Right) - ((TimespanToken)castPair.Left);
                             case TokenDataType.Timespan:
-                                return new TimespanToken(((TimespanToken)castPair.Left).TypedValue - ((TimespanToken)castPair.Right).TypedValue);
+                                return ((TimespanToken)castPair.Left) - ((TimespanToken)castPair.Right);
                         }
                         break;
                 }
             }
-            throw new InvalidOperationException($"Can't subtract a {pair.Left.DataType} ({pair.Left.ObjectValue}) from a {pair.Right.DataType} ({pair.Right.ObjectValue})");
+            throw new InvalidCalcOperationException($"Can't subtract a {pair.Left.DataType} ({pair.Left.ObjectValue}) from a {pair.Right.DataType} ({pair.Right.ObjectValue})");
         }
 
         static readonly TypeMap _subtractMapping = new TypeMap()
@@ -297,22 +295,22 @@ namespace HisRoyalRedness.com
                         switch (opTypes.Item2)
                         {
                             case TokenDataType.Float:
-                                return new FloatToken(((FloatToken)castPair.Left).TypedValue * ((FloatToken)castPair.Right).TypedValue);
+                                return ((FloatToken)castPair.Left) * ((FloatToken)castPair.Right);
                             case TokenDataType.Timespan:
-                                return new TimespanToken(((FloatToken)castPair.Left).TypedValue * ((TimespanToken)castPair.Right).TypedValue);
+                                return ((FloatToken)castPair.Left) * ((TimespanToken)castPair.Right);
                         }
                         break;
                     case TokenDataType.Integer:
                         if (opTypes.Item2 == TokenDataType.Integer)
-                            return new IntegerToken(((IntegerToken)castPair.Left).TypedValue * ((IntegerToken)castPair.Right).TypedValue);
+                            return ((IntegerToken)castPair.Left) * ((IntegerToken)castPair.Right);
                         break;
                     case TokenDataType.Timespan:
                         if (opTypes.Item2 == TokenDataType.Float)
-                            return new TimespanToken(((TimespanToken)castPair.Left).TypedValue * ((FloatToken)castPair.Right).TypedValue);
+                            return ((TimespanToken)castPair.Left) * ((FloatToken)castPair.Right);
                         break;
                 }
             }
-            throw new InvalidOperationException($"Can't multiply a {pair.Left.DataType} ({pair.Left.ObjectValue}) with a {pair.Right.DataType} ({pair.Right.ObjectValue})");
+            throw new InvalidCalcOperationException($"Can't multiply a {pair.Left.DataType} ({pair.Left.ObjectValue}) with a {pair.Right.DataType} ({pair.Right.ObjectValue})");
         }
 
         static readonly TypeMap _multiplyMapping = new TypeMap()
@@ -360,24 +358,24 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.Float:
                         if (opTypes.Item2 == TokenDataType.Float)
-                            return new FloatToken(((FloatToken)castPair.Left).TypedValue / ((FloatToken)castPair.Right).TypedValue);
+                            return ((FloatToken)castPair.Left) / ((FloatToken)castPair.Right);
                         break;
                     case TokenDataType.Integer:
                         if (opTypes.Item2 == TokenDataType.Integer)
-                            return new IntegerToken(((IntegerToken)castPair.Left).TypedValue / ((IntegerToken)castPair.Right).TypedValue);
+                            return ((IntegerToken)castPair.Left) / ((IntegerToken)castPair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (opTypes.Item2)
                         {
                             case TokenDataType.Float:
-                                return new TimespanToken(((TimespanToken)castPair.Left).TypedValue / ((FloatToken)castPair.Right).TypedValue);
+                                return ((TimespanToken)castPair.Left) / ((FloatToken)castPair.Right);
                             case TokenDataType.Timespan:
-                                return new FloatToken(((TimespanToken)castPair.Left).TypedValue / ((TimespanToken)castPair.Right).TypedValue);
+                                return ((TimespanToken)castPair.Left) / ((TimespanToken)castPair.Right);
                         }
                         break;
                 }
             }
-            throw new InvalidOperationException($"Can't divide a {pair.Left.DataType} ({pair.Left.ObjectValue}) by a {pair.Right.DataType} ({pair.Right.ObjectValue})");
+            throw new InvalidCalcOperationException($"Can't divide a {pair.Left.DataType} ({pair.Left.ObjectValue}) by a {pair.Right.DataType} ({pair.Right.ObjectValue})");
         }
 
         static readonly TypeMap _divideMapping = new TypeMap()

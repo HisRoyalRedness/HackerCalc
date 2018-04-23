@@ -14,24 +14,7 @@ namespace HisRoyalRedness.com
 
     public class IntegerToken : LiteralToken<BigInteger, IntegerToken>
     {
-        public enum IntegerBitWidth
-        {
-            [Description("Unbound")]
-            Unbound = 0,
-            [Description("4")]
-            _4 = 4,
-            [Description("8")]
-            _8 = 8,
-            [Description("16")]
-            _16 = 16,
-            [Description("32")]
-            _32 = 32,
-            [Description("64")]
-            _64 = 64,
-            [Description("128")]
-            _128 = 128
-        }
-
+        #region Constructors
         public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
             : base(TokenDataType.Integer, value, typedValue)
         {
@@ -55,6 +38,7 @@ namespace HisRoyalRedness.com
                 _minAndMax.Add(new SignAndBitwidthPair(true, bitWidth), new MinAndMax(bitWidth, true));
             }
         }
+        #endregion Constructors
 
         #region Parsing
         public static IntegerToken Parse(string value, bool isHex)
@@ -100,6 +84,17 @@ namespace HisRoyalRedness.com
         }
         #endregion Parsing
 
+        #region Operator overloads
+        public static IntegerToken operator +(IntegerToken a, IntegerToken b)
+            => new IntegerToken(a.TypedValue + b.TypedValue, a.IsSigned, a.BitWidth);
+        public static IntegerToken operator -(IntegerToken a, IntegerToken b)
+            => new IntegerToken(a.TypedValue - b.TypedValue, a.IsSigned, a.BitWidth);
+        public static IntegerToken operator *(IntegerToken a, IntegerToken b)
+            => new IntegerToken(a.TypedValue * b.TypedValue, a.IsSigned, a.BitWidth);
+        public static IntegerToken operator /(IntegerToken a, IntegerToken b)
+            => new IntegerToken(a.TypedValue / b.TypedValue, a.IsSigned, a.BitWidth);
+        #endregion Operator overloads
+
         #region Casting
         public IntegerToken Cast(bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
         {
@@ -132,6 +127,29 @@ namespace HisRoyalRedness.com
             }
         }
         #endregion Casting
+
+        #region Equality
+        public override bool Equals(object obj) => Equals(obj as IntegerToken);
+        public override bool Equals(IntegerToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override int GetHashCode() => TypedValue.GetHashCode();
+
+        public static bool operator ==(IntegerToken a, IntegerToken b)
+        {
+            if (a is null && b is null)
+                return true;
+            if (a is null || b is null)
+                return false;
+            if (a.IsUnbound && b.IsUnbound)
+                return a.TypedValue == b.TypedValue;
+            return a.TypedValue == b.TypedValue;
+
+        }
+        public static bool operator !=(IntegerToken a, IntegerToken b) => !(a == b);
+        #endregion Equality
+
+        #region Comparison
+        public override int CompareTo(IntegerToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        #endregion Comparison
 
         void NormaliseInternal()
         {
@@ -205,24 +223,28 @@ namespace HisRoyalRedness.com
         public IntegerBitWidth BitWidth { get; private set; }
         public bool IsUnbound => BitWidth == IntegerBitWidth.Unbound;
 
-        #region Equality
-        public override bool Equals(IntegerToken other) => other == null ? false : (TypedValue == other.TypedValue);
-        public static bool operator ==(IntegerToken a, IntegerToken b)
-        {
-            if (a is null && b is null)
-                return true;
-            if (a is null || b is null)
-                return false;
-            if (a.IsUnbound && b.IsUnbound)
-                return a.TypedValue == b.TypedValue;
-            return a.TypedValue == b.TypedValue;
-
-        }
-        public static bool operator !=(IntegerToken a, IntegerToken b) => !(a == b);
-        #endregion Equality
-
+        #region ToString
         public override string ToString() => IsUnbound
             ? $"{TypedValue}"
             : $"{TypedValue}{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
+        #endregion ToString
+
+        public enum IntegerBitWidth
+        {
+            [Description("Unbound")]
+            Unbound = 0,
+            [Description("4")]
+            _4 = 4,
+            [Description("8")]
+            _8 = 8,
+            [Description("16")]
+            _16 = 16,
+            [Description("32")]
+            _32 = 32,
+            [Description("64")]
+            _64 = 64,
+            [Description("128")]
+            _128 = 128
+        }
     }
 }

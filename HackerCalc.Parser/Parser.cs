@@ -183,7 +183,8 @@ namespace HisRoyalRedness.com
                 return false;
         }
 
-        public bool IsPartialEquationAllowed() => Constants.IsPartialEquationAllowed;
+        // Checks if partial equations are enabled, and if is, if the next token is EOF
+        public bool IsPartialEquation() => Constants.IsPartialEquationAllowed && la.kind == 0;
         #endregion Resolvers
 
         public IToken RootToken { get; private set; }

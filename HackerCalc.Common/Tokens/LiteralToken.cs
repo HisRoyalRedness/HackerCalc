@@ -23,7 +23,7 @@ namespace HisRoyalRedness.com
         ILiteralToken CastTo(TokenDataType dataType);
     }
 
-    public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable<TTypedToken>
+    public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable, IComparable<TTypedToken>
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
         TBaseType TypedValue { get; }
@@ -79,24 +79,21 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public virtual bool Equals(TTypedToken other) => other == null ? false : TypedValue.Equals(other.TypedValue);
-        public override bool Equals(object obj) => Equals(obj as TTypedToken);
-        public bool Equals(ILiteralToken<TBaseType, TTypedToken> other) => Equals(other as TTypedToken);
+        public abstract bool Equals(TTypedToken other);
+        public override int GetHashCode() => TypedValue.GetHashCode();
         #endregion Equality
+
+        #region Comparison
+        public abstract int CompareTo(TTypedToken other);
+        int IComparable.CompareTo(object obj) => CompareTo(obj as TTypedToken);
+        #endregion Comparison
 
         #region ILiteralTokenEval implementation
         bool ILiteralTokenEval.IsTermToken { get; set; } = false;
         #endregion ILiteralTokenEval implementation
 
-        public int CompareTo(TTypedToken other)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GetHashCode() => TypedValue.GetHashCode();
-
+        #region ToString
         public override string ToString() => $"{Value}";
-
-
+        #endregion ToString
     }
 }

@@ -6,7 +6,7 @@ Change log
 
 | Date          | Description                                                                                                  |
 |---------------|--------------------------------------------------------------------------------------------------------------|
-| 2018-03-06    | Refactor Coco.atg to make inteter type and bit width seperate tokens                                         |
+| 2018-03-06    | Refactor Coco.atg to make integer type and bit width seperate tokens                                         |
 | 2018-03-08    | Integer working correctly with string value, numeric value, sign and bitwidth.                               |
 |               | Float working correctly                                                                                      |
 |               | Remove anything thats not dotnet core                                                                        |
@@ -31,14 +31,19 @@ Change log
 | 2018-03-27    | Added type cast to parser                                                                                    |
 | 2018-03-29    | Added equality                                                                                               |
 | 2018-04-19    | Add support of incomplete equations (defined through compiler directive INCOMPLETE_EQ)                       |
+| 2018-04-23    | Skeleton WPF front-end                                                                                       |
+|               | Changed Parser and Common to .Net Standard                                                                   |
+|               | Implement operator overrides to supported operations on literal tokens                                       |
+|               | Implement comparison                                                                                         |
 
 Todo
 ----
 
+* Base all thrown exceptions of ApplicationException
 * Handle the negative sign (e.g. -1)
 * Tests for IntegerToken normalisation
-* Get equality working for IntegerTokens, to account for sign and bitwidth
-* Implement comparison
+* Get equality and comparison working for IntegerTokens, to account for sign and bitwidth
+* Implement comparison tests
 * Implement cast operator
 * Implement other operators
 * Casting for bound integers (and bitwidths)

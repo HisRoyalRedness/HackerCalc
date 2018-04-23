@@ -175,7 +175,7 @@ Cast<out IToken token>                                          (. IToken tk = n
 
 Term<out IToken token>                                          (. token = null; .)
 =
-                    IF(IsPartialEquationAllowed())
+                    IF(IsPartialEquation())
                     (
                         EOF
                     )
