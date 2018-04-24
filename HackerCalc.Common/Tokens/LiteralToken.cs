@@ -13,6 +13,18 @@ namespace HisRoyalRedness.com
         Date
     }
 
+    public struct TypePair
+    {
+        public TypePair(TokenDataType left, TokenDataType right)
+        {
+            Left = left;
+            Right = right;
+        }
+
+        public TokenDataType Left { get; private set; }
+        public TokenDataType Right { get; private set; }
+    }
+
     public interface ILiteralToken : IToken
     {
         object ObjectValue { get; }

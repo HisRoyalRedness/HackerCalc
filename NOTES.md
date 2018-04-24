@@ -35,13 +35,16 @@ Change log
 |               | Changed Parser and Common to .Net Standard                                                                   |
 |               | Implement operator overrides to supported operations on literal tokens                                       |
 |               | Implement comparison                                                                                         |
+|               | Integer token normalisation and tests                                                                        |
+| 2018-04-24    | Started IntegerToken normalisation                                                                           |
 
 Todo
 ----
 
+* Throw errors on overflow if specified in EvaluatorSettings
+* Complete IntegerToken casting for sign and bitwidth
 * Base all thrown exceptions of ApplicationException
 * Handle the negative sign (e.g. -1)
-* Tests for IntegerToken normalisation
 * Get equality and comparison working for IntegerTokens, to account for sign and bitwidth
 * Implement comparison tests
 * Implement cast operator

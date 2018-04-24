@@ -9,9 +9,6 @@ using System.Diagnostics;
 
 namespace HisRoyalRedness.com
 {
-    //using SignAndBitwidthPair = Tuple<bool, IntegerToken.IntegerBitWidth>;
-
-
     public class IntegerToken : LiteralToken<BigInteger, IntegerToken>
     {
         #region Constructors
@@ -20,6 +17,9 @@ namespace HisRoyalRedness.com
         {
             IsSigned = isSigned;
             BitWidth = bitWidth;
+
+            if (TypedValue < 0 && !isSigned)
+                throw new ArgumentOutOfRangeException("Value cannot be less than zero if the integer is unsigned.");
 
             if (!IsUnbound)
                 NormaliseInternal();
@@ -37,6 +37,8 @@ namespace HisRoyalRedness.com
                 _minAndMax.Add(new SignAndBitwidthPair(false, bitWidth), new MinAndMax(bitWidth, false));
                 _minAndMax.Add(new SignAndBitwidthPair(true, bitWidth), new MinAndMax(bitWidth, true));
             }
+            //foreach(var key in _minAndMax.Keys)
+            //    Console.WriteLine($"{key, 8}: {_minAndMax[key].Min, -40}  {_minAndMax[key].Max,-40}  {_minAndMax[key].Mask,-40}");
         }
         #endregion Constructors
 
@@ -161,12 +163,12 @@ namespace HisRoyalRedness.com
                 throw new ArgumentOutOfRangeException($"Could not find a minimum and maximum value for {(IsSigned ? "a signed" : "an unsigned")} {nameof(IntegerToken)} with a bit width of {(int)BitWidth}");
 
             if (TypedValue > _minAndMax[key].Max || TypedValue < _minAndMax[key].Min)
-                TypedValue = TypedValue & _minAndMax[key].Mask;
+                TypedValue &= _minAndMax[key].Mask;
 
             if (TypedValue < 0)
             {
                 if (IsSigned)
-                    TypedValue = _minAndMax[key].Mask + 1 + TypedValue;
+                    TypedValue += _minAndMax[key].Mask + 1;
                 else
                     throw new ArgumentOutOfRangeException("Value cannot be less than zero if the integer is unsigned.");
             }
@@ -184,9 +186,10 @@ namespace HisRoyalRedness.com
             public bool IsSigned;
             public IntegerBitWidth BitWidth;
             string DisplayString => $"{(IsSigned ? "I" : "U")}{(int)BitWidth}";
+            public override string ToString() => DisplayString;
         }
 
-        [DebuggerDisplay("Min: {Min}, Max: {Max}, Mask: {Mask}")]
+        [DebuggerDisplay("{DisplayString}")]
         struct MinAndMax
         {
             public MinAndMax(BigInteger min, BigInteger max, BigInteger mask)
@@ -215,6 +218,9 @@ namespace HisRoyalRedness.com
             public BigInteger Min;
             public BigInteger Max;
             public BigInteger Mask;
+
+            string DisplayString => $"Min: {Min}, Max: {Max}, Mask: {Mask}";
+            public override string ToString() => DisplayString;
         }
 
         static readonly Dictionary<SignAndBitwidthPair, MinAndMax> _minAndMax = new Dictionary<SignAndBitwidthPair, MinAndMax>();

@@ -11,6 +11,10 @@ namespace HisRoyalRedness.com
         public static IEnumerable<ILiteralToken> MakeTokens(this IEnumerable<string> tokenStrings)
             => tokenStrings.Select(ts => MakeToken(ts));
 
+        public static TToken MakeToken<TToken>(this string tokenString)
+            where TToken : class, ILiteralToken
+            => MakeToken(tokenString) as TToken;
+
         public static ILiteralToken MakeToken(this string tokenString)
         {
             if (string.IsNullOrWhiteSpace(tokenString))
@@ -37,13 +41,14 @@ namespace HisRoyalRedness.com
                 case "integer":
                 case "integertoken":
                     var portions = _integerRegex.Match(tokenArg);
-                    var isHex = !string.IsNullOrEmpty(portions.Groups[1].Value);
-                    var num = portions.Groups[2].Value;
-                    var isSigned = portions.Groups[3].Value.ToLower() != "u";
-                    var bitWidth = string.IsNullOrEmpty(portions.Groups[4].Value)
+                    var isNeg = portions.Groups[1].Value == "-";
+                    var isHex = !string.IsNullOrEmpty(portions.Groups[2].Value);
+                    var num = portions.Groups[3].Value;
+                    var isSigned = portions.Groups[4].Value.ToLower() != "u";
+                    var bitWidth = string.IsNullOrEmpty(portions.Groups[5].Value)
                         ? IntegerToken.IntegerBitWidth.Unbound
-                        : IntegerToken.ParseBitWidth(portions.Groups[4].Value);
-                    return IntegerToken.Parse(num, isHex, isSigned, bitWidth);
+                        : IntegerToken.ParseBitWidth(portions.Groups[5].Value);
+                    return IntegerToken.Parse((isNeg ? $"-{num}" : num), isHex, isSigned, bitWidth);
 
                 case "timespan":
                 case "timespantoken":
@@ -58,6 +63,6 @@ namespace HisRoyalRedness.com
             }            
         }
 
-        static Regex _integerRegex = new Regex(@"(0x)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex _integerRegex = new Regex(@"(-)?(0x)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }
 }

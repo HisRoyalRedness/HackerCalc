@@ -69,7 +69,8 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { null, "integer 1", "n" })]
         [DataRow(new[] { "integer 1", "integer 1", "y" })]
         [DataRow(new[] { "integer 1", "integer 2", "n" })]
-        [DataRow(new[] { "integer 1i32", "integer 1u32", "n" })]
+        [DataRow(new[] { "integer 1i32", "integer 1u32", "y" })]
+        [DataRow(new[] { "integer 15u32", "integer -1i4", "y" })]
         public void TestIntegerTokenEquality(string[] input)
         {
             input.Should().HaveCount(3);

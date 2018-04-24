@@ -25,7 +25,7 @@ namespace HisRoyalRedness.com
             if (expectedResult == null)
             {
                 Action a = () => rootToken.Evaluate();
-                a.Should().Throw<InvalidOperationException>($"for input {input[0]}");
+                a.Should().Throw<InvalidCalcOperationException>($"for input {input[0]}");
             }
             else
             {
