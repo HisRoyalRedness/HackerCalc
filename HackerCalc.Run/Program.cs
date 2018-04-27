@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("1u8-7i8");
+                        Debug("4i8 - 7u8");
                         break;
                 }
             }
@@ -40,8 +40,7 @@ namespace HisRoyalRedness.com
             Console.WriteLine($"       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             Console.WriteLine($"Input: {input}");
 
-            var rootToken = Parser.ParseExpression(input);
-
+            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input), "PARSE");
             Console.WriteLine();
 
             Console.WriteLine("Expression");
@@ -55,8 +54,9 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine("Evaluation");
             Console.WriteLine("----------");
-            var eval = PrintToken(rootToken?.Evaluate(), true);
-            Console.WriteLine(eval);
+            var evalToken = DoWithCatch<IToken>(() => rootToken?.Evaluate(), "EVALUATE");
+            if (evalToken != null)
+                Console.WriteLine(PrintToken(evalToken, true));
 
             Console.WriteLine();
 
@@ -66,6 +66,19 @@ namespace HisRoyalRedness.com
                 Console.WriteLine($"val: {tkn.val,-15}kind: {tkn.TokenKind.ToString().TrimStart('_')}");
 
             Console.WriteLine();
+        }
+
+        static T DoWithCatch<T>(Func<T> func, string errorType)
+        {
+            try
+            {
+                return func();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"{errorType.ToUpper()} ERROR: {ex.Message}");
+                return default(T);
+            }
         }
 
         static string PrintToken(IToken token, bool includeType = true)

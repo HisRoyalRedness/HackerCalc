@@ -12,17 +12,18 @@ namespace HisRoyalRedness.com
     public class IntegerToken : LiteralToken<BigInteger, IntegerToken>
     {
         #region Constructors
-        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
+        public IntegerToken(string value, BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound, bool errorOnOverflow = true)
             : base(TokenDataType.Integer, value, typedValue)
         {
-            IsSigned = isSigned;
             BitWidth = bitWidth;
 
-            if (TypedValue < 0 && !isSigned)
-                throw new ArgumentOutOfRangeException("Value cannot be less than zero if the integer is unsigned.");
-
-            if (!IsUnbound)
-                NormaliseInternal();
+            if (IsUnbound)
+                IsSigned = true;
+            else
+            {
+                IsSigned = isSigned;
+                NormaliseInternal(errorOnOverflow);
+            }
         }
 
         public IntegerToken(BigInteger typedValue, bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
@@ -98,11 +99,11 @@ namespace HisRoyalRedness.com
         #endregion Operator overloads
 
         #region Casting
-        public IntegerToken Cast(bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound)
+        public IntegerToken Cast(bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound, bool errorOnOverflow = true)
         {
             if (bitWidth == BitWidth && isSigned == IsSigned)
                     return this;
-            return new IntegerToken(Value, TypedValue, isSigned, bitWidth);
+            return new IntegerToken(Value, TypedValue, isSigned, bitWidth, errorOnOverflow);
         }
 
         protected override TToken InternalCastTo<TToken>()
@@ -153,24 +154,50 @@ namespace HisRoyalRedness.com
         public override int CompareTo(IntegerToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
-        void NormaliseInternal()
+        public static BigInteger MinValue(bool isSigned, IntegerBitWidth bitWidth)
+        {
+            if (bitWidth == IntegerBitWidth.Unbound)
+                throw new ArgumentOutOfRangeException("No limit defined for Unbound IntegerTokens");
+            return _minAndMax[new SignAndBitwidthPair(isSigned, bitWidth)].Min;
+
+        }
+
+        public static BigInteger MaxValue(bool isSigned, IntegerBitWidth bitWidth)
+        {
+            if (bitWidth == IntegerBitWidth.Unbound)
+                throw new ArgumentOutOfRangeException("No limit defined for Unbound IntegerTokens");
+            return _minAndMax[new SignAndBitwidthPair(isSigned, bitWidth)].Max;
+        }
+
+        void NormaliseInternal(bool errorOnOverflow)
         {
             if (IsUnbound)
                 return;
+
+
 
             var key = new SignAndBitwidthPair(IsSigned, BitWidth);
             if (!_minAndMax.ContainsKey(key))
                 throw new ArgumentOutOfRangeException($"Could not find a minimum and maximum value for {(IsSigned ? "a signed" : "an unsigned")} {nameof(IntegerToken)} with a bit width of {(int)BitWidth}");
 
-            if (TypedValue > _minAndMax[key].Max || TypedValue < _minAndMax[key].Min)
-                TypedValue &= _minAndMax[key].Mask;
-
-            if (TypedValue < 0)
+            if (errorOnOverflow)
             {
-                if (IsSigned)
-                    TypedValue += _minAndMax[key].Mask + 1;
-                else
-                    throw new ArgumentOutOfRangeException("Value cannot be less than zero if the integer is unsigned.");
+                if (TypedValue > _minAndMax[key].Max)
+                    throw new IntegerOverflowException($"The value {TypedValue} is greater than the maximum of {_minAndMax[key].Max} for {(IsSigned ? "a signed" : "an unsigned")} {nameof(IntegerToken)} with a bit width of {(int)BitWidth}");
+                else if (TypedValue < _minAndMax[key].Min)
+                    throw new IntegerOverflowException($"The value {TypedValue} is less than the minimum of {_minAndMax[key].Min} for {(IsSigned ? "a signed" : "an unsigned")} {nameof(IntegerToken)} with a bit width of {(int)BitWidth}");
+            }
+            else
+            {
+                TypedValue &= _minAndMax[key].Mask;
+                //if (!IsSigned && TypedValue < 0)
+                //    TypedValue += _minAndMax[key].Mask + 1;
+                //else if (IsSigned && TypedValue > _minAndMax[key].Max)
+                //{
+                //    if (TypedValue < 0)
+                //        TypedValue += _minAndMax[key].Mask + 1;
+
+                //}
             }
         }
 

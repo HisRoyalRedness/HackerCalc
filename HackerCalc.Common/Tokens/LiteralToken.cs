@@ -8,6 +8,7 @@ namespace HisRoyalRedness.com
     {
         Float,
         Integer,
+        DigitalInteger,
         Timespan,
         Time,
         Date

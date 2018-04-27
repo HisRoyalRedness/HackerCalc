@@ -143,10 +143,10 @@ namespace HisRoyalRedness.com
 
                     // If both are signed or both unsigned, just use the greater of the bitwidths
                     if (!(left.IsSigned ^ right.IsSigned))
-                        return new TokenPair(left.Cast(left.IsSigned, bitWidth), right.Cast(right.IsSigned, bitWidth));
+                        return new TokenPair(left.Cast(left.IsSigned, bitWidth, settings.ErrorOnOverflow), right.Cast(right.IsSigned, bitWidth, settings.ErrorOnOverflow));
 
                     // else, use the greater bitwidth and convert to unsigned
-                    return new TokenPair(left.Cast(false, bitWidth), right.Cast(false, bitWidth));
+                    return new TokenPair(left.Cast(false, bitWidth, settings.ErrorOnOverflow), right.Cast(false, bitWidth, settings.ErrorOnOverflow));
                 }
 
                 return new TokenPair(Left.CastTo(newPairType.Left), Right.CastTo(newPairType.Right));
