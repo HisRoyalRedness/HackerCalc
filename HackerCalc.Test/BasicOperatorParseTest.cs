@@ -89,7 +89,7 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         [DataRow("~1")]
         [DataRow("~ 1")]
-        public void BitwiseNegateParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, OperatorType.Negate);
+        public void BitwiseNegateParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, OperatorType.BitwiseNegate);
 
 
         void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType)

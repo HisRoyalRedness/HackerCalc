@@ -41,6 +41,10 @@ Change log
 Todo
 ----
 
+* Implement all the integer types
+* Repair unit tests
+
+
 * Throw errors on overflow if specified in EvaluatorSettings
 * Complete IntegerToken casting for sign and bitwidth
 * Base all thrown exceptions of ApplicationException

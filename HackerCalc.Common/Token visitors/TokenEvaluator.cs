@@ -52,6 +52,12 @@ namespace HisRoyalRedness.com
                                     : castToken;
                             }
 
+                        case OperatorType.NumericNegate:
+                            return litToken.NumericNegate();
+
+                        case OperatorType.BitwiseNegate:
+                            return litToken.BitwiseNegate();
+
                         default:
                             throw new ApplicationException($"Unhandled unary operator type {opToken.Operator}");
                     }
@@ -190,6 +196,10 @@ namespace HisRoyalRedness.com
                                 return ((TimespanToken)castPair.Left) + ((TimespanToken)castPair.Right);
                         }
                         break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)castPair.Left) + ((UnlimitedIntegerToken)castPair.Right);
+                        break;
                 }
             }
             throw new InvalidCalcOperationException($"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})");
@@ -225,7 +235,9 @@ namespace HisRoyalRedness.com
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) }
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
         };
 #endregion Add
 
@@ -268,6 +280,10 @@ namespace HisRoyalRedness.com
                                 return ((TimespanToken)castPair.Left) - ((TimespanToken)castPair.Right);
                         }
                         break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)castPair.Left) - ((UnlimitedIntegerToken)castPair.Right);
+                        break;
                 }
             }
             throw new InvalidCalcOperationException($"Can't subtract a {pair.Left.DataType} ({pair.Left.ObjectValue}) from a {pair.Right.DataType} ({pair.Right.ObjectValue})");
@@ -303,7 +319,9 @@ namespace HisRoyalRedness.com
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) }
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
         };
 #endregion Subtract
 
@@ -332,6 +350,10 @@ namespace HisRoyalRedness.com
                     case TokenDataType.Timespan:
                         if (opTypes.Right == TokenDataType.Float)
                             return ((TimespanToken)castPair.Left) * ((FloatToken)castPair.Right);
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)castPair.Left) * ((UnlimitedIntegerToken)castPair.Right);
                         break;
                 }
             }
@@ -368,7 +390,9 @@ namespace HisRoyalRedness.com
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  OperandTypePair.Unsupported }
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
         };
 #endregion Multiply
 
@@ -397,6 +421,10 @@ namespace HisRoyalRedness.com
                             case TokenDataType.Timespan:
                                 return ((TimespanToken)castPair.Left) / ((TimespanToken)castPair.Right);
                         }
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)castPair.Left) / ((UnlimitedIntegerToken)castPair.Right);
                         break;
                 }
             }
@@ -433,7 +461,9 @@ namespace HisRoyalRedness.com
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
             { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) }
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
         };
         #endregion Divide
 

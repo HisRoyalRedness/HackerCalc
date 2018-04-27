@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("4i8 - 7u8");
+                        Debug("-(-1-3)");
                         break;
                 }
             }
@@ -128,6 +128,13 @@ namespace HisRoyalRedness.com
                             var typedToken = literalToken as DateToken;
                             val = typedToken.TypedValue.ToString("yyyy-MM-dd HH:mm:ss");
                             dataType = includeType ? "Date" : null;
+                        }
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        {
+                            var typedToken = literalToken as UnlimitedIntegerToken;
+                            val = typedToken.TypedValue.ToString();
+                            dataType = includeType ? "Unlimited Integer" : null;
                         }
                         break;
                     default:

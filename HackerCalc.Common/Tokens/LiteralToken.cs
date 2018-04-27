@@ -7,7 +7,11 @@ namespace HisRoyalRedness.com
     public enum TokenDataType
     {
         Float,
-        Integer,
+        Integer, // To be removed
+        UnlimitedInteger,
+        LimitedInteger,
+        RationalNumber,
+        IrrationalNumber, // Replace float?
         DigitalInteger,
         Timespan,
         Time,
@@ -33,6 +37,8 @@ namespace HisRoyalRedness.com
         TToken CastTo<TToken>()
             where TToken : class, ILiteralToken;
 
+        ILiteralToken NumericNegate();
+        ILiteralToken BitwiseNegate();
         ILiteralToken CastTo(TokenDataType dataType);
     }
 
@@ -60,6 +66,9 @@ namespace HisRoyalRedness.com
         public TBaseType TypedValue { get; protected set; }
         public object ObjectValue => TypedValue;
 
+        public virtual ILiteralToken NumericNegate() { throw new InvalidOperationException($"Numeric negation is not supported by {typeof(TTypedToken).Name}."); }
+        public virtual ILiteralToken BitwiseNegate() { throw new InvalidOperationException($"Bitwise negation is not supported by {typeof(TTypedToken).Name}."); }
+
         #region Casting
         protected virtual TToken InternalCastTo<TToken>()
             where TToken : class, ILiteralToken
@@ -79,13 +88,17 @@ namespace HisRoyalRedness.com
 
         public ILiteralToken CastTo(TokenDataType dataType)
         {
-            switch(dataType)
+            switch (dataType)
             {
                 case TokenDataType.Date: return CastTo<DateToken>();
                 case TokenDataType.Float: return CastTo<FloatToken>();
                 case TokenDataType.Integer: return CastTo<IntegerToken>();
                 case TokenDataType.Time: return CastTo<TimeToken>();
                 case TokenDataType.Timespan: return CastTo<TimespanToken>();
+                case TokenDataType.UnlimitedInteger: return CastTo<UnlimitedIntegerToken>();
+                case TokenDataType.LimitedInteger: return CastTo<UnlimitedIntegerToken>();
+                case TokenDataType.RationalNumber: return CastTo<UnlimitedIntegerToken>();
+                case TokenDataType.IrrationalNumber: return CastTo<UnlimitedIntegerToken>();
                 default: throw new InvalidCastException($"Could not cast from a {GetType().Name} to {dataType}.");
             }
         }
@@ -108,5 +121,7 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => $"{Value}";
         #endregion ToString
+
+        static Dictionary<TokenDataType, ILiteralToken> _typeMapping = new Dictionary<TokenDataType, ILiteralToken>();
     }
 }

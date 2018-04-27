@@ -5,11 +5,12 @@ using System.Numerics;
 
 namespace HisRoyalRedness.com
 {
+    [TestCategory(nameof(TimespanToken))]
+    [TestCategory("Basic parse")]
     [TestClass]
     public class TimespanParseTest
     {
         const double PRECISION = 0.000000000001;
-
 
         [DataTestMethod]
         [DataRow("100ts")]

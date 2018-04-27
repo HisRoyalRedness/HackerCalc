@@ -17,8 +17,10 @@ namespace HisRoyalRedness.com
         Divide,
         [Description("%")]
         Modulo,
-        [Description("~")]
-        Negate,
+        [Description("!~")]
+        BitwiseNegate,          // i.e. 2's complement
+        [Description("!-")]
+        NumericNegate,          // i.e. value * -1
         [Description("<<")]
         LeftShift,
         [Description(">>")]
@@ -27,7 +29,7 @@ namespace HisRoyalRedness.com
         And,
         [Description("|")]
         Or,
-        [Description("!")]
+        [Description("!!")]
         Not,
         [Description("^")]
         Xor,
@@ -58,12 +60,23 @@ namespace HisRoyalRedness.com
         public IToken Left { get; set; }
         public IToken Right { get; set; }
 
+        public static OperatorToken ParseNegate(string value)
+        {
+            switch (value)
+            {
+                case "!": return new OperatorToken(OperatorType.Not, true);
+                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true);
+                case "-": return new OperatorToken(OperatorType.NumericNegate, true);
+                default: throw new ParseException($"Unrecognised operator {value}.");
+            }
+        }
+
         public static OperatorToken Parse(string value)
         {
             switch (value)
             {
                 case "!": return new OperatorToken(OperatorType.Not, true);
-                case "~": return new OperatorToken(OperatorType.Negate, true);
+                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true);
                 case "*": return new OperatorToken(OperatorType.Multiply);
                 case "/": return new OperatorToken(OperatorType.Divide);
                 case "\\": return new OperatorToken(OperatorType.Divide);

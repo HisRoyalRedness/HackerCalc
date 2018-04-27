@@ -50,7 +50,7 @@ namespace HisRoyalRedness.com
                     return true;
 
                 // Maybe seconds. Need to check further
-                case _dec_integer:
+                case _dec_unlimited_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric
@@ -75,7 +75,7 @@ namespace HisRoyalRedness.com
             switch (la.kind)
             {
                 // Maybe minutes. Need to check further
-                case _dec_integer:
+                case _dec_unlimited_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric
@@ -98,7 +98,7 @@ namespace HisRoyalRedness.com
             switch (la.kind)
             {
                 // Maybe minutes. Need to check further
-                case _dec_integer:
+                case _dec_unlimited_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric
@@ -121,7 +121,7 @@ namespace HisRoyalRedness.com
             switch (la.kind)
             {
                 // Maybe minutes. Need to check further
-                case _dec_integer:
+                case _dec_unlimited_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric
@@ -149,7 +149,7 @@ namespace HisRoyalRedness.com
 
                 // Stuff that could be either an integer, float or timespan
                 case _true_float:
-                case _dec_integer:
+                case _dec_unlimited_int:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric
                     var next = scanner.Peek().kind;

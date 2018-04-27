@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
+    [TestCategory("Needs fixing")]
     [TestClass]
     public class IntegerParseTest
     {
