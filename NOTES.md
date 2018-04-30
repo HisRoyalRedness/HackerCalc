@@ -1,6 +1,23 @@
 HackerCalc Notes
 ================
 
+Number syntax
+-------------
+
+* **Integers**  
+ * Numeric base
+   * **12345**          Decimal
+   * **0x3c**           Hexadecimal
+   * **b1011010**       Binary
+ * Unlimited integer. Can be positive or negative. No bitwidth limit
+   * e.g. 12345
+ * Limited integer. Defined as signed or unsigned. Limited to a particular bitwidth
+   * **i | u**          Signed or unsigned
+   * Supported bitwidths are 4, 8, 16, 32, 64, 128
+   * e.g. 12i32, 34u8
+
+
+
 Change log
 ----------
 

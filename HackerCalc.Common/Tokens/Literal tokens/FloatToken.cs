@@ -44,6 +44,12 @@ namespace HisRoyalRedness.com
                 case nameof(IntegerToken):
                     return new IntegerToken(new BigInteger(TypedValue)) as TToken;
 
+                case nameof(UnlimitedIntegerToken):
+                    return new UnlimitedIntegerToken(new BigInteger(TypedValue)) as TToken;
+
+                case nameof(LimitedIntegerToken):
+                    return new LimitedIntegerToken(new BigInteger(TypedValue)) as TToken;
+
                 case nameof(TimespanToken):
                     return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
 

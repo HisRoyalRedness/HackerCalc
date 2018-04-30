@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 
@@ -36,6 +37,26 @@ namespace HisRoyalRedness.com
             if (action != null)
                 action(item);
             return item;
+        }
+    }
+
+    public static class BigIntegerExtensions
+    {
+        public static BigInteger BigIntegerFromBinary(this string value)
+        {
+            BigInteger res = 0;
+
+            foreach (char c in value)
+            {
+                res <<= 1;
+                switch(c)
+                {
+                    case '1': res += 1; break;
+                    case '0': break;
+                    default: throw new ArgumentOutOfRangeException("Only expect a 1 or 0 for binary numbers");
+                }
+            }
+            return res;
         }
     }
 }

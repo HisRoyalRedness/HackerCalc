@@ -44,15 +44,21 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static IntegerToken Parse(string value, bool isHex)
-            => isHex
-                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), true, IntegerBitWidth.Unbound)
-                : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), true, IntegerBitWidth.Unbound);
+        public static IntegerToken Parse(string value, IntegerBase numBase)
+            => Parse(value, numBase, true, IntegerBitWidth.Unbound);
 
-        public static IntegerToken Parse(string value, bool isHex, bool isSigned, IntegerBitWidth bitWidth)
-            => isHex
-                ? new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth)
-                : new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
+        public static IntegerToken Parse(string value, IntegerBase numBase, bool isSigned, IntegerBitWidth bitWidth)
+        {
+            switch (numBase)
+            {
+                case IntegerBase.Decimal:
+                    return new IntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), isSigned, bitWidth);
+                case IntegerBase.Hexadecimal:
+                    return new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth);
+                default:
+                    throw new ApplicationException($"Unhandled integer base {numBase}.");
+            }
+        }
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)
         {
@@ -115,6 +121,12 @@ namespace HisRoyalRedness.com
             {
                 case nameof(FloatToken):
                     return new FloatToken((double)TypedValue) as TToken;
+
+                case nameof(UnlimitedIntegerToken):
+                    return new UnlimitedIntegerToken(TypedValue) as TToken;
+
+                case nameof(LimitedIntegerToken):
+                    return new LimitedIntegerToken(TypedValue) as TToken;
 
                 case nameof(TimespanToken):
                     return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;

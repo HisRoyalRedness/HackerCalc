@@ -18,6 +18,13 @@ namespace HisRoyalRedness.com
         Date
     }
 
+    public enum IntegerBase
+    {
+        Binary,
+        Decimal,
+        Hexadecimal
+    }
+
     public struct TypePair
     {
         public TypePair(TokenDataType left, TokenDataType right)

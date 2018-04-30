@@ -40,15 +40,41 @@ namespace HisRoyalRedness.com
 
                 case "integer":
                 case "integertoken":
-                    var portions = _integerRegex.Match(tokenArg);
-                    var isNeg = portions.Groups[1].Value == "-";
-                    var isHex = !string.IsNullOrEmpty(portions.Groups[2].Value);
-                    var num = portions.Groups[3].Value;
-                    var isSigned = portions.Groups[4].Value.ToLower() != "u";
-                    var bitWidth = string.IsNullOrEmpty(portions.Groups[5].Value)
-                        ? IntegerToken.IntegerBitWidth.Unbound
-                        : IntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                    return IntegerToken.Parse((isNeg ? $"-{num}" : num), isHex, isSigned, bitWidth);
+                    {
+                        var portions = _integerRegex.Match(tokenArg);
+                        var isNeg = portions.Groups[1].Value == "-";
+                        var numBase = IntegerBase.Decimal;
+                        switch (portions.Groups[2].Value.ToLower())
+                        {
+                            case "0x": numBase = IntegerBase.Hexadecimal; break;
+                            case "b": numBase = IntegerBase.Decimal; break;
+                            case "": numBase = IntegerBase.Decimal; break;
+                            default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
+                        }
+                        var num = portions.Groups[3].Value;
+                        var isSigned = portions.Groups[4].Value.ToLower() != "u";
+                        var bitWidth = string.IsNullOrEmpty(portions.Groups[5].Value)
+                            ? IntegerToken.IntegerBitWidth.Unbound
+                            : IntegerToken.ParseBitWidth(portions.Groups[5].Value);
+                        return IntegerToken.Parse((isNeg ? $"-{num}" : num), numBase, isSigned, bitWidth);
+                    }
+
+                case "unlimitedinteger":
+                case "unlimitedintegertoken":
+                    {
+                        var portions = _integerRegex.Match(tokenArg);
+                        var isNeg = portions.Groups[1].Value == "-";
+                        var numBase = IntegerBase.Decimal;
+                        switch (portions.Groups[2].Value.ToLower())
+                        {
+                            case "0x": numBase = IntegerBase.Hexadecimal; break;
+                            case "b": numBase = IntegerBase.Decimal; break;
+                            case "": numBase = IntegerBase.Decimal; break;
+                            default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
+                        }
+                        var num = portions.Groups[3].Value;
+                        return UnlimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase);
+                    }
 
                 case "timespan":
                 case "timespantoken":
@@ -63,6 +89,7 @@ namespace HisRoyalRedness.com
             }            
         }
 
-        static Regex _integerRegex = new Regex(@"(-)?(0x)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex _integerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }
 }

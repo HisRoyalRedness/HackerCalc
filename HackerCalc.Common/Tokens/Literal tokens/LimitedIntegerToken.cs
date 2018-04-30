@@ -48,6 +48,9 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     return new FloatToken((double)TypedValue) as TToken;
 
+                case nameof(UnlimitedIntegerToken):
+                    return new UnlimitedIntegerToken(TypedValue) as TToken;
+
                 case nameof(TimespanToken):
                     return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
 

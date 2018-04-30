@@ -26,6 +26,14 @@ namespace HisRoyalRedness.com
         public void HexUnlimitedIntegerValueIsParsedCorrectly(string[] input) 
             => IntegerValueIsParsedCorrectly(input[0], BigInteger.Parse(input[1].Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber));
 
+        [DataTestMethod]
+        [DataRow(new[] { "-b1010", "-10" })]
+        [DataRow(new[] { "B110", "6" })]
+        [DataRow(new[] { "b01010101", "85" })]
+        public void BinUnlimitedIntegerValueIsParsedCorrectly(string[] input)
+            => IntegerValueIsParsedCorrectly(input[0], BigInteger.Parse(input[1], NumberStyles.Integer));
+
+
         public void IntegerValueIsParsedCorrectly(string input, BigInteger expectedValue)
         {
             var expr = Parser.ParseExpression(input);

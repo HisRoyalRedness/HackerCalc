@@ -23,13 +23,14 @@ namespace HisRoyalRedness.com
         #region Parsing
         public static TimespanToken Parse(string value, TimeSpan timespan)
             => new TimespanToken(value, timespan);
+
+        public TimespanToken AddCompoundPortions(TimespanToken other)
+            => new TimespanToken(string.Join(" ", Value, other.Value), TypedValue + other.TypedValue);
         #endregion Parsing
 
         #region Operator overrides
-        // Used for parsing
         public static TimespanToken operator +(TimespanToken a, TimespanToken b)
-            => new TimespanToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
-
+            => new TimespanToken(a.TypedValue + b.TypedValue);
         public static TimespanToken operator -(TimespanToken a, TimespanToken b)
             => new TimespanToken(a.TypedValue - b.TypedValue);
         public static TimespanToken operator *(TimespanToken a, FloatToken b)
