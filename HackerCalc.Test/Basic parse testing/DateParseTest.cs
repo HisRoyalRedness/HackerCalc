@@ -16,7 +16,7 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "18-02-01 01:01", "2018-02-01 01:01:00" })]
         [DataRow(new[] { "2018-02-01 01:01:01", "2018-02-01 01:01:01" })]
         [DataRow(new[] { "01-02-2018 01:01:01", "2018-02-01 01:01:01" })]
-        public void DatesAreParsedCorrectly(string[] input)
+        public void DatesTimesAreParsedCorrectly(string[] input)
         {
             var token = Parser.ParseExpression(input[0]) as DateToken;
             Assert.IsNotNull(token);
@@ -50,7 +50,7 @@ namespace HisRoyalRedness.com
         [DataRow(new[] { "2018-09-01", "2018-09-01" })]
         [DataRow(new[] { "2018-12-29", "2018-12-29" })]
         [DataRow(new[] { "2018-12-31", "2018-12-31" })]
-        public void DateTimesAreParsedCorrectly(string[] input)
+        public void DateAreParsedCorrectly(string[] input)
         {
             var token = Parser.ParseExpression(input[0]) as DateToken;
             Assert.IsNotNull(token);

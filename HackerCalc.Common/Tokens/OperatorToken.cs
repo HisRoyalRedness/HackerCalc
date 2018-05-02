@@ -15,6 +15,10 @@ namespace HisRoyalRedness.com
         Multiply,
         [Description("/")]
         Divide,
+        [Description("**")]
+        Power,
+        [Description("//")]
+        Root,
         [Description("%")]
         Modulo,
         [Description("!~")]
@@ -80,6 +84,9 @@ namespace HisRoyalRedness.com
                 case "*": return new OperatorToken(OperatorType.Multiply);
                 case "/": return new OperatorToken(OperatorType.Divide);
                 case "\\": return new OperatorToken(OperatorType.Divide);
+                case "**": return new OperatorToken(OperatorType.Power);
+                case "//": return new OperatorToken(OperatorType.Root);
+                case "\\\\": return new OperatorToken(OperatorType.Root);
                 case "%": return new OperatorToken(OperatorType.Modulo);
                 case "+": return new OperatorToken(OperatorType.Add);
                 case "-": return new OperatorToken(OperatorType.Subtract);
