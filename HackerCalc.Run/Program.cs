@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("_test(2+4) * 1");
+                        Debug("1u8+2");
                         break;
                 }
             }

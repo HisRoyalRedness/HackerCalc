@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace HisRoyalRedness.com
 {
@@ -87,6 +88,13 @@ namespace HisRoyalRedness.com
                 default:
                     throw new NotSupportedException($"Unrecognised token type {tokenType}");
             }            
+        }
+
+        public static object GetInstanceField(Type type, object instance, string fieldName)
+        {
+            var bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            FieldInfo field = type.GetField(fieldName, bindFlags);
+            return field.GetValue(instance);
         }
 
         static Regex _integerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);

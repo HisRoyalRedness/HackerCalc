@@ -9,9 +9,13 @@ namespace HisRoyalRedness.com
         Float,
         Integer, // To be removed
         UnlimitedInteger,
+        [IgnoreEnum]
         LimitedInteger,
+        [IgnoreEnum]
         RationalNumber,
+        [IgnoreEnum]
         IrrationalNumber, // Replace float?
+        [IgnoreEnum]
         DigitalInteger,
         Timespan,
         Time,
@@ -131,4 +135,9 @@ namespace HisRoyalRedness.com
 
         static Dictionary<TokenDataType, ILiteralToken> _typeMapping = new Dictionary<TokenDataType, ILiteralToken>();
     }
+
+    // Mark enum types that should be ignored when enumerating
+    public class IgnoreEnumAttribute : Attribute
+    { }
+
 }

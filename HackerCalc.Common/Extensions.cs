@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
 using System.Reflection;
+using System.Linq;
 using System.Text;
 
 namespace HisRoyalRedness.com
@@ -10,21 +11,25 @@ namespace HisRoyalRedness.com
     public static class EnumExtensions
     {
         public static string GetEnumDescription(this Enum value)
+            => value.GetType().GetField(value.ToString())
+                .GetCustomAttributes<DescriptionAttribute>(false)
+                .Select(a => a.Description)
+                .FirstOrDefault() ?? value.ToString();
+
+        public static bool IsEnumIgnored(this Enum value)
+            => value.GetType().GetField(value.ToString())
+                .GetCustomAttributes<IgnoreEnumAttribute>(false)
+                .Any();
+
+        public static IEnumerable<TEnum> GetEnumCollection<TEnum>()
+            where TEnum : struct, IConvertible
         {
-            if (value == (Enum)OperatorType.Cast)
-                Console.WriteLine();
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-
-            DescriptionAttribute[] attributes =
-                (DescriptionAttribute[])fi.GetCustomAttributes(
-                typeof(DescriptionAttribute),
-                false);
-
-            if (attributes != null &&
-                attributes.Length > 0)
-                return attributes[0].Description;
-            else
-                return value.ToString();
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException($"{nameof(TEnum)} must be an enumerated type");
+            return Enum
+                .GetValues(typeof(TEnum))
+                .Cast<TEnum>()
+                .Where(e => !((e as Enum)?.IsEnumIgnored() ?? false));
         }
     }
 

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace HisRoyalRedness.com
 {
     // key: The actual types of the two operands.
     // value: The types the operands should be cast to before performing the operation.
-    using OperandTypeMap = Dictionary<TokenEvaluator.OperandTypePair, TokenEvaluator.OperandTypePair>;
+    using BinaryOperandTypeMap = Dictionary<TokenEvaluator.OperandTypePair, TokenEvaluator.OperandTypePair>;
 
     public interface ILiteralTokenEval : ILiteralToken
     {
@@ -20,6 +23,30 @@ namespace HisRoyalRedness.com
         public TokenEvaluator(EvaluatorSettings settings)
         {
             _settings = settings;
+        }
+
+        static TokenEvaluator()
+        {
+            // Create a readonly static list of all possible type pairs
+            _allPossibleTypePairs = new Lazy<ReadOnlyCollection<OperandTypePair>>(() =>
+            {
+                var typeList = new List<OperandTypePair>();
+                var dataTypes = EnumExtensions.GetEnumCollection<TokenDataType>().ToList();
+                foreach (var left in dataTypes)
+                    foreach (var right in dataTypes)
+                        typeList.Add(new OperandTypePair(left, right));
+                return new ReadOnlyCollection<OperandTypePair>(typeList);
+            });
+
+            _operatorProperties = new ReadOnlyDictionary<OperatorType, OperatorProperties>(new[]
+            {
+                new OperatorProperties(OperatorType.Add, "add", "to", _addMapping, Add),
+                new OperatorProperties(OperatorType.Subtract, "subtract", "from", _subtractMapping, Subtract),
+                new OperatorProperties(OperatorType.Multiply, "multiply", "by", _multiplyMapping, Multiply),
+                new OperatorProperties(OperatorType.Divide, "divide", "by", _divideMapping, Divide),
+                new OperatorProperties(OperatorType.LeftShift, "left shift", "by", _leftShiftMapping, LeftShift),
+                new OperatorProperties(OperatorType.RightShift, "right shift", "by", _rightShiftMapping, RightShift),
+            }.ToDictionary(op => op.Operator));
         }
 
         public IToken Visit<TToken>(TToken token)
@@ -69,6 +96,8 @@ namespace HisRoyalRedness.com
                         Visit(opToken.Right) as ILiteralToken);
 
 #if INCOMPLETE_EQ
+                    // If the expression is only partially entered, try calculate the value 
+                    // up to the last completed portion of the expression
                     if (pair.Left as ILiteralTokenEval != null)
                     {
                         if ((pair.Left as ILiteralTokenEval).IsTermToken)
@@ -82,21 +111,460 @@ namespace HisRoyalRedness.com
                     }
 #endif
 
-                    switch (opToken.Operator)
-                    {
-                        case OperatorType.Add: return Add(pair);
-                        case OperatorType.Subtract: return Subtract(pair);
-                        case OperatorType.Multiply: return Multiply(pair);
-                        case OperatorType.Divide: return Divide(pair);
+                    if (!_operatorProperties.ContainsKey(opToken.Operator))
+                        throw new ApplicationException($"{nameof(TokenEvaluator)} currently doesn't support the {opToken.Operator} operator. Has it been added to the {nameof(OperatorProperties)} dictionary?");
 
-                        default:
-                            throw new ApplicationException($"Unhandled operator type {opToken.Operator}");
-                    }
+                    var prop = _operatorProperties[opToken.Operator];
+                    if (prop.NAry != 2)
+                        throw new ApplicationException($"Operator type {opToken.Operator} is not a binary operator.");
+
+                    return BinaryOperate(prop, pair, _settings);
                 }
             }
             else
                 throw new ApplicationException($"Unhandled token type {token.GetType().Name}");
         }
+
+        IToken BinaryOperate(OperatorProperties opProp, TokenPair pair, EvaluatorSettings settings)
+        {
+            var opTypes = pair.TypesFromMap(opProp.TypeMap);
+            var castPair = pair.CastFromMap(opProp.TypeMap, settings);
+            if (castPair == null)
+                throw new InvalidCalcOperationException($"Can't {opProp.Description} a {pair.Left.DataType} ({pair.Left.ObjectValue}) {opProp.OperandConjuctDesciption} a {pair.Right.DataType} ({pair.Right.ObjectValue})");
+            var token = opProp.Operation(castPair);
+            if (token == null)
+                throw new InvalidCalcOperationException($"Can't {opProp.Description} a {castPair.Left.DataType} ({castPair.Left.ObjectValue}) {opProp.OperandConjuctDesciption} a {castPair.Right.DataType} ({castPair.Right.ObjectValue})");
+            return token;
+        }
+
+        #region Add
+        static IToken Add(TokenPair pair)
+        {
+            if (pair != null)
+                switch (pair.Left.DataType)
+                {
+                    case TokenDataType.Date:
+                        if (pair.Right.DataType == TokenDataType.Timespan)
+                            return ((DateToken)pair.Left) + ((TimespanToken)pair.Right);
+                        break;
+                    case TokenDataType.Float:
+                        if (pair.Right.DataType == TokenDataType.Float)
+                            return ((FloatToken)pair.Left) + ((FloatToken)pair.Right);
+                        break;
+                    case TokenDataType.Integer:
+                        if (pair.Right.DataType == TokenDataType.Integer)
+                            return ((IntegerToken)pair.Left) + ((IntegerToken)pair.Right);
+                        break;
+                    case TokenDataType.Time:
+                        if (pair.Right.DataType == TokenDataType.Timespan)
+                            return ((TimeToken)pair.Left) + ((TimespanToken)pair.Right);
+                        break;
+                    case TokenDataType.Timespan:
+                        switch (pair.Right.DataType)
+                        {
+                            case TokenDataType.Date:
+                                return ((DateToken)pair.Right) + ((TimespanToken)pair.Left);
+                            case TokenDataType.Time:
+                                return ((TimespanToken)pair.Left) + ((TimeToken)pair.Right);
+                            case TokenDataType.Timespan:
+                                return ((TimespanToken)pair.Left) + ((TimespanToken)pair.Right);
+                        }
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)pair.Left) + ((UnlimitedIntegerToken)pair.Right);
+                        break;
+                }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _addMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.UnlimitedInteger),                  new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.UnlimitedInteger),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.UnlimitedInteger),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.UnlimitedInteger),                  new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.UnlimitedInteger),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Date),                  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Float),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Integer),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Time),                  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Timespan),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),      new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
+        };
+        #endregion Add
+
+        #region Subtract
+        static IToken Subtract(TokenPair pair)
+        {
+            if (pair != null)
+            {
+                switch (pair.Left.DataType)
+                {
+                    case TokenDataType.Date:
+                        switch (pair.Right.DataType)
+                        {
+                            case TokenDataType.Timespan:
+                                return ((DateToken)pair.Left) - ((TimespanToken)pair.Right);
+                            case TokenDataType.Date:
+                                return ((DateToken)pair.Left) - ((DateToken)pair.Right);
+                        }
+                        break;
+                    case TokenDataType.Float:
+                        if (pair.Right.DataType == TokenDataType.Float)
+                            return ((FloatToken)pair.Left) - ((FloatToken)pair.Right);
+                        break;
+                    case TokenDataType.Integer:
+                        if (pair.Right.DataType == TokenDataType.Integer)
+                            return ((IntegerToken)pair.Left) - ((IntegerToken)pair.Right);
+                        break;
+                    case TokenDataType.Time:
+                        if (pair.Right.DataType == TokenDataType.Timespan)
+                            return ((TimeToken)pair.Left) - ((TimespanToken)pair.Right);
+                        break;
+                    case TokenDataType.Timespan:
+                        switch (pair.Right.DataType)
+                        {
+                            case TokenDataType.Date:
+                                return ((DateToken)pair.Right) - ((TimespanToken)pair.Left);
+                            case TokenDataType.Timespan:
+                                return ((TimespanToken)pair.Left) - ((TimespanToken)pair.Right);
+                        }
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)pair.Left) - ((UnlimitedIntegerToken)pair.Right);
+                        break;
+                }
+            }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _subtractMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              new OperandTypePair(TokenDataType.Date, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.UnlimitedInteger),                  new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.UnlimitedInteger),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.UnlimitedInteger),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.UnlimitedInteger),                  new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.UnlimitedInteger),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Date),                  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Float),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Integer),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Time),                  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Timespan),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),      new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
+        };
+        #endregion Subtract
+
+        #region Multiply
+        static IToken Multiply(TokenPair pair)
+        {
+            if (pair != null)
+            {
+                switch (pair.Left.DataType)
+                {
+                    case TokenDataType.Float:
+                        switch (pair.Right.DataType)
+                        {
+                            case TokenDataType.Float:
+                                return ((FloatToken)pair.Left) * ((FloatToken)pair.Right);
+                            case TokenDataType.Timespan:
+                                return ((FloatToken)pair.Left) * ((TimespanToken)pair.Right);
+                        }
+                        break;
+                    case TokenDataType.Integer:
+                        if (pair.Right.DataType == TokenDataType.Integer)
+                            return ((IntegerToken)pair.Left) * ((IntegerToken)pair.Right);
+                        break;
+                    case TokenDataType.Timespan:
+                        if (pair.Right.DataType == TokenDataType.Float)
+                            return ((TimespanToken)pair.Left) * ((FloatToken)pair.Right);
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)pair.Left) * ((UnlimitedIntegerToken)pair.Right);
+                        break;
+                }
+            }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _multiplyMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.UnlimitedInteger),                  OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.UnlimitedInteger),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.UnlimitedInteger),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.UnlimitedInteger),                  OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.UnlimitedInteger),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Date),                  OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Float),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Integer),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Time),                  OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Timespan),              new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),      new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
+        };
+        #endregion Multiply
+
+        #region Divide
+        static IToken Divide(TokenPair pair)
+        {
+            if (pair != null)
+            {
+                switch (pair.Left.DataType)
+                {
+                    case TokenDataType.Float:
+                        if (pair.Right.DataType == TokenDataType.Float)
+                            return ((FloatToken)pair.Left) / ((FloatToken)pair.Right);
+                        break;
+                    case TokenDataType.Integer:
+                        if (pair.Right.DataType == TokenDataType.Integer)
+                            return ((IntegerToken)pair.Left) / ((IntegerToken)pair.Right);
+                        break;
+                    case TokenDataType.Timespan:
+                        switch (pair.Right.DataType)
+                        {
+                            case TokenDataType.Float:
+                                return ((TimespanToken)pair.Left) / ((FloatToken)pair.Right);
+                            case TokenDataType.Timespan:
+                                return ((TimespanToken)pair.Left) / ((TimespanToken)pair.Right);
+                        }
+                        break;
+                    case TokenDataType.UnlimitedInteger:
+                        if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
+                            return ((UnlimitedIntegerToken)pair.Left) / ((UnlimitedIntegerToken)pair.Right);
+                        break;
+                }
+            }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _divideMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.UnlimitedInteger),                  OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.UnlimitedInteger),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.UnlimitedInteger),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.UnlimitedInteger),                  OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.UnlimitedInteger),              new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Date),                  OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Float),                 new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Integer),               new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Time),                  OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.Timespan),              new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),      new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
+        };
+        #endregion Divide
+
+        #region LeftShift
+        static IToken LeftShift(TokenPair pair)
+        {
+            if (pair != null)
+            {
+
+            }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _leftShiftMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   OperandTypePair.Unsupported },
+        };
+        #endregion LeftShift
+
+        #region RightShift
+        static IToken RightShift(TokenPair pair)
+        {
+            if (pair != null)
+            {
+
+            }
+            return null;
+        }
+
+        static readonly BinaryOperandTypeMap _rightShiftMapping = new BinaryOperandTypeMap()
+        {
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),                            OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),                         OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),                        OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),                       OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),                             OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),                           OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),                              OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),                          OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),                         OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),                       OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),                          OperandTypePair.Unsupported },
+            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),                      OperandTypePair.Unsupported },
+
+            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   OperandTypePair.Unsupported },
+        };
+        #endregion RightShift
 
         #region TokenPair
         public class TokenPair
@@ -117,7 +585,7 @@ namespace HisRoyalRedness.com
             public ILiteralToken Left { get; set; }
             public ILiteralToken Right { get; set; }
 
-            public OperandTypePair TypesFromMap(OperandTypeMap map)
+            public OperandTypePair TypesFromMap(BinaryOperandTypeMap map)
             {
                 var key = new OperandTypePair(Left.DataType, Right.DataType);
                 return map.ContainsKey(key)
@@ -125,7 +593,7 @@ namespace HisRoyalRedness.com
                     : OperandTypePair.Unsupported;
             }
 
-            public TokenPair CastFromMap(OperandTypeMap map, EvaluatorSettings settings)
+            public TokenPair CastFromMap(BinaryOperandTypeMap map, EvaluatorSettings settings)
             {
                 var newPairType = TypesFromMap(map);
                 if (!newPairType.OperationSupported)
@@ -158,316 +626,10 @@ namespace HisRoyalRedness.com
                 return new TokenPair(Left.CastTo(newPairType.Left), Right.CastTo(newPairType.Right));
             }
         }
-#endregion TokenPair
-
-#region Add
-        IToken Add(TokenPair pair)
-        {
-            var opTypes = pair.TypesFromMap(_addMapping);
-            var castPair = pair.CastFromMap(_addMapping, _settings);
-            if (castPair != null)
-            {
-                switch (opTypes.Left)
-                {
-                    case TokenDataType.Date:
-                        if (opTypes.Right == TokenDataType.Timespan)
-                            return ((DateToken)castPair.Left) + ((TimespanToken)castPair.Right);
-                        break;
-                    case TokenDataType.Float:
-                        if (opTypes.Right == TokenDataType.Float)
-                            return ((FloatToken)castPair.Left) + ((FloatToken)castPair.Right);
-                        break;
-                    case TokenDataType.Integer:
-                        if (opTypes.Right == TokenDataType.Integer)
-                            return ((IntegerToken)castPair.Left) + ((IntegerToken)castPair.Right);
-                        break;
-                    case TokenDataType.Time:
-                        if (opTypes.Right == TokenDataType.Timespan)
-                            return ((TimeToken)castPair.Left) + ((TimespanToken)castPair.Right);
-                        break;
-                    case TokenDataType.Timespan:
-                        switch (opTypes.Right)
-                        {
-                            case TokenDataType.Date:
-                                return ((DateToken)castPair.Right) + ((TimespanToken)castPair.Left);
-                            case TokenDataType.Time:
-                                return ((TimespanToken)castPair.Left) + ((TimeToken)castPair.Right);
-                            case TokenDataType.Timespan:
-                                return ((TimespanToken)castPair.Left) + ((TimespanToken)castPair.Right);
-                        }
-                        break;
-                    case TokenDataType.UnlimitedInteger:
-                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)castPair.Left) + ((UnlimitedIntegerToken)castPair.Right);
-                        break;
-                }
-            }
-            throw new InvalidCalcOperationException($"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})");
-        }
-
-        static readonly OperandTypeMap _addMapping = new OperandTypeMap()
-        {
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),         new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),       new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),          new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),      new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),        new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),    new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),         new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),       new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),          new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),      new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
-        };
-#endregion Add
-
-#region Subtract
-        IToken Subtract(TokenPair pair)
-        {
-            var opTypes = pair.TypesFromMap(_subtractMapping);
-            var castPair = pair.CastFromMap(_subtractMapping, _settings);
-            if (castPair != null)
-            {
-                switch (opTypes.Left)
-                {
-                    case TokenDataType.Date:
-                        switch(opTypes.Right)
-                        {
-                            case TokenDataType.Timespan:
-                                return ((DateToken)castPair.Left) - ((TimespanToken)castPair.Right);
-                            case TokenDataType.Date:
-                                return ((DateToken)castPair.Left) - ((DateToken)castPair.Right);
-                        }
-                        break;
-                    case TokenDataType.Float:
-                        if (opTypes.Right == TokenDataType.Float)
-                            return ((FloatToken)castPair.Left) - ((FloatToken)castPair.Right);
-                        break;
-                    case TokenDataType.Integer:
-                        if (opTypes.Right == TokenDataType.Integer)
-                            return ((IntegerToken)castPair.Left) - ((IntegerToken)castPair.Right);
-                        break;
-                    case TokenDataType.Time:
-                        if (opTypes.Right == TokenDataType.Timespan)
-                            return ((TimeToken)castPair.Left) - ((TimespanToken)castPair.Right);
-                        break;
-                    case TokenDataType.Timespan:
-                        switch (opTypes.Right)
-                        {
-                            case TokenDataType.Date:
-                                return ((DateToken)castPair.Right) - ((TimespanToken)castPair.Left);
-                            case TokenDataType.Timespan:
-                                return ((TimespanToken)castPair.Left) - ((TimespanToken)castPair.Right);
-                        }
-                        break;
-                    case TokenDataType.UnlimitedInteger:
-                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)castPair.Left) - ((UnlimitedIntegerToken)castPair.Right);
-                        break;
-                }
-            }
-            throw new InvalidCalcOperationException($"Can't subtract a {pair.Left.DataType} ({pair.Left.ObjectValue}) from a {pair.Right.DataType} ({pair.Right.ObjectValue})");
-        }
-
-        static readonly OperandTypeMap _subtractMapping = new OperandTypeMap()
-        {
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),          new OperandTypePair(TokenDataType.Date, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),         new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),       new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),          new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),      new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),        new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),         new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),    new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),       new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),          new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),         new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),       new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),          new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),      new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
-        };
-#endregion Subtract
-
-#region Multiply
-        IToken Multiply(TokenPair pair)
-        {
-            var opTypes = pair.TypesFromMap(_multiplyMapping);
-            var castPair = pair.CastFromMap(_multiplyMapping, _settings);
-            if (castPair != null)
-            {
-                switch (opTypes.Left)
-                {
-                    case TokenDataType.Float:
-                        switch (opTypes.Right)
-                        {
-                            case TokenDataType.Float:
-                                return ((FloatToken)castPair.Left) * ((FloatToken)castPair.Right);
-                            case TokenDataType.Timespan:
-                                return ((FloatToken)castPair.Left) * ((TimespanToken)castPair.Right);
-                        }
-                        break;
-                    case TokenDataType.Integer:
-                        if (opTypes.Right == TokenDataType.Integer)
-                            return ((IntegerToken)castPair.Left) * ((IntegerToken)castPair.Right);
-                        break;
-                    case TokenDataType.Timespan:
-                        if (opTypes.Right == TokenDataType.Float)
-                            return ((TimespanToken)castPair.Left) * ((FloatToken)castPair.Right);
-                        break;
-                    case TokenDataType.UnlimitedInteger:
-                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)castPair.Left) * ((UnlimitedIntegerToken)castPair.Right);
-                        break;
-                }
-            }
-            throw new InvalidCalcOperationException($"Can't multiply a {pair.Left.DataType} ({pair.Left.ObjectValue}) with a {pair.Right.DataType} ({pair.Right.ObjectValue})");
-        }
-
-        static readonly OperandTypeMap _multiplyMapping = new OperandTypeMap()
-        {
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),      OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),        new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),     new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),    new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),   new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),      OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
-        };
-#endregion Multiply
-
-#region Divide
-        IToken Divide(TokenPair pair)
-        {
-            var opTypes = pair.TypesFromMap(_divideMapping);
-            var castPair = pair.CastFromMap(_divideMapping, _settings);
-            if (castPair != null)
-            {
-                switch (opTypes.Left)
-                {
-                    case TokenDataType.Float:
-                        if (opTypes.Right == TokenDataType.Float)
-                            return ((FloatToken)castPair.Left) / ((FloatToken)castPair.Right);
-                        break;
-                    case TokenDataType.Integer:
-                        if (opTypes.Right == TokenDataType.Integer)
-                            return ((IntegerToken)castPair.Left) / ((IntegerToken)castPair.Right);
-                        break;
-                    case TokenDataType.Timespan:
-                        switch (opTypes.Right)
-                        {
-                            case TokenDataType.Float:
-                                return ((TimespanToken)castPair.Left) / ((FloatToken)castPair.Right);
-                            case TokenDataType.Timespan:
-                                return ((TimespanToken)castPair.Left) / ((TimespanToken)castPair.Right);
-                        }
-                        break;
-                    case TokenDataType.UnlimitedInteger:
-                        if (opTypes.Right == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)castPair.Left) / ((UnlimitedIntegerToken)castPair.Right);
-                        break;
-                }
-            }
-            throw new InvalidCalcOperationException($"Can't divide a {pair.Left.DataType} ({pair.Left.ObjectValue}) by a {pair.Right.DataType} ({pair.Right.ObjectValue})");
-        }
-
-        static readonly OperandTypeMap _divideMapping = new OperandTypeMap()
-        {
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Date),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Float),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Integer),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Time),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Date, TokenDataType.Timespan),      OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Date),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Float),        new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Integer),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Time),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan),     OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Date),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Float),      new OperandTypePair(TokenDataType.Float, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer),    new OperandTypePair(TokenDataType.Integer, TokenDataType.Integer) },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Time),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Integer, TokenDataType.Timespan),   new OperandTypePair(TokenDataType.Float, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Date),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Float),         OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Integer),       OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Time),          OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Time, TokenDataType.Timespan),      OperandTypePair.Unsupported },
-
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Date),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float),     new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Integer),   new OperandTypePair(TokenDataType.Timespan, TokenDataType.Float) },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Time),      OperandTypePair.Unsupported },
-            { new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan),  new OperandTypePair(TokenDataType.Timespan, TokenDataType.Timespan) },
-
-            { new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger),   new OperandTypePair(TokenDataType.UnlimitedInteger, TokenDataType.UnlimitedInteger) },
-        };
-        #endregion Divide
+        #endregion TokenPair
 
         #region OperandTypePair
+        [DebuggerDisplay("{Left}, {Right}")]
         public struct OperandTypePair
         {
             public OperandTypePair(TokenDataType left, TokenDataType right)
@@ -490,6 +652,30 @@ namespace HisRoyalRedness.com
         }
         #endregion OperandTypePair
 
+        #region OperatorProperties
+        public class OperatorProperties
+        {
+            public OperatorProperties(OperatorType opType, string description, string conjunctDescription, BinaryOperandTypeMap typeMap, Func<TokenPair, IToken> operation)
+            {
+                Operator = opType;
+                Description = description;
+                NAry = 2;
+                TypeMap = typeMap;
+                Operation = operation;
+                OperandConjuctDesciption = conjunctDescription;
+            }
+            
+            public OperatorType Operator { get; private set; }
+            public string Description { get; private set; }
+            public string OperandConjuctDesciption { get; private set; }
+            public int NAry { get; private set; }
+            public BinaryOperandTypeMap TypeMap { get; private set; }
+            public Func<TokenPair, IToken> Operation { get; private set; }
+        }
+        #endregion OperatorProperties
+
+        readonly static Lazy<ReadOnlyCollection<OperandTypePair>> _allPossibleTypePairs;
+        readonly static ReadOnlyDictionary<OperatorType, OperatorProperties> _operatorProperties;
         readonly EvaluatorSettings _settings;
     }
 

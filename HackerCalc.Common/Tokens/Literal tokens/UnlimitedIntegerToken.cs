@@ -62,6 +62,9 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     return new FloatToken((double)TypedValue) as TToken;
 
+                case nameof(IntegerToken):
+                    return new IntegerToken(TypedValue) as TToken;
+
                 case nameof(LimitedIntegerToken):
                     return new LimitedIntegerToken(TypedValue) as TToken;
 
