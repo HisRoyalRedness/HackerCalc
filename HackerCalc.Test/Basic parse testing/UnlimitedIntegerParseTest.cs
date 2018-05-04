@@ -9,6 +9,7 @@ namespace HisRoyalRedness.com
 {
     [TestCategory(nameof(UnlimitedIntegerToken))]
     [TestCategory("Basic parse")]
+    [TestCategory("Literal token parse")]
     [TestClass]
     public class UnlimitedIntegerParseTest
     {

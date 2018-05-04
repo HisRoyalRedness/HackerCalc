@@ -33,13 +33,6 @@ namespace HisRoyalRedness.com
         }
         #endregion Parsing
 
-        public override ILiteralToken NumericNegate()
-            => new UnlimitedIntegerToken(TypedValue * -1);
-
-        public override ILiteralToken BitwiseNegate()
-            => throw new InvalidOperationException($"{nameof(UnlimitedIntegerToken)} does not support {nameof(BitwiseNegate)}, as it doesn't have a fixed bit width.");
-
-
         #region Operator overloads
         public static UnlimitedIntegerToken operator +(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
             => new UnlimitedIntegerToken(a.TypedValue + b.TypedValue);
@@ -50,6 +43,18 @@ namespace HisRoyalRedness.com
         public static UnlimitedIntegerToken operator /(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
             => new UnlimitedIntegerToken(a.TypedValue / b.TypedValue);
         #endregion Operator overloads
+
+        public override ILiteralToken NumericNegate()
+            => new UnlimitedIntegerToken(TypedValue * -1);
+
+        public override ILiteralToken BitwiseNegate()
+            => throw new InvalidOperationException($"{nameof(UnlimitedIntegerToken)} does not support {nameof(BitwiseNegate)}, as it doesn't have a fixed bit width.");
+
+        public UnlimitedIntegerToken LeftShift(int shift)
+            => new UnlimitedIntegerToken(TypedValue << shift);
+
+        public UnlimitedIntegerToken RightShift(int shift)
+            => new UnlimitedIntegerToken(TypedValue >> shift);
 
         #region Casting
         protected override TToken InternalCastTo<TToken>()

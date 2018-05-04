@@ -85,10 +85,17 @@ Change log
 |            | Implement comparison                                                                                         |
 |            | Integer token normalisation and tests                                                                        |
 | 2018-04-24 | Started IntegerToken normalisation                                                                           |
+| 2018-05-04 | Added new integer token types.                                                                               |
+|            | Refactored token evaluation                                                                                  |
+|            | Added power and root operators (parsing)                                                                     |
+|            | Partial support for parsing functions                                                                        |
 
 Todo
 ----
 
+* Rewriting literal parse tests to use TestCommon.LiteralTokensAreParsedCorrectly
+
+* Add VerifyBinaryTypeCombinationsOnEachOperator. Should probably add one for unary operators too
 * Complete the implementation of functions
 * Implement all the integer types
 * Repair unit tests

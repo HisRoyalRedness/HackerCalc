@@ -104,6 +104,12 @@ namespace HisRoyalRedness.com
             => new IntegerToken(a.TypedValue / b.TypedValue, a.IsSigned, a.BitWidth);
         #endregion Operator overloads
 
+        public IntegerToken LeftShift(int shift)
+            => new IntegerToken(TypedValue << shift);
+
+        public IntegerToken RightShift(int shift)
+            => new IntegerToken(TypedValue >> shift);
+
         #region Casting
         public IntegerToken Cast(bool isSigned = true, IntegerBitWidth bitWidth = IntegerBitWidth.Unbound, bool errorOnOverflow = true)
         {

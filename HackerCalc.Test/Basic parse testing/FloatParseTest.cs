@@ -8,26 +8,18 @@ namespace HisRoyalRedness.com
 {
     [TestCategory(nameof(FloatToken))]
     [TestCategory("Basic parse")]
+    [TestCategory("Literal token parse")]
     [TestClass]
     public class FloatParseTest
     {
         [DataTestMethod]
-        [DataRow(new[] { "1.0", "1.0 " })]
-        public void TrueFloatValueIsParsedCorrectly(string[] input) => FloatValueIsParsedCorrectly(input[0], double.Parse(input[1]));
+        [DataRow("1.0", "1.0" )]
+        public void TrueFloatValueIsParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<FloatToken>(stringToParse, expectedTokenStr);
 
         [DataTestMethod]
-        [DataRow(new[] { "1F", "1.0" })]
-        public void TypedFloatValueIsParsedCorrectly(string[] input) => FloatValueIsParsedCorrectly(input[0], double.Parse(input[1]));
-
-        public void FloatValueIsParsedCorrectly(string input, double expectedValue)
-        {
-            var expr = Parser.ParseExpression(input);
-            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
-
-            var token = expr as FloatToken;
-            token.Should().NotBeNull($"parsing {input} should result in a valid FloatToken.");
-
-            token.TypedValue.Should().BeApproximately(expectedValue, float.Epsilon);
-        }
+        [DataRow("1F", "1.0" )]
+        public void TypedFloatValueIsParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<FloatToken>(stringToParse, expectedTokenStr);
     }
 }

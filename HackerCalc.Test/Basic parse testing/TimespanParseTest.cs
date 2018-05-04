@@ -7,6 +7,7 @@ namespace HisRoyalRedness.com
 {
     [TestCategory(nameof(TimespanToken))]
     [TestCategory("Basic parse")]
+    [TestCategory("Literal token parse")]
     [TestClass]
     public class TimespanParseTest
     {

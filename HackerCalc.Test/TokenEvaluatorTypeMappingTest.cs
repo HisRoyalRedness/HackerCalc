@@ -5,22 +5,70 @@ using System.Numerics;
 using FluentAssertions;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Globalization;
 
 namespace HisRoyalRedness.com
 {
     [TestClass]
     public class TokenEvaluatorTypeMappingTest
     {
-        [TestMethod]
-        public void VerifyTypeCombinationsOnEachOperator()
+        
+        static TokenEvaluatorTypeMappingTest()
         {
-            var allDataTypes = (TestCommon.GetInstanceField(typeof(TokenEvaluator), null, "_allPossibleTypePairs") as Lazy<ReadOnlyCollection<TokenEvaluator.OperandTypePair>>).Value;
-            var operatorProperties = TestCommon.GetInstanceField(typeof(TokenEvaluator), null, "_operatorProperties") as ReadOnlyDictionary<OperatorType, TokenEvaluator.OperatorProperties>;
-            foreach(var opProp in operatorProperties.Values)
-            {
-                opProp.TypeMap
-            }
-            Console.WriteLine();
+            // All possible data types
+            _allDataTypes = (TestCommon.GetInstanceField(typeof(TokenEvaluator), null, "_allPossibleTypes") as Lazy<ReadOnlyCollection<TokenDataType>>).Value;
+            // All possible combinations of data types
+            _allDataTypePairs = (TestCommon.GetInstanceField(typeof(TokenEvaluator), null, "_allPossibleTypePairs") as Lazy<ReadOnlyCollection<TokenEvaluator.OperandTypePair>>).Value;
+            // All supported operators
+            _operatorProperties = TestCommon.GetInstanceField(typeof(TokenEvaluator), null, "_operatorProperties") as ReadOnlyDictionary<OperatorType, TokenEvaluator.OperatorProperties>;
         }
+
+        [DataTestMethod]
+        [DynamicData(nameof(VerifyBinaryTypeCombinationsOnEachOperatorData), DynamicDataSourceType.Method)]
+        public void VerifyBinaryTypeCombinationsOnEachOperator(OperatorType opType, TokenDataType leftDataType)
+        {
+            TestContext.WriteLine($"Testing binary operations for data type {leftDataType} with operator {opType}");
+            foreach(var opProp in _operatorProperties.Values.Where(p => p.NAry == 2 && p.Operator == opType))
+            {
+                TestContext.WriteLine($"Testing operator {opProp.Operator}");
+                foreach (var pair in _allDataTypePairs.Where(dt => dt.Left == leftDataType))
+                {
+                    TestContext.WriteLine($"  Testing data pair {pair.Left}, {pair.Right}");
+                    var expr = opProp.Operator.MakeBinaryExpression(pair.Left.MakeToken(), pair.Right.MakeToken());
+
+                    // This data type pair should be supported. Make sure the operation succeeds
+                    if (opProp.TypeMap.ContainsKey(pair) && opProp.TypeMap[pair].OperationSupported)
+                    {
+                        TestContext.WriteLine($"    Supported");
+                        expr.Evaluate();
+                    }
+
+                    // This data type pair is not supported. Make sure the operation fails
+                    else
+                    {
+                        TestContext.WriteLine($"    Not supported");
+                        new Action(() => expr.Evaluate()).Should().Throw<InvalidCalcOperationException>($"the {opProp.Operator} doesn't support operations on types {pair.Left} and {pair.Right}");
+                    }
+                }
+            }
+        }
+
+        static IEnumerable<object[]> VerifyBinaryTypeCombinationsOnEachOperatorData
+        {
+            get
+            {
+                foreach (var op in _operatorProperties.Values.Select(p => p.Operator))
+                    foreach (var dt in _allDataTypes)
+                        yield return new object[] { op, dt };
+            }
+        }
+
+        public TestContext TestContext { get; set; }
+        static ReadOnlyCollection<TokenDataType> _allDataTypes;
+        static ReadOnlyCollection<TokenEvaluator.OperandTypePair> _allDataTypePairs;
+        static ReadOnlyDictionary<OperatorType, TokenEvaluator.OperatorProperties> _operatorProperties;
     }
+
+
 }

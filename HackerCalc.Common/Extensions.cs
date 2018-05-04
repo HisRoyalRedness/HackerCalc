@@ -43,6 +43,17 @@ namespace HisRoyalRedness.com
                 action(item);
             return item;
         }
+
+        public static string Nth(this int value)
+        {
+            switch(value)
+            {
+                case 1: return "st";
+                case 2: return "nd";
+                case 3: return "rd";
+                default: return "th";
+            }
+        }
     }
 
     public static class BigIntegerExtensions

@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
+    [TestCategory("Basic parse")]
     [TestClass]
     public class BasicOperatorParseTest
     {
@@ -37,6 +38,9 @@ namespace HisRoyalRedness.com
         [DataRow("1 /2")]
         [DataRow("1 / 2")]
         [DataRow("1\\2")]
+        [DataRow("1\\ 2")]
+        [DataRow("1 \\2")]
+        [DataRow("1 \\ 2")]
         public void DivisionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Divide);
 
         [DataTestMethod]
@@ -82,6 +86,24 @@ namespace HisRoyalRedness.com
         public void XorParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Xor);
 
         [DataTestMethod]
+        [DataRow("1**2")]
+        [DataRow("1** 2")]
+        [DataRow("1 **2")]
+        [DataRow("1 ** 2")]
+        public void PowerParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Power);
+
+        [DataTestMethod]
+        [DataRow("1//2")]
+        [DataRow("1// 2")]
+        [DataRow("1 //2")]
+        [DataRow("1 // 2")]
+        [DataRow("1\\\\2")]
+        [DataRow("1\\\\ 2")]
+        [DataRow("1 \\\\2")]
+        [DataRow("1 \\\\ 2")]
+        public void RootParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Root);
+
+        [DataTestMethod]
         [DataRow("!1")]
         [DataRow("! 1")]
         public void LogicalNotParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, OperatorType.Not);
@@ -102,12 +124,12 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
-            var leftToken = token.Left as IntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an IntegerToken");
+            var leftToken = token.Left as UnlimitedIntegerToken;
+            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
             leftToken.TypedValue.Should().Be(1);
 
-            var rightToken = token.Right as IntegerToken;
-            rightToken.Should().NotBeNull("the right token is expected to be an IntegerToken");
+            var rightToken = token.Right as UnlimitedIntegerToken;
+            rightToken.Should().NotBeNull("the right token is expected to be an UnlimitedIntegerToken");
             rightToken.TypedValue.Should().Be(2);
 
             token.Operator.Should().Be(expectedType);
@@ -123,8 +145,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as IntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an IntegerToken");
+            var leftToken = token.Left as UnlimitedIntegerToken;
+            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
