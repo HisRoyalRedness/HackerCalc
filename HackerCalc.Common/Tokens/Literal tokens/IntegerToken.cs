@@ -56,7 +56,7 @@ namespace HisRoyalRedness.com
                 case IntegerBase.Hexadecimal:
                     return new IntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isSigned, bitWidth);
                 default:
-                    throw new ApplicationException($"Unhandled integer base {numBase}.");
+                    throw new ParseException($"Unhandled integer base {numBase}.");
             }
         }
 

@@ -11,8 +11,6 @@ namespace HisRoyalRedness.com
     [TestClass]
     public class TimespanParseTest
     {
-        const double PRECISION = 0.000000000001;
-
         [DataTestMethod]
         [DataRow("100ts")]
         [DataRow("100s")]
@@ -31,14 +29,8 @@ namespace HisRoyalRedness.com
         [DataRow("100 secon")]
         [DataRow("100 second")]
         [DataRow("100 seconds")]
-        public void DecimalSecondsAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalSeconds = token.TypedValue.TotalSeconds;
-            Assert.AreEqual(100.0, totalSeconds, PRECISION);
-        }
+        public void DecimalSecondsAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromSeconds(100));
 
         [DataTestMethod]
         [DataRow("100.1ts")]
@@ -58,23 +50,14 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 secon")]
         [DataRow("100.1 second")]
         [DataRow("100.1 seconds")]
-        public void FloatSecondsAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalSeconds = token.TypedValue.TotalSeconds;
-            Assert.AreEqual(100.1, totalSeconds, PRECISION);
-        }
+        public void FloatSecondsAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromSeconds(100.1));
 
         [DataTestMethod]
         [DataRow("100 ts")]
         [DataRow("100.1 ts")]
-        public void SeperatedTimeStampFlagDoesntParse(string input)
-        {
-            var token = Parser.ParseExpression(input);
-            Assert.IsNull(token);
-        }
+        public void SeperatedTimeStampFlagDoesntParse(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken>(stringToParse, null);
 
         [DataTestMethod]
         [DataRow("100m")]
@@ -93,14 +76,8 @@ namespace HisRoyalRedness.com
         [DataRow("100 minut")]
         [DataRow("100 minute")]
         [DataRow("100 minutes")]
-        public void DecimalMinutesAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalMinutes = token.TypedValue.TotalMinutes;
-            Assert.AreEqual(100.0, totalMinutes, PRECISION);
-        }
+        public void DecimalMinutesAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromMinutes(100));
 
         [DataTestMethod]
         [DataRow("100.1m")]
@@ -119,14 +96,8 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 minut")]
         [DataRow("100.1 minute")]
         [DataRow("100.1 minutes")]
-        public void FloatMinutesAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalMinutes = token.TypedValue.TotalMinutes;
-            Assert.AreEqual(100.1, totalMinutes, PRECISION);
-        }
+        public void FloatMinutesAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromMinutes(100.1));
 
         [DataTestMethod]
         [DataRow("100h")]
@@ -143,14 +114,8 @@ namespace HisRoyalRedness.com
         [DataRow("100 hours")]
         [DataRow("100 hr")]
         [DataRow("100 hrs")]
-        public void DecimalHoursAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalHours = token.TypedValue.TotalHours;
-            Assert.AreEqual(100.0, totalHours, PRECISION);
-        }
+        public void DecimalHoursAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromHours(100));
 
         [DataTestMethod]
         [DataRow("100.1h")]
@@ -167,14 +132,8 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 hours")]
         [DataRow("100.1 hr")]
         [DataRow("100.1 hrs")]
-        public void FloatHoursAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalHours = token.TypedValue.TotalHours;
-            Assert.AreEqual(100.1, totalHours, PRECISION);
-        }
+        public void FloatHoursAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromHours(100.1));
 
         [DataTestMethod]
         [DataRow("100d")]
@@ -185,14 +144,8 @@ namespace HisRoyalRedness.com
         [DataRow("100 da")]
         [DataRow("100 day")]
         [DataRow("100 days")]
-        public void DecimalDaysAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalDays = token.TypedValue.TotalDays;
-            Assert.AreEqual(100.0, totalDays, PRECISION);
-        }
+        public void DecimalDaysAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromDays(100));
 
         [DataTestMethod]
         [DataRow("100.1d")]
@@ -203,41 +156,27 @@ namespace HisRoyalRedness.com
         [DataRow("100.1 da")]
         [DataRow("100.1 day")]
         [DataRow("100.1 days")]
-        public void FloatDaysAreParsedCorrectly(string input)
-        {
-            var token = Parser.ParseExpression(input) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalDays = token.TypedValue.TotalDays;
-            Assert.AreEqual(100.1, totalDays, PRECISION);
-
-        }
+        public void FloatDaysAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromDays(100.1));
 
         [DataTestMethod]
-        [DataRow(new[] { "10 sec", "10" })]
-        [DataRow(new[] { "10 min", "600" })]
-        [DataRow(new[] { "10 min 10 sec", "610" })]
-        [DataRow(new[] { "10 hrs", "36000" })]
-        [DataRow(new[] { "10 hrs 10 sec", "36010" })]
-        [DataRow(new[] { "10 hrs 10 min", "36600" })]
-        [DataRow(new[] { "10 hrs 10 min 10 sec", "36610" })]
-        [DataRow(new[] { "10 day", "864000" })]
-        [DataRow(new[] { "10 day 10 sec", "864010" })]
-        [DataRow(new[] { "10 day 10 min", "864600" })]
-        [DataRow(new[] { "10 day 10 min 10 sec", "864610" })]
-        [DataRow(new[] { "10 day 10 hrs", "900000" })]
-        [DataRow(new[] { "10 day 10 hrs 10 sec", "900010" })]
-        [DataRow(new[] { "10 day 10 hrs 10 min", "900600" })]
-        [DataRow(new[] { "10 day 10 hrs 10 min 10 sec", "900610" })]
-        public void CompoundTimePartsCombineCorrectly(string[] input)
-        {
-            var token = Parser.ParseExpression(input[0]) as TimespanToken;
-            Assert.IsNotNull(token);
-
-            var totalSeconds = token.TypedValue.TotalSeconds;
-            var expectedSeconds = double.Parse(input[1]);
-            Assert.AreEqual(expectedSeconds, totalSeconds, PRECISION);
-        }
+        [DataRow("10 sec",                      "00:00:10" )]
+        [DataRow("10 min",                      "00:10:00" )]
+        [DataRow("10 min 10 sec",               "00:10:10" )]
+        [DataRow("10 hrs",                      "10:00:00" )]
+        [DataRow("10 hrs 10 sec",               "10:00:10" )]
+        [DataRow("10 hrs 10 min",               "10:10:00" )]
+        [DataRow("10 hrs 10 min 10 sec",        "10:10:10" )]
+        [DataRow("10 day",                      "10" )]
+        [DataRow("10 day 10 sec",               "10.00:00:10" )]
+        [DataRow("10 day 10 min",               "10.00:10:00" )]
+        [DataRow("10 day 10 min 10 sec",        "10.00:10:10" )]
+        [DataRow("10 day 10 hrs",               "10.10:00:00" )]
+        [DataRow("10 day 10 hrs 10 sec",        "10.10:00:10" )]
+        [DataRow("10 day 10 hrs 10 min",        "10.10:10:00" )]
+        [DataRow("10 day 10 hrs 10 min 10 sec", "10.10:10:10" )]
+        public void CompoundTimePartsCombineCorrectly(string stringToParse, string expectedValue)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken>(stringToParse, expectedValue);
 
         [DataTestMethod]
         [DataRow("10 sec 10 sec")]
@@ -246,10 +185,7 @@ namespace HisRoyalRedness.com
         [DataRow("10 day 10 day")]
         [DataRow("10 sec 10 day")]
         [DataRow("10 min 10 hour")]
-        public void InvalidCompoundCombinationsDontParse(string input)
-        {
-            var token = Parser.ParseExpression(input);
-            Assert.IsNull(token);
-        }
+        public void InvalidCompoundCombinationsDontParse(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken>(stringToParse, null);
     }
 }

@@ -16,21 +16,24 @@ namespace HisRoyalRedness.com
         [DataRow("1+ 2")]
         [DataRow("1 +2")]
         [DataRow("1 + 2")]
-        public void AdditionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Add);
+        public void AdditionParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Add);
 
         [DataTestMethod]
         [DataRow("1-2")]
         [DataRow("1- 2")]
         [DataRow("1 -2")]
         [DataRow("1 - 2")]
-        public void SubtractionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Subtract);
+        public void SubtractionParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Subtract);
 
         [DataTestMethod]
         [DataRow("1*2")]
         [DataRow("1* 2")]
         [DataRow("1 *2")]
         [DataRow("1 * 2")]
-        public void MultiplicationParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Multiply);
+        public void MultiplicationParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Multiply);
 
         [DataTestMethod]
         [DataRow("1/2")]
@@ -41,56 +44,64 @@ namespace HisRoyalRedness.com
         [DataRow("1\\ 2")]
         [DataRow("1 \\2")]
         [DataRow("1 \\ 2")]
-        public void DivisionParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Divide);
+        public void DivisionParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Divide);
 
         [DataTestMethod]
         [DataRow("1%2")]
         [DataRow("1% 2")]
         [DataRow("1 %2")]
         [DataRow("1 % 2")]
-        public void ModuloParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Modulo);
+        public void ModuloParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Modulo);
 
         [DataTestMethod]
         [DataRow("1<<2")]
         [DataRow("1<< 2")]
         [DataRow("1 <<2")]
         [DataRow("1 << 2")]
-        public void ShiftLeftParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.LeftShift);
+        public void ShiftLeftParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.LeftShift);
 
         [DataTestMethod]
         [DataRow("1>>2")]
         [DataRow("1>> 2")]
         [DataRow("1 >>2")]
         [DataRow("1 >> 2")]
-        public void ShiftRightParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.RightShift);
+        public void ShiftRightParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.RightShift);
 
         [DataTestMethod]
         [DataRow("1&2")]
         [DataRow("1& 2")]
         [DataRow("1 &2")]
         [DataRow("1 & 2")]
-        public void AndParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.And);
+        public void AndParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.And);
 
         [DataTestMethod]
         [DataRow("1|2")]
         [DataRow("1| 2")]
         [DataRow("1 |2")]
         [DataRow("1 | 2")]
-        public void OrParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Or);
+        public void OrParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Or);
 
         [DataTestMethod]
         [DataRow("1^2")]
         [DataRow("1^ 2")]
         [DataRow("1 ^2")]
         [DataRow("1 ^ 2")]
-        public void XorParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Xor);
+        public void XorParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Xor);
 
         [DataTestMethod]
         [DataRow("1**2")]
         [DataRow("1** 2")]
         [DataRow("1 **2")]
         [DataRow("1 ** 2")]
-        public void PowerParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Power);
+        public void PowerParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Power);
 
         [DataTestMethod]
         [DataRow("1//2")]
@@ -101,57 +112,19 @@ namespace HisRoyalRedness.com
         [DataRow("1\\\\ 2")]
         [DataRow("1 \\\\2")]
         [DataRow("1 \\\\ 2")]
-        public void RootParsesCorrectly(string input) => BinaryOperatorParsesCorrectly(input, OperatorType.Root);
+        public void RootParsesCorrectly(string input) 
+            => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Root);
 
         [DataTestMethod]
         [DataRow("!1")]
         [DataRow("! 1")]
-        public void LogicalNotParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, OperatorType.Not);
+        public void LogicalNotParsesCorrectly(string input) 
+            => TestCommon.UnaryOperatorParsesCorrectly(input, OperatorType.Not);
 
         [DataTestMethod]
         [DataRow("~1")]
         [DataRow("~ 1")]
-        public void BitwiseNegateParsesCorrectly(string input) => UnaryOperatorParsesCorrectly(input, OperatorType.BitwiseNegate);
-
-
-        void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType)
-        {
-            var expr = Parser.ParseExpression(input);
-            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
-
-            var token = expr as OperatorToken;
-            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
-
-            token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
-
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
-            leftToken.TypedValue.Should().Be(1);
-
-            var rightToken = token.Right as UnlimitedIntegerToken;
-            rightToken.Should().NotBeNull("the right token is expected to be an UnlimitedIntegerToken");
-            rightToken.TypedValue.Should().Be(2);
-
-            token.Operator.Should().Be(expectedType);
-        }
-
-        void UnaryOperatorParsesCorrectly(string input, OperatorType expectedType)
-        {
-            var expr = Parser.ParseExpression(input);
-            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
-
-            var token = expr as OperatorToken;
-            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
-
-            token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
-
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
-            leftToken.TypedValue.Should().Be(1);
-
-            token.Right.Should().BeNull("the right token is always null for a unary operator");
-
-            token.Operator.Should().Be(expectedType);
-        }
+        public void BitwiseNegateParsesCorrectly(string input) 
+            => TestCommon.UnaryOperatorParsesCorrectly(input, OperatorType.BitwiseNegate);
     }
 }

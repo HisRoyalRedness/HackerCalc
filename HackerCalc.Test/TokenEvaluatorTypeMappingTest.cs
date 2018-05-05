@@ -13,7 +13,6 @@ namespace HisRoyalRedness.com
     [TestClass]
     public class TokenEvaluatorTypeMappingTest
     {
-        
         static TokenEvaluatorTypeMappingTest()
         {
             // All possible data types
@@ -28,40 +27,33 @@ namespace HisRoyalRedness.com
         [DynamicData(nameof(VerifyBinaryTypeCombinationsOnEachOperatorData), DynamicDataSourceType.Method)]
         public void VerifyBinaryTypeCombinationsOnEachOperator(OperatorType opType, TokenDataType leftDataType)
         {
-            TestContext.WriteLine($"Testing binary operations for data type {leftDataType} with operator {opType}");
-            foreach(var opProp in _operatorProperties.Values.Where(p => p.NAry == 2 && p.Operator == opType))
+            var opProp = _operatorProperties[opType];
+            foreach (var pair in _allDataTypePairs.Where(dt => dt.Left == leftDataType))
             {
-                TestContext.WriteLine($"Testing operator {opProp.Operator}");
-                foreach (var pair in _allDataTypePairs.Where(dt => dt.Left == leftDataType))
+                TestContext.WriteLine($"Testing data pair {pair.Left}, {pair.Right}");
+                var expr = opProp.Operator.MakeBinaryExpression(pair.Left.MakeToken(), pair.Right.MakeToken());
+
+                // This data type pair should be supported. Make sure the operation succeeds
+                if (opProp.TypeMap.ContainsKey(pair) && opProp.TypeMap[pair].OperationSupported)
                 {
-                    TestContext.WriteLine($"  Testing data pair {pair.Left}, {pair.Right}");
-                    var expr = opProp.Operator.MakeBinaryExpression(pair.Left.MakeToken(), pair.Right.MakeToken());
+                    TestContext.WriteLine($"    Supported");
+                    expr.Evaluate();
+                }
 
-                    // This data type pair should be supported. Make sure the operation succeeds
-                    if (opProp.TypeMap.ContainsKey(pair) && opProp.TypeMap[pair].OperationSupported)
-                    {
-                        TestContext.WriteLine($"    Supported");
-                        expr.Evaluate();
-                    }
-
-                    // This data type pair is not supported. Make sure the operation fails
-                    else
-                    {
-                        TestContext.WriteLine($"    Not supported");
-                        new Action(() => expr.Evaluate()).Should().Throw<InvalidCalcOperationException>($"the {opProp.Operator} doesn't support operations on types {pair.Left} and {pair.Right}");
-                    }
+                // This data type pair is not supported. Make sure the operation fails
+                else
+                {
+                    TestContext.WriteLine($"    Not supported");
+                    new Action(() => expr.Evaluate()).Should().Throw<InvalidCalcOperationException>($"the {opProp.Operator} doesn't support operations on types {pair.Left} and {pair.Right}");
                 }
             }
         }
 
-        static IEnumerable<object[]> VerifyBinaryTypeCombinationsOnEachOperatorData
+        public static IEnumerable<object[]> VerifyBinaryTypeCombinationsOnEachOperatorData()
         {
-            get
-            {
-                foreach (var op in _operatorProperties.Values.Select(p => p.Operator))
-                    foreach (var dt in _allDataTypes)
-                        yield return new object[] { op, dt };
-            }
+            foreach (var op in _operatorProperties.Values.Where(p => p.NAry == 2).Select(p => p.Operator))
+                foreach (var dt in _allDataTypes)
+                    yield return new object[] { op, dt };
         }
 
         public TestContext TestContext { get; set; }

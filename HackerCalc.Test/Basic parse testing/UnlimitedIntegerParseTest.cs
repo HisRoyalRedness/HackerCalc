@@ -14,39 +14,30 @@ namespace HisRoyalRedness.com
     public class UnlimitedIntegerParseTest
     {
         [DataTestMethod]
-        [DataRow(new[] { "-123456", "-123456" })]
-        [DataRow(new[] { "0", "0" })]
-        [DataRow(new[] { "255", "255" })]
-        public void DecUnlimitedIntegerValueIsParsedCorrectly(string[] input) 
-            => IntegerValueIsParsedCorrectly(input[0], BigInteger.Parse(input[1], NumberStyles.Integer));
+        [DataRow("0", "0" )]
+        [DataRow("255", "255" )]
+        public void DecUnlimitedIntegerValueIsParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr);
 
         [DataTestMethod]
-        [DataRow(new[] { "0x00", "0x0" })]
-        [DataRow(new[] { "0xff", "0xff" })]
-        [DataRow(new[] { "0XFF", "0xff" })]
-        public void HexUnlimitedIntegerValueIsParsedCorrectly(string[] input) 
-            => IntegerValueIsParsedCorrectly(input[0], BigInteger.Parse(input[1].Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber));
+        [DataRow("0x00", "0" )]
+        [DataRow("0xff", "255" )]
+        [DataRow("0XFF", "255" )]
+        public void HexUnlimitedIntegerValueIsParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr);
 
         [DataTestMethod]
-        [DataRow(new[] { "-b1010", "-10" })]
-        [DataRow(new[] { "B110", "6" })]
-        [DataRow(new[] { "b01010101", "85" })]
-        public void BinUnlimitedIntegerValueIsParsedCorrectly(string[] input)
-            => IntegerValueIsParsedCorrectly(input[0], BigInteger.Parse(input[1], NumberStyles.Integer));
+        [DataRow("B110", "6" )]
+        [DataRow("b01010101", "85" )]
+        public void BinUnlimitedIntegerValueIsParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr);
 
+        [DataTestMethod]
+        [DataRow("-b1010", "-10" )]
+        [DataRow("-123456", "-123456" )]
+        [DataRow("-0xac", "-172")]
+        public void UnlimitedIntegerNegativeValuesAreParsedCorrectly(string stringToParse, string expectedTokenStr)
+            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr, true);
 
-        public void IntegerValueIsParsedCorrectly(string input, BigInteger expectedValue)
-        {
-            var expr = Parser.ParseExpression(input);
-            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
-
-            var evalAction = new Action(() => expr.Evaluate());
-            evalAction.Should().NotThrow("it should evaluate correctly");
-
-            var token = expr.Evaluate() as UnlimitedIntegerToken;
-            token.Should().NotBeNull($"parsing {input} should result in a valid {nameof(UnlimitedIntegerToken)}.");
-
-            token.TypedValue.Should().Be(expectedValue);
-        }
     }
 }

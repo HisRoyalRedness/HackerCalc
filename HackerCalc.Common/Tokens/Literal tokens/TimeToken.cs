@@ -26,8 +26,10 @@ namespace HisRoyalRedness.com
         #region Parsing
         public static TimeToken Parse(string value)
         {
-            var time = TimeSpan.Parse(value);
-            return new TimeToken(value, time);
+            if (TimeSpan.TryParse(value, out TimeSpan time))
+                return new TimeToken(value, time);
+            else
+                throw new ParseException($"Invalid time format '{value}'");
         }
         #endregion Parsing
 

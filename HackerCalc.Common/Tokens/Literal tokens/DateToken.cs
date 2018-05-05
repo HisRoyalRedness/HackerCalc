@@ -24,8 +24,20 @@ namespace HisRoyalRedness.com
         #region Parsing
         public static DateToken Parse(string value, bool dmy = false)
         {
-            var dateTime = DateTime.Parse(dmy ? string.Join("-", value.Split('-').Reverse()) : value);
-            return new DateToken(value, DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
+            var portions = value.Split('-');
+            if (portions.Length != 3)
+                throw new ParseException($"Invalid date format '{value}'");
+            if (dmy)
+                portions = portions.Reverse().ToArray();
+
+            if (portions[0].Length == 2)
+                portions[0] = "20" + portions[0];
+
+            var dateTimeStr = string.Join("-", portions);
+            if (DateTime.TryParse(dateTimeStr, out DateTime dateTime))
+                return new DateToken(value, DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
+            else
+                throw new ParseException($"Invalid date format '{dateTimeStr}'");
         }
         #endregion Parsing
 

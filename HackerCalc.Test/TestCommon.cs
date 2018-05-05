@@ -147,11 +147,13 @@ namespace HisRoyalRedness.com
             return field.GetValue(instance);
         }
 
-
-        public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue)
+        #region Literal token parsing
+        public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue, bool evaluate = false)
             where TToken : class, ILiteralToken
         {
             var rawToken = Parser.ParseExpression(stringToParse);
+            if (evaluate)
+                rawToken = rawToken?.Evaluate();
 
             // If expectedTokenStr is null, then we expect the parse to fail. 
             // No need to check anything else after that
@@ -170,33 +172,123 @@ namespace HisRoyalRedness.com
 
             var typedToken = rawToken as TToken;
             typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
+            LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
+        }
 
+        public static void LiteralTokensAreParsedCorrectly<TToken, TTypedValue>(string stringToParse, TTypedValue expectedValue, bool evaluate = false)
+            where TToken : class, ILiteralToken
+        {
+            var rawToken = Parser.ParseExpression(stringToParse);
+            if (evaluate)
+                rawToken = rawToken?.Evaluate();
+
+            rawToken.Should().NotBeNull("the token should parse correctly");
+            rawToken.Should().BeOfType<TToken>();
+
+            var typedToken = rawToken as TToken;
+            typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
+            LiteralTokenValueCheck<TToken, TTypedValue>(typedToken, expectedValue);
+        }
+
+
+        static void LiteralTokenValueParseAndCheck<TToken>(TToken token, string expectedValue)
+                    where TToken : class, ILiteralToken
+        {
             switch (typeof(TToken).Name)
             {
                 case nameof(DateToken):
-                    (typedToken as DateToken).Should().BeTypedValue(DateTime.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as DateToken, DateTime.Parse(expectedValue));
                     break;
                 case nameof(FloatToken):
-                    (typedToken as FloatToken).Should().BeTypedValue(float.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as FloatToken, float.Parse(expectedValue));
                     break;
                 case nameof(IntegerToken):
-                    (typedToken as IntegerToken).Should().BeTypedValue(BigInteger.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as IntegerToken, BigInteger.Parse(expectedValue));
                     break;
                 case nameof(TimespanToken):
-                    (typedToken as TimespanToken).Should().BeTypedValue(TimeSpan.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as TimespanToken, TimeSpan.Parse(expectedValue));
                     break;
                 case nameof(TimeToken):
-                    (typedToken as TimeToken).Should().BeTypedValue(TimeSpan.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as TimeToken, TimeSpan.Parse(expectedValue));
                     break;
                 case nameof(UnlimitedIntegerToken):
-                    (typedToken as UnlimitedIntegerToken).Should().BeTypedValue(BigInteger.Parse(expectedValue));
+                    LiteralTokenValueCheck(token as UnlimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
-
                 default:
                     throw new NotSupportedException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
             }
-            //Assert.AreEqual(expectedDate, actualDate);
         }
+
+        static void LiteralTokenValueCheck<TToken, TValueType>(TToken token, TValueType expectedValue)
+            where TToken : class, ILiteralToken
+        {
+            switch (typeof(TToken).Name)
+            {
+                case nameof(DateToken):
+                    (token as DateToken).Should().BeTypedValue((expectedValue as DateTime?).Value);
+                    break;
+                case nameof(FloatToken):
+                    (token as FloatToken).Should().BeTypedValue((expectedValue as float?).Value);
+                    break;
+                case nameof(IntegerToken):
+                    (token as IntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
+                    break;
+                case nameof(TimespanToken):
+                    (token as TimespanToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
+                    break;
+                case nameof(TimeToken):
+                    (token as TimeToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
+                    break;
+                case nameof(UnlimitedIntegerToken):
+                    (token as UnlimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
+                    break;
+                default:
+                    throw new NotSupportedException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
+            }
+        }
+        #endregion Literal token parsing
+
+        #region Operator parsing
+        public static void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType)
+        {
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as OperatorToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
+
+            token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
+
+            var leftToken = token.Left as UnlimitedIntegerToken;
+            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
+            leftToken.TypedValue.Should().Be(1);
+
+            var rightToken = token.Right as UnlimitedIntegerToken;
+            rightToken.Should().NotBeNull("the right token is expected to be an UnlimitedIntegerToken");
+            rightToken.TypedValue.Should().Be(2);
+
+            token.Operator.Should().Be(expectedType);
+        }
+
+        public static void UnaryOperatorParsesCorrectly(string input, OperatorType expectedType)
+        {
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as OperatorToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid OperatorToken.");
+
+            token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
+
+            var leftToken = token.Left as UnlimitedIntegerToken;
+            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
+            leftToken.TypedValue.Should().Be(1);
+
+            token.Right.Should().BeNull("the right token is always null for a unary operator");
+
+            token.Operator.Should().Be(expectedType);
+        }
+        #endregion Operator parsing
 
         static Regex _integerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);

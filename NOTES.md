@@ -93,8 +93,6 @@ Change log
 Todo
 ----
 
-* Rewriting literal parse tests to use TestCommon.LiteralTokensAreParsedCorrectly
-
 * Add VerifyBinaryTypeCombinationsOnEachOperator. Should probably add one for unary operators too
 * Complete the implementation of functions
 * Implement all the integer types

@@ -89,8 +89,8 @@ TOKENS
     ts_hours_type       = "h" | "ho" | "hou" | "hour" | "hours" | "hr" | "hrs".
     ts_days_type        = "d" | "da" | "day" | "days".
 
-    date                = digit digit [ digit digit ] '-' ( [ '0' ] digit | '1' zero_to_two ) '-' ( [ zero_to_two ] digit | '3' zero_to_one ).
-    date_rev            = ( [ zero_to_two ] digit | '3' zero_to_one ) '-' ( [ '0' ] digit | '1' zero_to_two ) '-' digit digit digit digit.
+    date                = digit digit [ digit digit ] '-' ( '0' digit | '1' zero_to_two ) '-' ( zero_to_two digit | '3' zero_to_one ).
+    date_rev            = ( zero_to_two digit | '3' zero_to_one ) '-' ( '0' digit | '1' zero_to_two ) '-' digit digit digit digit.
 
     time                =   ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
                           | ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit.

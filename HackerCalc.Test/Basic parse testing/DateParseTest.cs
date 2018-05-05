@@ -23,6 +23,7 @@ namespace HisRoyalRedness.com
 
         [DataTestMethod]
         [DataRow("8-2-1")]
+        [DataRow("1-2-2018")]
         [DataRow("2018-13-01")]
         [DataRow("2018-12-32")]
         [DataRow("2018-12-41")]
@@ -33,15 +34,13 @@ namespace HisRoyalRedness.com
 
         [DataTestMethod]
         [DataRow("18-02-01",    "2018-02-01" )]
-        [DataRow("18-2-1",      "2018-02-01" )]
         [DataRow("2018-02-01",  "2018-02-01" )]
         [DataRow("01-02-2018",  "2018-02-01" )]
-        [DataRow("1-2-2018",    "2018-02-01" )]
         [DataRow("2018-12-01",  "2018-12-01" )]
         [DataRow("2018-09-01",  "2018-09-01" )]
         [DataRow("2018-12-29",  "2018-12-29" )]
         [DataRow("2018-12-31",  "2018-12-31")]
-        public void DateAreParsedCorrectly(string stringToParse, string expectedTokenStr)
+        public void DatesAreParsedCorrectly(string stringToParse, string expectedTokenStr)
             => TestCommon.LiteralTokensAreParsedCorrectly<DateToken>(stringToParse, expectedTokenStr);
 
     }
