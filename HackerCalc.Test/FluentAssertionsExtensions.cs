@@ -8,6 +8,7 @@ using FluentAssertions.Primitives;
 
 namespace HisRoyalRedness.com
 {
+    #region DateTokenAssertions
     public class DateTokenAssertions : LiteralTokenAssertions<DateToken, DateTime>
     {
         public DateTokenAssertions(DateToken value)
@@ -20,7 +21,8 @@ namespace HisRoyalRedness.com
         protected override bool TypedValueEqual(DateTime expected)
             => Subject.TypedValue.Equals(expected);
     }
-
+    #endregion DateTokenAssertions
+    #region FloatTokenAssertions
     public class FloatTokenAssertions : LiteralTokenAssertions<FloatToken, double>
     {
         public FloatTokenAssertions(FloatToken value)
@@ -33,20 +35,22 @@ namespace HisRoyalRedness.com
         protected override bool TypedValueEqual(double expected)
             => Subject.TypedValue.Equals(expected);
     }
-
-    public class IntegerTokenAssertions : LiteralTokenAssertions<IntegerToken, BigInteger>
+    #endregion FloatTokenAssertions
+    #region LimitedIntegerTokenAssertions
+    public class LimitedIntegerTokenAssertions : LiteralTokenAssertions<LimitedIntegerToken, BigInteger>
     {
-        public IntegerTokenAssertions(IntegerToken value)
+        public LimitedIntegerTokenAssertions(LimitedIntegerToken value)
             : base(value)
         { }
 
-        protected override bool TokenEquals(IntegerToken expected)
+        protected override bool TokenEquals(LimitedIntegerToken expected)
             => Subject.Equals(expected);
 
         protected override bool TypedValueEqual(BigInteger expected)
             => Subject.TypedValue.Equals(expected);
     }
-
+    #endregion LimitedIntegerTokenAssertions
+    #region TimespanTokenAssertions
     public class TimespanTokenAssertions : LiteralTokenAssertions<TimespanToken, TimeSpan>
     {
         public TimespanTokenAssertions(TimespanToken value)
@@ -59,7 +63,8 @@ namespace HisRoyalRedness.com
         protected override bool TypedValueEqual(TimeSpan expected)
             => Subject.TypedValue.Equals(expected);
     }
-
+    #endregion TimespanTokenAssertions
+    #region TimeTokenAssertions
     public class TimeTokenAssertions : LiteralTokenAssertions<TimeToken, TimeSpan>
     {
         public TimeTokenAssertions(TimeToken value)
@@ -72,7 +77,8 @@ namespace HisRoyalRedness.com
         protected override bool TypedValueEqual(TimeSpan expected)
             => Subject.TypedValue.Equals(expected);
     }
-
+    #endregion TimeTokenAssertions
+    #region UnlimitedIntegerTokenAssertions
     public class UnlimitedIntegerTokenAssertions : LiteralTokenAssertions<UnlimitedIntegerToken, BigInteger>
     {
         public UnlimitedIntegerTokenAssertions(UnlimitedIntegerToken value)
@@ -85,7 +91,7 @@ namespace HisRoyalRedness.com
         protected override bool TypedValueEqual(BigInteger expected)
             => Subject.TypedValue.Equals(expected);
     }
-
+    #endregion UnlimitedIntegerTokenAssertions
     #region LiteralTokenAssertions
     public abstract class LiteralTokenAssertions<TToken, TTypedValue> : ReferenceTypeAssertions<TToken, LiteralTokenAssertions<TToken, TTypedValue>>
         where TToken : class, ILiteralToken
@@ -123,7 +129,7 @@ namespace HisRoyalRedness.com
     {
         public static DateTokenAssertions Should(this DateToken token) => new DateTokenAssertions(token);
         public static FloatTokenAssertions Should(this FloatToken token) => new FloatTokenAssertions(token);
-        public static IntegerTokenAssertions Should(this IntegerToken token) => new IntegerTokenAssertions(token);
+        public static LimitedIntegerTokenAssertions Should(this LimitedIntegerToken token) => new LimitedIntegerTokenAssertions(token);
         public static TimespanTokenAssertions Should(this TimespanToken token) => new TimespanTokenAssertions(token);
         public static TimeTokenAssertions Should(this TimeToken token) => new TimeTokenAssertions(token);
         public static UnlimitedIntegerTokenAssertions Should(this UnlimitedIntegerToken token) => new UnlimitedIntegerTokenAssertions(token);

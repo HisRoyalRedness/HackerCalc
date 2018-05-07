@@ -7,9 +7,7 @@ namespace HisRoyalRedness.com
     public enum TokenDataType
     {
         Float,
-        Integer, // To be removed
         UnlimitedInteger,
-        [IgnoreEnum]
         LimitedInteger,
         [IgnoreEnum]
         RationalNumber,
@@ -73,7 +71,8 @@ namespace HisRoyalRedness.com
         public TokenDataType DataType { get; private set; }
         public string Value { get; private set; }
         public bool IsFloat => DataType == TokenDataType.Float;
-        public bool IsInteger => DataType == TokenDataType.Integer;
+        public bool IsLimitedInteger => DataType == TokenDataType.LimitedInteger;
+        public bool IsUnlimitedInteger => DataType == TokenDataType.UnlimitedInteger;
         public TBaseType TypedValue { get; protected set; }
         public object ObjectValue => TypedValue;
 
@@ -103,11 +102,10 @@ namespace HisRoyalRedness.com
             {
                 case TokenDataType.Date: return CastTo<DateToken>();
                 case TokenDataType.Float: return CastTo<FloatToken>();
-                case TokenDataType.Integer: return CastTo<IntegerToken>();
                 case TokenDataType.Time: return CastTo<TimeToken>();
                 case TokenDataType.Timespan: return CastTo<TimespanToken>();
                 case TokenDataType.UnlimitedInteger: return CastTo<UnlimitedIntegerToken>();
-                case TokenDataType.LimitedInteger: return CastTo<UnlimitedIntegerToken>();
+                case TokenDataType.LimitedInteger: return CastTo<LimitedIntegerToken>();
                 case TokenDataType.RationalNumber: return CastTo<UnlimitedIntegerToken>();
                 case TokenDataType.IrrationalNumber: return CastTo<UnlimitedIntegerToken>();
                 default: throw new InvalidCastException($"Could not cast from a {GetType().Name} to {dataType}.");

@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace HisRoyalRedness.com
 {
     [TestClass]
+    [TestCategory("Incomplete")]
     public class PrecendenceParseTest
     {
         [DataTestMethod]

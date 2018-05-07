@@ -42,10 +42,10 @@ namespace HisRoyalRedness.com
                 case "floattoken":
                     return FloatToken.Parse(tokenArg);
 
-                case "integer":
-                case "integertoken":
+                case "limitedinteger":
+                case "limitedintegertoken":
                     {
-                        var portions = _integerRegex.Match(tokenArg);
+                        var portions = _limitedIntegerRegex.Match(tokenArg);
                         var isNeg = portions.Groups[1].Value == "-";
                         var numBase = IntegerBase.Decimal;
                         switch (portions.Groups[2].Value.ToLower())
@@ -57,16 +57,14 @@ namespace HisRoyalRedness.com
                         }
                         var num = portions.Groups[3].Value;
                         var isSigned = portions.Groups[4].Value.ToLower() != "u";
-                        var bitWidth = string.IsNullOrEmpty(portions.Groups[5].Value)
-                            ? IntegerToken.IntegerBitWidth.Unbound
-                            : IntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                        return IntegerToken.Parse((isNeg ? $"-{num}" : num), numBase, isSigned, bitWidth);
+                        var bitWidth = LimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
+                        return LimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase, bitWidth, isSigned);
                     }
 
                 case "unlimitedinteger":
                 case "unlimitedintegertoken":
                     {
-                        var portions = _integerRegex.Match(tokenArg);
+                        var portions = _unlimitedIntegerRegex.Match(tokenArg);
                         var isNeg = portions.Groups[1].Value == "-";
                         var numBase = IntegerBase.Decimal;
                         switch (portions.Groups[2].Value.ToLower())
@@ -107,9 +105,9 @@ namespace HisRoyalRedness.com
                         ? new FloatToken(1.0)
                         : MakeToken($"float {value}");
 
-                case TokenDataType.Integer:
+                case TokenDataType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new IntegerToken(1)
+                        ? new LimitedIntegerToken(1, LimitedIntegerToken.IntegerBitWidth._32, true)
                         : MakeToken($"integer {value}");
 
                 case TokenDataType.Time:
@@ -128,7 +126,6 @@ namespace HisRoyalRedness.com
                         : MakeToken($"unlimitedinteger {value}");
 
                 case TokenDataType.RationalNumber:
-                case TokenDataType.LimitedInteger:
                 case TokenDataType.IrrationalNumber:
                 case TokenDataType.DigitalInteger:
                 default:
@@ -202,8 +199,8 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     LiteralTokenValueCheck(token as FloatToken, float.Parse(expectedValue));
                     break;
-                case nameof(IntegerToken):
-                    LiteralTokenValueCheck(token as IntegerToken, BigInteger.Parse(expectedValue));
+                case nameof(LimitedIntegerToken):
+                    LiteralTokenValueCheck(token as LimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
                 case nameof(TimespanToken):
                     LiteralTokenValueCheck(token as TimespanToken, TimeSpan.Parse(expectedValue));
@@ -230,8 +227,8 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     (token as FloatToken).Should().BeTypedValue((expectedValue as float?).Value);
                     break;
-                case nameof(IntegerToken):
-                    (token as IntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
+                case nameof(LimitedIntegerToken):
+                    (token as LimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
                     break;
                 case nameof(TimespanToken):
                     (token as TimespanToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
@@ -290,7 +287,7 @@ namespace HisRoyalRedness.com
         }
         #endregion Operator parsing
 
-        static Regex _integerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])?(\d+)?", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }
 }

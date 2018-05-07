@@ -113,10 +113,11 @@ namespace HisRoyalRedness.com
         public TokenDataType CastToType { get; private set; }
 
         public bool IsSigned { get; private set; }
-        public IntegerToken.IntegerBitWidth BitWidth { get; private set; }
+        public LimitedIntegerToken.IntegerBitWidth BitWidth { get; private set; }
 
-        public static CastOperatorToken IntegerCast(bool isSigned = true, IntegerToken.IntegerBitWidth bitWidth = IntegerToken.IntegerBitWidth.Unbound) 
-            => new CastOperatorToken(TokenDataType.Integer) { IsSigned = isSigned, BitWidth = bitWidth };
+        public static CastOperatorToken UnlimitedIntegerCast() => new CastOperatorToken(TokenDataType.UnlimitedInteger);
+        public static CastOperatorToken LimitedIntegerCast(LimitedIntegerToken.IntegerBitWidth bitWidth, bool isSigned = true) 
+            => new CastOperatorToken(TokenDataType.LimitedInteger) { BitWidth = bitWidth, IsSigned = isSigned };
         public static CastOperatorToken FloatCast() => new CastOperatorToken(TokenDataType.Float);
         public static CastOperatorToken TimespanCast() => new CastOperatorToken(TokenDataType.Timespan);
         public static CastOperatorToken TimeCast() => new CastOperatorToken(TokenDataType.Time);

@@ -109,7 +109,7 @@ TOKENS
     // A pseudo-token. We use this to differentiate between a subOp (minus) and a notToken (negation), i.e. 1-3 vs -(1+2)
     negToken            = "-".
 
-    unbound_cast        = openBrac signed_int closeBrac.
+    unlimited_cast      = openBrac signed_int closeBrac.
     signed_cast         = openBrac ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" ) closeBrac.
     unsigned_cast       = openBrac ( "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ) closeBrac.
     float_cast          = openBrac ( "f" | "fl" | "flt" | "float" ) closeBrac.
@@ -188,9 +188,9 @@ NotExpr<out IToken token>                                       (. IToken tk = n
 
 Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
 =                   [ 
-                        unbound_cast                            (. op = CastOperatorToken.IntegerCast(); .)
-                        | signed_cast                           (. op = CastOperatorToken.IntegerCast(true, IntegerToken.ParseBitWidth(t.val)); .)
-                        | unsigned_cast                         (. op = CastOperatorToken.IntegerCast(false, IntegerToken.ParseBitWidth(t.val)); .)
+                        unlimited_cast                          (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
+                        | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
+                        | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
                         | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
                         | timespan_cast                         (. op = CastOperatorToken.TimespanCast(); .)
                         | time_cast                             (. op = CastOperatorToken.TimeCast(); .)
@@ -295,12 +295,12 @@ LimitedInteger<out IToken token>
                         hex_limited_int                         (. intBase = IntegerBase.Hexadecimal; .)
                         |
                         bin_limited_int                         (. intBase = IntegerBase.Binary; .)
-                    )                                           (. var intVal = t.val; var isSigned = true; var bitWidth = IntegerToken.IntegerBitWidth.Unbound; .)
+                    )                                           (. var intVal = t.val; var isSigned = true; var bitWidth = ""; .)
                     (
-                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. bitWidth = IntegerToken.ParseBitWidth(t.val.Substring(1)); .)
+                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. bitWidth = t.val.Substring(1); .)
                         |
-                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; bitWidth = IntegerToken.ParseBitWidth(t.val.Substring(1)); .)
-                    )                                           (. token = IntegerToken.Parse(intVal, intBase, isSigned, bitWidth); .)
+                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; bitWidth = t.val.Substring(1); .)
+                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned); .)
 .
 
 CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)

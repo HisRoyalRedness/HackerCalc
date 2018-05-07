@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("now");
+                        Debug("1i8 + 2u16");
                         break;
                 }
             }
@@ -91,17 +91,6 @@ namespace HisRoyalRedness.com
 
                 switch(literalToken.DataType)
                 {
-                    case TokenDataType.Integer:
-                        {
-                            var typedToken = literalToken as IntegerToken;
-                            val = typedToken.TypedValue.ToString();
-                            dataType = includeType
-                                ? (typedToken.BitWidth == IntegerToken.IntegerBitWidth.Unbound
-                                    ? "Unbound integer"
-                                    : $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}")
-                                : null;
-                        }
-                        break;
                     case TokenDataType.Float:
                         {
                             var typedToken = literalToken as FloatToken;
@@ -128,6 +117,13 @@ namespace HisRoyalRedness.com
                             var typedToken = literalToken as DateToken;
                             val = typedToken.TypedValue.ToString("yyyy-MM-dd HH:mm:ss");
                             dataType = includeType ? "Date" : null;
+                        }
+                        break;
+                    case TokenDataType.LimitedInteger:
+                        {
+                            var typedToken = literalToken as LimitedIntegerToken;
+                            val = typedToken.TypedValue.ToString();
+                            dataType = includeType ? $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}" : null;
                         }
                         break;
                     case TokenDataType.UnlimitedInteger:

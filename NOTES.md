@@ -89,11 +89,12 @@ Change log
 |            | Refactored token evaluation                                                                                  |
 |            | Added power and root operators (parsing)                                                                     |
 |            | Partial support for parsing functions                                                                        |
+| 2018-05-07 | Begin switching over to LimitedIntegerToken and removing IntegerToken                                        |
 
 Todo
 ----
 
-* Add VerifyBinaryTypeCombinationsOnEachOperator. Should probably add one for unary operators too
+* In the process of adding the operation type result maps
 * Complete the implementation of functions
 * Implement all the integer types
 * Repair unit tests
@@ -102,11 +103,8 @@ Todo
 * Throw errors on overflow if specified in EvaluatorSettings
 * Complete IntegerToken casting for sign and bitwidth
 * Base all thrown exceptions of ApplicationException
-* Handle the negative sign (e.g. -1)
 * Get equality and comparison working for IntegerTokens, to account for sign and bitwidth
 * Implement comparison tests
-* Implement cast operator
-* Implement other operators
 * Casting for bound integers (and bitwidths)
 * Add operation unit tests
 * Add tests for TokenPrinter

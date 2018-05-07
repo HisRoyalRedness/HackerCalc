@@ -7,6 +7,7 @@ using FluentAssertions;
 namespace HisRoyalRedness.com
 {
     [TestClass]
+    [TestCategory("Incomplete")]
     public class LiteralTokenCastTest
     {
         [DataTestMethod]
@@ -29,14 +30,14 @@ namespace HisRoyalRedness.com
             => TokenCastBase<FloatToken, double>(input);
 
 
-        [DataTestMethod]
-        [DataRow(new[] { "2015-02-02 09:39:12", null })]
-        [DataRow(new[] { "13.4F", "13" })]
-        [DataRow(new[] { "13I32", "13I32" })]
-        [DataRow(new[] { "2min 13 sec", null })]
-        [DataRow(new[] { "12:34:58", null })]
-        public void CastToIntegerToken(string[] input)
-            => TokenCastBase<IntegerToken, BigInteger>(input);
+        //[DataTestMethod]
+        //[DataRow(new[] { "2015-02-02 09:39:12", null })]
+        //[DataRow(new[] { "13.4F", "13" })]
+        //[DataRow(new[] { "13I32", "13I32" })]
+        //[DataRow(new[] { "2min 13 sec", null })]
+        //[DataRow(new[] { "12:34:58", null })]
+        //public void CastToIntegerToken(string[] input)
+        //    => TokenCastBase<IntegerToken, BigInteger>(input);
 
 
         [DataTestMethod]

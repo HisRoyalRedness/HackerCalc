@@ -25,35 +25,40 @@ namespace HisRoyalRedness.com
 
         [DataTestMethod]
         [DynamicData(nameof(VerifyBinaryTypeCombinationsOnEachOperatorData), DynamicDataSourceType.Method)]
-        public void VerifyBinaryTypeCombinationsOnEachOperator(OperatorType opType, TokenDataType leftDataType)
+        public void VerifyBinaryTypeCombinationsOnEachOperator(OperatorType opType, TokenDataType leftDataType, TokenDataType rightDataType)
         {
             var opProp = _operatorProperties[opType];
-            foreach (var pair in _allDataTypePairs.Where(dt => dt.Left == leftDataType))
+            var pair = new TokenEvaluator.OperandTypePair(leftDataType, rightDataType);
+            var expr = opProp.Operator.MakeBinaryExpression(leftDataType.MakeToken(), rightDataType.MakeToken());
+
+            // This data type pair should be supported. Make sure the operation succeeds
+            if (opProp.TypeMap.ContainsKey(pair) && opProp.TypeMap[pair].OperationSupported)
             {
-                TestContext.WriteLine($"Testing data pair {pair.Left}, {pair.Right}");
-                var expr = opProp.Operator.MakeBinaryExpression(pair.Left.MakeToken(), pair.Right.MakeToken());
+                var castPair = opProp.TypeMap[pair];
+                var result = expr.Evaluate();
+                result.Should().NotBeNull();
+                result.Should().BeAssignableTo<ILiteralToken>();
 
-                // This data type pair should be supported. Make sure the operation succeeds
-                if (opProp.TypeMap.ContainsKey(pair) && opProp.TypeMap[pair].OperationSupported)
+                if (opProp.ResultMap != null)
                 {
-                    TestContext.WriteLine($"    Supported");
-                    expr.Evaluate();
-                }
-
-                // This data type pair is not supported. Make sure the operation fails
-                else
-                {
-                    TestContext.WriteLine($"    Not supported");
-                    new Action(() => expr.Evaluate()).Should().Throw<InvalidCalcOperationException>($"the {opProp.Operator} doesn't support operations on types {pair.Left} and {pair.Right}");
+                    opProp.ResultMap.ContainsKey(castPair).Should().BeTrue("if we have a result map, it should have a result type for a supported operation.");
+                    ((ILiteralToken)result).DataType.Should().Be(opProp.ResultMap[castPair], "the result type should match the specified type in the result map");
                 }
             }
+
+            // This data type pair is not supported. Make sure the operation fails
+            else
+                new Action(() => expr.Evaluate()).Should().Throw<InvalidCalcOperationException>($"the {opProp.Operator} doesn't support operations on types {pair.Left} and {pair.Right}");
         }
 
+
+        // The combination of all data types, on all binary operators
         public static IEnumerable<object[]> VerifyBinaryTypeCombinationsOnEachOperatorData()
         {
             foreach (var op in _operatorProperties.Values.Where(p => p.NAry == 2).Select(p => p.Operator))
-                foreach (var dt in _allDataTypes)
-                    yield return new object[] { op, dt };
+                foreach (var lt in _allDataTypes)
+                    foreach (var rt in _allDataTypes)
+                        yield return new object[] { op, lt, rt };
         }
 
         public TestContext TestContext { get; set; }
