@@ -102,26 +102,26 @@ namespace HisRoyalRedness.com
             {
                 token.next = NextToken();
 
-                if (token.next.kind == Parser._negToken)
-                {
-                    // If the '-' is the first token, or immediately follows an open bracket or operator,
-                    // then we can assume that it must negate the expression that follows
-                    switch (token.kind)
-                    {
-                        case Parser._EOF:
-                        case Parser._openBracket:
-                        case Parser._notToken:
-                        case Parser._multToken:
-                        case Parser._addToken:
-                        case Parser._shiftToken:
-                        case Parser._bitToken:
-                            token.next.kind = Parser._notToken; // a negation
-                            break;
-                        default:
-                            token.next.kind = Parser._addToken; // a subtraction
-                            break;
-                    }
-                }
+                //if (token.next.kind == Parser._negToken)
+                //{
+                //    // If the '-' is the first token, or immediately follows an open bracket or operator,
+                //    // then we can assume that it must negate the expression that follows
+                //    switch (token.kind)
+                //    {
+                //        case Parser._EOF:
+                //        case Parser._openBracket:
+                //        case Parser._notToken:
+                //        case Parser._multToken:
+                //        case Parser._addToken:
+                //        case Parser._shiftToken:
+                //        case Parser._bitToken:
+                //            token.next.kind = Parser._notToken; // a negation
+                //            break;
+                //        default:
+                //            token.next.kind = Parser._addToken; // a subtraction
+                //            break;
+                //    }
+                //}
 
                 token.next.prev = token;
             }

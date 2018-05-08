@@ -107,7 +107,7 @@ TOKENS
     shiftToken          = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
     bitToken            = andOp | orOp | xorOp.
     // A pseudo-token. We use this to differentiate between a subOp (minus) and a notToken (negation), i.e. 1-3 vs -(1+2)
-    negToken            = "-".
+    //negToken            = "-".
 
     unlimited_cast      = openBrac signed_int closeBrac.
     signed_cast         = openBrac ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" ) closeBrac.

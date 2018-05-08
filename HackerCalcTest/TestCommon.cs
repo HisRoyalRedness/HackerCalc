@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -12,11 +11,6 @@ namespace HisRoyalRedness.com
 {
     public static class TestCommon
     {
-        static TestCommon()
-        {
-            _integerBitWidths = Enum.GetValues(typeof(LimitedIntegerToken.IntegerBitWidth)).Cast<LimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
-        }
-
         #region MakeToken
         public static IEnumerable<ILiteralToken> MakeTokens(this IEnumerable<string> tokenStrings)
             => tokenStrings.Select(ts => MakeToken(ts));
@@ -193,6 +187,7 @@ namespace HisRoyalRedness.com
             LiteralTokenValueCheck<TToken, TTypedValue>(typedToken, expectedValue);
         }
 
+
         static void LiteralTokenValueParseAndCheck<TToken>(TToken token, string expectedValue)
                     where TToken : class, ILiteralToken
         {
@@ -292,9 +287,6 @@ namespace HisRoyalRedness.com
         }
         #endregion Operator parsing
 
-        public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths => _integerBitWidths;
-
-        readonly static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> _integerBitWidths;
         static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }

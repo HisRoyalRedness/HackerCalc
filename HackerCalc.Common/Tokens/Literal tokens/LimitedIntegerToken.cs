@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
+using System.Linq;
+
 
 namespace HisRoyalRedness.com
 {
@@ -11,16 +15,31 @@ namespace HisRoyalRedness.com
         public LimitedIntegerToken(string value, BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned)
             : base(TokenDataType.LimitedInteger, value, typedValue)
         {
-            SignAndBitWidth = new SignAndBitWidthPair(bitWidth, isSigned);
+            SignAndBitWidth = new BitWidthAndSignPair(bitWidth, isSigned);
+            var limit = _minAndMax[SignAndBitWidth];
+            if (typedValue < limit.Min)
+                throw new ParseException($"{typedValue} is less than the minimum of {limit.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
+            else if (typedValue > limit.Max)
+                throw new ParseException($"{typedValue} is greater than the maximum of {limit.Max} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
         }
 
         public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned = true)
             : this(typedValue.ToString(), typedValue, bitWidth, isSigned)
         { }
 
-        LimitedIntegerToken(BigInteger typedValue, SignAndBitWidthPair signAndBitWidth)
+        LimitedIntegerToken(BigInteger typedValue, BitWidthAndSignPair signAndBitWidth)
             : this(typedValue.ToString(), typedValue, signAndBitWidth.BitWidth, signAndBitWidth.IsSigned)
         { }
+
+        static LimitedIntegerToken()
+        {
+            // Build the map of min and max values for each bitwidth and sign combination
+            foreach (var bitWidth in Enum.GetValues(typeof(IntegerBitWidth)).Cast<IntegerBitWidth>())
+            {
+                _minAndMax.Add(new BitWidthAndSignPair(bitWidth, false), new MinAndMax(bitWidth, false));
+                _minAndMax.Add(new BitWidthAndSignPair(bitWidth, true), new MinAndMax(bitWidth, true));
+            }
+        }
         #endregion Constructors
 
         #region Parsing
@@ -127,13 +146,13 @@ namespace HisRoyalRedness.com
 
         public LimitedIntegerToken Upcast(IntegerBitWidth bitWidth, bool isSigned)
         {
-            var signAndBitWidth = Upcast(SignAndBitWidth, new SignAndBitWidthPair(bitWidth, IsSigned));
+            var signAndBitWidth = Upcast(SignAndBitWidth, new BitWidthAndSignPair(bitWidth, IsSigned));
             return signAndBitWidth == SignAndBitWidth
                 ? this
                 : new LimitedIntegerToken(TypedValue, signAndBitWidth);
         }
 
-        static SignAndBitWidthPair Upcast(SignAndBitWidthPair left, SignAndBitWidthPair right)
+        static BitWidthAndSignPair Upcast(BitWidthAndSignPair left, BitWidthAndSignPair right)
         {
             // Loosely based on the C++ operator arithmetic operations
             // http://en.cppreference.com/w/cpp/language/operator_arithmetic
@@ -143,10 +162,10 @@ namespace HisRoyalRedness.com
 
             // If both are signed or both unsigned, just use the greater of the bitwidths
             if (!(left.IsSigned ^ right.IsSigned))
-                return new SignAndBitWidthPair(bitWidth, left.IsSigned);
+                return new BitWidthAndSignPair(bitWidth, left.IsSigned);
 
             // else, use the greater bitwidth and convert to unsigned
-            return new SignAndBitWidthPair(bitWidth, false);
+            return new BitWidthAndSignPair(bitWidth, false);
         }
         #endregion Casting
 
@@ -174,14 +193,19 @@ namespace HisRoyalRedness.com
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
 
-        public SignAndBitWidthPair SignAndBitWidth { get; private set; }
+        public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;
         public IntegerBitWidth BitWidth => SignAndBitWidth.BitWidth;
 
+        public BigInteger Min => _minAndMax[SignAndBitWidth].Min;
+        public BigInteger Max => _minAndMax[SignAndBitWidth].Max;
+        public BigInteger Mask => _minAndMax[SignAndBitWidth].Mask;
+
         #region SignAndBitWidthPair
-        public class SignAndBitWidthPair : IEquatable<SignAndBitWidthPair>
+        [DebuggerDisplay("{DisplayString}")]
+        public class BitWidthAndSignPair : IEquatable<BitWidthAndSignPair>
         {
-            public SignAndBitWidthPair(IntegerBitWidth bitWidth, bool isSigned = true)
+            public BitWidthAndSignPair(IntegerBitWidth bitWidth, bool isSigned = true)
             {
                 BitWidth = bitWidth;
                 IsSigned = isSigned;
@@ -191,18 +215,20 @@ namespace HisRoyalRedness.com
             public bool IsSigned { get; private set; }
 
             #region Equality
-            public bool Equals(SignAndBitWidthPair other)
+            public bool Equals(BitWidthAndSignPair other)
                 => BitWidth == other.BitWidth && IsSigned == other.IsSigned;
             public override bool Equals(object obj)
-                => obj as SignAndBitWidthPair == null ? false : Equals((SignAndBitWidthPair)obj);
+                => obj as BitWidthAndSignPair == null ? false : Equals((BitWidthAndSignPair)obj);
 
-            public static bool operator==(SignAndBitWidthPair a, SignAndBitWidthPair b)
+            public static bool operator==(BitWidthAndSignPair a, BitWidthAndSignPair b)
                 => a.BitWidth == b.BitWidth && a.IsSigned == b.IsSigned;
-            public static bool operator !=(SignAndBitWidthPair a, SignAndBitWidthPair b)
+            public static bool operator !=(BitWidthAndSignPair a, BitWidthAndSignPair b)
                 => !(a == b);
             #endregion Equality
 
             public override int GetHashCode() => IsSigned ? -(int)BitWidth : (int)BitWidth;
+
+            string DisplayString => $"{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
         }
         #endregion SignAndBitWidthPair
 
@@ -223,5 +249,43 @@ namespace HisRoyalRedness.com
             _128 = 128
         }
         #endregion IntegerBitWidth
+
+        #region MinAndMax
+        [DebuggerDisplay("{DisplayString}")]
+        struct MinAndMax
+        {
+            public MinAndMax(BigInteger min, BigInteger max, BigInteger mask)
+            {
+                Min = min;
+                Max = max;
+                Mask = mask;
+            }
+
+            public MinAndMax(LimitedIntegerToken.IntegerBitWidth bitWidth, bool isSigned)
+            {
+                Mask = BigInteger.Pow(2, (int)bitWidth) - 1;
+                if (isSigned)
+                {
+                    var num = BigInteger.Pow(2, (int)bitWidth - 1);
+                    Min = -num;
+                    Max = num - 1;
+                }
+                else
+                {
+                    Min = 0;
+                    Max = Mask;
+                }
+            }
+
+            public BigInteger Min;
+            public BigInteger Max;
+            public BigInteger Mask;
+
+            string DisplayString => $"Min: {Min}, Max: {Max}, Mask: {Mask}";
+            public override string ToString() => DisplayString;
+        }
+        #endregion MinAndMax
+
+        static readonly Dictionary<BitWidthAndSignPair, MinAndMax> _minAndMax = new Dictionary<BitWidthAndSignPair, MinAndMax>();
     }
 }

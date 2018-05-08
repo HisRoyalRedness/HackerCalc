@@ -4,8 +4,6 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackerCalc.Parser", "HackerCalc.Parser\HackerCalc.Parser.csproj", "{217C1B3E-ACC6-41BB-B9D3-5C937B9148B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackerCalc.Test", "HackerCalc.Test\HackerCalc.Test.csproj", "{E5610D7D-FC52-4406-9908-C8E42FE5323B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1A4F5ED-891B-43F2-8363-42C9DA15E61E}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
@@ -19,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackerCalc.Common", "Hacker
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerCalc.WPF", "HackerCalc.WPF\HackerCalc.WPF.csproj", "{674311ED-D7E9-4731-A315-9515BCDF3014}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerCalc.Test", "HackerCalc.Test\HackerCalc.Test.csproj", "{AFE8E51A-FED3-452A-AE15-AA26D7947916}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +29,6 @@ Global
 		{217C1B3E-ACC6-41BB-B9D3-5C937B9148B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{217C1B3E-ACC6-41BB-B9D3-5C937B9148B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{217C1B3E-ACC6-41BB-B9D3-5C937B9148B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5610D7D-FC52-4406-9908-C8E42FE5323B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5610D7D-FC52-4406-9908-C8E42FE5323B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5610D7D-FC52-4406-9908-C8E42FE5323B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5610D7D-FC52-4406-9908-C8E42FE5323B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{98404A28-E24A-4939-AC58-CD1C0BDC2407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98404A28-E24A-4939-AC58-CD1C0BDC2407}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98404A28-E24A-4939-AC58-CD1C0BDC2407}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{674311ED-D7E9-4731-A315-9515BCDF3014}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{674311ED-D7E9-4731-A315-9515BCDF3014}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{674311ED-D7E9-4731-A315-9515BCDF3014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE8E51A-FED3-452A-AE15-AA26D7947916}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE8E51A-FED3-452A-AE15-AA26D7947916}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE8E51A-FED3-452A-AE15-AA26D7947916}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE8E51A-FED3-452A-AE15-AA26D7947916}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
