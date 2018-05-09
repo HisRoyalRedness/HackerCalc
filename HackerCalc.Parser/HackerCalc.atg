@@ -103,7 +103,8 @@ TOKENS
     notToken            = logNotOp | bitNotOp. // '-' if also considered a notToken, but we need a bit of complexity in the scanner to differentiate it from subOp (minus)
     multToken           = multOp | divideOp | moduloOp.
     exponentToken       = multOp multOp | divideOp divideOp.
-    addToken            = addOp | subOp.
+    addToken            = addOp.
+    subToken            = subOp.
     shiftToken          = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
     bitToken            = andOp | orOp | xorOp.
     // A pseudo-token. We use this to differentiate between a subOp (minus) and a notToken (negation), i.e. 1-3 vs -(1+2)
@@ -155,7 +156,7 @@ ShiftExpr<out IToken token>                                     (. IToken tk = n
 AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   MulExpr<out tk>
                     {
-                        addToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
                         MulExpr<out tk>                         (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
@@ -196,18 +197,19 @@ Cast<out IToken token>                                          (. IToken tk = n
                         | time_cast                             (. op = CastOperatorToken.TimeCast(); .)
                         | date_cast                             (. op = CastOperatorToken.DateCast(); .)
                     ]
-                    Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+                    //Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+                    Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
 .
 
-Func<out IToken token>                                          (. token = null; .)
-=                   
-                    ident
-                    openBracket
-                    Expr<out token>
-                    closeBracket
-                    |
-                    Term<out token>
-.
+//Func<out IToken token>                                          (. token = null; .)
+//=                   
+//                    ident
+//                    openBracket
+//                    Expr<out token>
+//                    closeBracket
+//                    |
+//                    Term<out token>
+//.
 
 Term<out IToken token>                                          (. token = null; .)
 =
@@ -225,8 +227,7 @@ Term<out IToken token>                                          (. token = null;
                         DateTime<out token>
                     | Date<out token>
                     | Time<out token>
-                    | Integer<out token>
-                    | Float<out token>
+                    | Numeric<out token>
                     | Now<out token>
 .
 
@@ -251,17 +252,29 @@ Time<out IToken token>                                          (. token = null;
                     time                                        (. token = TimeToken.Parse(t.val); .)
 .
 
-Integer<out IToken token>                                       (. token = null; .)
-=
+Numeric<out IToken token>                                       (. token = null; bool isNeg = false; .)
+=                                                               
+                    [ 
+                        subToken                                (. isNeg = true; .)
+                    ]
                     (
-                        UnlimitedInteger<out token>
+                        Float<out token, ref isNeg>
                         |
-                        LimitedInteger<out token>
+                        Integer<out token, ref isNeg> 
                     )
 .
 
-Float<out IToken token>
-=                   ( true_float | typed_float )                (. token = FloatToken.Parse(t.val); .)
+Integer<out IToken token, ref bool isNeg>                       (. token = null; .)
+=
+                    (
+                        UnlimitedInteger<out token, ref isNeg>
+                        |
+                        LimitedInteger<out token, ref isNeg>
+                    )
+.
+
+Float<out IToken token, ref bool isNeg>
+=                   ( true_float | typed_float )                (. token = FloatToken.Parse(t.val, isNeg); .)
                     [
                         float_type
                     ]
@@ -276,7 +289,7 @@ Timespan<out IToken token>                                      (. TimespanToken
                     CompoundTimespanPortion<out tk>             (. token = tk; .)
 .
 
-UnlimitedInteger<out IToken token>
+UnlimitedInteger<out IToken token, ref bool isNeg>
 =                                                               (. var intBase = IntegerBase.Decimal; .)
                     (
                         dec_unlimited_int
@@ -284,10 +297,10 @@ UnlimitedInteger<out IToken token>
                         hex_unlimited_int                       (. intBase = IntegerBase.Hexadecimal; .)
                         |
                         bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
-                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase); .)
+                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg); .)
 .
 
-LimitedInteger<out IToken token>
+LimitedInteger<out IToken token, ref bool isNeg>
 =                                                               (. var intBase = IntegerBase.Decimal; .)
                     (
                         dec_limited_int
@@ -300,7 +313,7 @@ LimitedInteger<out IToken token>
                         ( i4 | i8 | i16 | i32 | i64 | i128 )    (. bitWidth = t.val.Substring(1); .)
                         |
                         ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; bitWidth = t.val.Substring(1); .)
-                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned); .)
+                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg); .)
 .
 
 CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)

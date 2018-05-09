@@ -162,8 +162,10 @@ namespace HisRoyalRedness.com
             // No need to check anything else after that
             if (string.IsNullOrWhiteSpace(expectedValue))
             {
-                if (rawToken != null)
+                if (evaluate && rawToken != null)
                     rawToken.Should().NotBeOfType<TToken>();
+                else
+                    rawToken.Should().BeNull();
                 return;
             }
             else
@@ -178,13 +180,10 @@ namespace HisRoyalRedness.com
             LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
         }
 
-        public static void LiteralTokensAreParsedCorrectly<TToken, TTypedValue>(string stringToParse, TTypedValue expectedValue, bool evaluate = false)
+        public static void LiteralTokensAreParsedCorrectly<TToken, TTypedValue>(string stringToParse, TTypedValue expectedValue)
             where TToken : class, ILiteralToken
         {
             var rawToken = Parser.ParseExpression(stringToParse);
-            if (evaluate)
-                rawToken = rawToken?.Evaluate();
-
             rawToken.Should().NotBeNull("the token should parse correctly");
             rawToken.Should().BeOfType<TToken>();
 

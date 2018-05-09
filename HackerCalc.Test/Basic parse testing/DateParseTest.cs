@@ -21,6 +21,8 @@ namespace HisRoyalRedness.com
         public void DatesTimesAreParsedCorrectly(string stringToParse, string expectedTokenStr)
             => TestCommon.LiteralTokensAreParsedCorrectly<DateToken>(stringToParse, expectedTokenStr);
 
+        // These need to be evaluated.
+        // They're not parsed as dates, so they get interpreted as subtractions
         [DataTestMethod]
         [DataRow("8-2-1")]
         [DataRow("1-2-2018")]
@@ -30,7 +32,7 @@ namespace HisRoyalRedness.com
         [DataRow("2018-13-01")]
         [DataRow("2018-21-01")]
         public void InvalidDatesAreNotParsed(string stringToParse)
-            => TestCommon.LiteralTokensAreParsedCorrectly<DateToken>(stringToParse, null);
+            => TestCommon.LiteralTokensAreParsedCorrectly<DateToken>(stringToParse, null, true);
 
         [DataTestMethod]
         [DataRow("18-02-01",    "2018-02-01" )]

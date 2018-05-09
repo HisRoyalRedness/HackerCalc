@@ -37,7 +37,7 @@ namespace HisRoyalRedness.com
         [DataRow("-123456", "-123456" )]
         [DataRow("-0xac", "-172")]
         public void UnlimitedIntegerNegativeValuesAreParsedCorrectly(string stringToParse, string expectedTokenStr)
-            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr, true);
+            => TestCommon.LiteralTokensAreParsedCorrectly<UnlimitedIntegerToken>(stringToParse, expectedTokenStr);
 
     }
 }

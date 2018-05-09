@@ -37,7 +37,7 @@ namespace HisRoyalRedness.com
         [DataRow("-123456i64", "-123456")]
         [DataRow("-0xaci16", "-172")]
         public void LimitedIntegerNegativeValuesAreParsedCorrectly(string stringToParse, string expectedValue)
-            => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue), true);
+            => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
         //[DataRow("16u4", "")]
         //[DataRow("256u8", "")]

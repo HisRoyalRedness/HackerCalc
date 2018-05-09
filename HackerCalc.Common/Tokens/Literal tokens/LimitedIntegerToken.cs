@@ -31,6 +31,10 @@ namespace HisRoyalRedness.com
             : this(typedValue.ToString(), typedValue, signAndBitWidth.BitWidth, signAndBitWidth.IsSigned)
         { }
 
+        LimitedIntegerToken(string value, BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg)
+            : this((isNeg ? $"-{value}" : value), (isNeg ? typedValue * -1 : typedValue), bitWidth, isSigned)
+        { }
+
         static LimitedIntegerToken()
         {
             // Build the map of min and max values for each bitwidth and sign combination
@@ -43,18 +47,18 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, string bitWidth, bool isSigned)
-            => Parse(value, numBase, ParseBitWidth(bitWidth), isSigned);
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned)
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, string bitWidth, bool isSigned, bool isNeg = false)
+            => Parse(value, numBase, ParseBitWidth(bitWidth), isSigned, isNeg);
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned,bool isNeg = false)
         {
             switch (numBase)
             {
                 case IntegerBase.Binary:
-                    return new LimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), bitWidth, isSigned);
+                    return new LimitedIntegerToken(value, value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), bitWidth, isSigned, isNeg);
                 case IntegerBase.Decimal:
-                    return new LimitedIntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), bitWidth, isSigned);
+                    return new LimitedIntegerToken(value, BigInteger.Parse(value, NumberStyles.Integer), bitWidth, isSigned, isNeg);
                 case IntegerBase.Hexadecimal:
-                    return new LimitedIntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), bitWidth, isSigned);
+                    return new LimitedIntegerToken(value, BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), bitWidth, isSigned, isNeg);
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }

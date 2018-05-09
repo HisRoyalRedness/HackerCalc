@@ -14,19 +14,24 @@ namespace HisRoyalRedness.com
         public UnlimitedIntegerToken(BigInteger typedValue)
             : this(typedValue.ToString(), typedValue)
         { }
+
+        UnlimitedIntegerToken(BigInteger typedValue, bool isNeg)
+            : this(isNeg ? typedValue * -1 : typedValue)
+        { }
+
         #endregion Constructors
 
         #region Parsing
-        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase)
+        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg = false)
         {
             switch (numBase)
             {
                 case IntegerBase.Binary:
-                    return new UnlimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary());
+                    return new UnlimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), isNeg);
                 case IntegerBase.Decimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer));
+                    return new UnlimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), isNeg);
                 case IntegerBase.Hexadecimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber));
+                    return new UnlimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isNeg);
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }

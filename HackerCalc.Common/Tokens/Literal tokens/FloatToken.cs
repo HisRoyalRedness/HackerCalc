@@ -18,8 +18,8 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static FloatToken Parse(string value)
-            => new FloatToken(value, double.Parse(value));
+        public static FloatToken Parse(string value, bool isNeg = false)
+            => new FloatToken(value, double.Parse(isNeg ? $"-{value}" : value));
         #endregion Parsing
 
         #region Operator overloads
