@@ -138,7 +138,7 @@ Expr<out IToken token>
 BitExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   ShiftExpr<out tk>
                     {
-                        bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+                        bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
                         ShiftExpr<out tk>                       (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
@@ -147,7 +147,7 @@ BitExpr<out IToken token>                                       (. IToken tk = n
 ShiftExpr<out IToken token>                                     (. IToken tk = null; OperatorToken op = null; .)
 =                   AddExpr<out tk>
                     {
-                        shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+                        shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
                         AddExpr<out tk>                         (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
@@ -156,8 +156,8 @@ ShiftExpr<out IToken token>                                     (. IToken tk = n
 AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   MulExpr<out tk>
                     {
-                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op).Tap(o => AddToken(o)); } .)
                         MulExpr<out tk>                         (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
 .
@@ -165,7 +165,7 @@ AddExpr<out IToken token>                                       (. IToken tk = n
 MulExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   ExponentExpr<out tk>
                     {
-                        multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+                        multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
                         ExponentExpr<out tk>                    (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
@@ -174,7 +174,7 @@ MulExpr<out IToken token>                                       (. IToken tk = n
 ExponentExpr<out IToken token>                                  (. IToken tk = null; OperatorToken op = null; .)
 =                   NotExpr<out tk>
                     {
-                        exponentToken                           (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+                        exponentToken                           (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
                                                                 (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
                         NotExpr<out tk>                         (. op.Right = tk; .)
                     }                                           (. token = (IToken)op ?? (IToken)tk; .)
@@ -182,14 +182,14 @@ ExponentExpr<out IToken token>                                  (. IToken tk = n
 
 NotExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =                   [
-                        notToken                                (. op = OperatorToken.ParseNegate(t.val); .)
+                        notToken                                (. op = OperatorToken.ParseNegate(t.val).Tap(o => AddToken(o)); .)
                     ]
                     Cast<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
 .
 
 Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
 =                   [ 
-                        unlimited_cast                          (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
+                          unlimited_cast                        (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
                         | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
                         | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
                         | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
@@ -217,10 +217,8 @@ Term<out IToken token>                                          (. token = null;
                     (
                         EOF
                     )
-                    |
-                    openBracket
-                    Expr<out token>
-                    closeBracket
+                    | IF(IsBracket()) 
+                        Bracket<out token>
                     | IF(IsTimespanNumber()) 
                         Timespan<out token>
                     | IF(IsDateTime())
@@ -231,6 +229,16 @@ Term<out IToken token>                                          (. token = null;
                     | Now<out token>
 .
 
+Bracket<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=
+                    [ 
+                        subToken                                (. op = OperatorToken.ParseNegate(t.val).Tap(o => AddToken(o)); .)
+                    ]
+                    openBracket                                 (. AddToken(GroupingToken.Parse(t.val)); .)
+                    Expr<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+                    closeBracket                                (. AddToken(GroupingToken.Parse(t.val)); .)
+.
+
 DateTime<out IToken token>                                      (. token = null; .)
 =                                                               (. DateToken dt = null; .)
                     (
@@ -238,18 +246,18 @@ DateTime<out IToken token>                                      (. token = null;
                         |
                         date_rev                                (. dt = DateToken.Parse(t.val, true); .)
                     )
-                    time                                        (. token = dt + TimeToken.Parse(t.val); .)
+                    time                                        (. token = (dt + TimeToken.Parse(t.val)).Tap(o => AddToken(o)); .)
 .
 
 Date<out IToken token>                                          (. token = null; .)
 =
-                    date                                        (. token = DateToken.Parse(t.val); .)
-                    | date_rev                                  (. token = DateToken.Parse(t.val, true); .)
+                    date                                        (. token = DateToken.Parse(t.val).Tap(o => AddToken(o)); .)
+                    | date_rev                                  (. token = DateToken.Parse(t.val, true).Tap(o => AddToken(o)); .)
 .
 
 Time<out IToken token>                                          (. token = null; .)
 =
-                    time                                        (. token = TimeToken.Parse(t.val); .)
+                    time                                        (. token = TimeToken.Parse(t.val).Tap(o => AddToken(o)); .)
 .
 
 Numeric<out IToken token>                                       (. token = null; bool isNeg = false; .)
@@ -274,14 +282,14 @@ Integer<out IToken token, ref bool isNeg>                       (. token = null;
 .
 
 Float<out IToken token, ref bool isNeg>
-=                   ( true_float | typed_float )                (. token = FloatToken.Parse(t.val, isNeg); .)
+=                   ( true_float | typed_float )                (. token = FloatToken.Parse(t.val, isNeg).Tap(o => AddToken(o)); .)
                     [
                         float_type
                     ]
 .
 
 Now<out IToken token>
-=                   now                                         (. token = new DateToken(); .)
+=                   now                                         (. token = new DateToken().Tap(o => AddToken(o)); .)
 .
 
 Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
@@ -297,7 +305,7 @@ UnlimitedInteger<out IToken token, ref bool isNeg>
                         hex_unlimited_int                       (. intBase = IntegerBase.Hexadecimal; .)
                         |
                         bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
-                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg); .)
+                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg).Tap(o => AddToken(o)); .)
 .
 
 LimitedInteger<out IToken token, ref bool isNeg>
@@ -313,7 +321,7 @@ LimitedInteger<out IToken token, ref bool isNeg>
                         ( i4 | i8 | i16 | i32 | i64 | i128 )    (. bitWidth = t.val.Substring(1); .)
                         |
                         ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; bitWidth = t.val.Substring(1); .)
-                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg); .)
+                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg).Tap(o => AddToken(o)); .)
 .
 
 CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)
@@ -383,6 +391,7 @@ CompoundTimespanPortion<out TimespanToken token>                (. token = new T
                             TimespanSeconds<out tk>             (. token = token.AddCompoundPortions(tk); .)
                         )
                     )
+                                                                (. if (token != null) AddToken(token); .)
 .
 
 TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; .)

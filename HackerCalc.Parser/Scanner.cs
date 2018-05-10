@@ -82,6 +82,8 @@ namespace HisRoyalRedness.com
             ResetPeek();
             tokenChain.prev.next = null;
             tokenChain.prev = null;
+            if (ScannedTokens != null)
+                ScannedTokens(tokenChain);
             return tokenChain;
         }
 
@@ -130,6 +132,8 @@ namespace HisRoyalRedness.com
 
         // make sure that peeking starts at the current scan position
         public void ResetPeek() { pt = tokenChain; }
+
+        public Action<Token> ScannedTokens { get; set; }
 
         #region IDisposable
         private bool _disposed = false;

@@ -39,25 +39,6 @@ namespace HisRoyalRedness.com
         public void LimitedIntegerNegativeValuesAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
-        //[DataRow("16u4", "")]
-        //[DataRow("256u8", "")]
-        //[DataRow("65536u16", "")]
-        //[DataRow("4294967296u32", "")]
-        //[DataRow("18446744073709551616u64", "")]
-        //[DataRow("340282366920938463463374607431768211456u128", "")]
-        //[DataRow("-9i4", "")]
-        //[DataRow("8i4", "")]
-        //[DataRow("-129i8", "")]
-        //[DataRow("128i8", "")]
-        //[DataRow("-32769i16", "")]
-        //[DataRow("32768i16", "")]
-        //[DataRow("-2147483649i32", "")]
-        //[DataRow("2147483648i32", "")]
-        //[DataRow("-9223372036854775809i64", "")]
-        //[DataRow("9223372036854775808i64", "")]
-        //[DataRow("-170141183460469231731687303715884105729i128", "")]
-        //[DataRow("170141183460469231731687303715884105728i128", "")]
-
         [DataTestMethod]
         [DataRow("0u4", "0" )]
         [DataRow("15u4", "15" )]
@@ -85,5 +66,33 @@ namespace HisRoyalRedness.com
         [DataRow("170141183460469231731687303715884105727i128", "170141183460469231731687303715884105727" )]
         public void LimitedIntegerValuesWithinRangeAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
+
+        [DataTestMethod]
+        [DataRow("-1u4")]
+        [DataRow("16u4")]
+        [DataRow("-1u8")]
+        [DataRow("256u8")]
+        [DataRow("-1u16")]
+        [DataRow("65536u16")]
+        [DataRow("-1u32")]
+        [DataRow("4294967296u32")]
+        [DataRow("-1u64")]
+        [DataRow("18446744073709551616u64")]
+        [DataRow("-1u128")]
+        [DataRow("340282366920938463463374607431768211456u128")]
+        [DataRow("-9i4")]
+        [DataRow("8i4")]
+        [DataRow("-129i8")]
+        [DataRow("128i8")]
+        [DataRow("-32769i16")]
+        [DataRow("32768i16")]
+        [DataRow("-2147483649i32")]
+        [DataRow("2147483648i32")]
+        [DataRow("-9223372036854775809i64")]
+        [DataRow("9223372036854775808i64")]
+        [DataRow("-170141183460469231731687303715884105729i128")]
+        [DataRow("170141183460469231731687303715884105728i128")]
+        public void LimitedIntegerValuesOutOfRangeAreNotParsed(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken>(stringToParse, null);
     }
 }

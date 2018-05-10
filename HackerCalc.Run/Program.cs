@@ -20,7 +20,7 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("-(1+2)");
+                        Debug("-(-2+-5)");
                         break;
                 }
             }
@@ -40,7 +40,9 @@ namespace HisRoyalRedness.com
             Console.WriteLine($"       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             Console.WriteLine($"Input: {input}");
 
-            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input), "PARSE");
+            var scannedTokens = new List<Token>();
+            var parsedTokens = new List<IToken>();
+            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input, scannedTokens, parsedTokens), "PARSE");
             Console.WriteLine();
 
             Console.WriteLine("Expression");
@@ -60,12 +62,20 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine();
 
-            Console.WriteLine("Scanner");
-            Console.WriteLine("-------");
-            foreach (var tkn in Parser.ScanExpression(input))
+            Console.WriteLine("Scanned token");
+            Console.WriteLine("-------------");
+            foreach (var tkn in scannedTokens)
                 Console.WriteLine($"val: {tkn.val,-15}kind: {tkn.TokenKind.ToString().TrimStart('_')}");
 
             Console.WriteLine();
+
+            Console.WriteLine("Parsed tokens");
+            Console.WriteLine("-------------");
+            foreach (var tkn in parsedTokens)
+                Console.WriteLine(PrintToken(tkn, true));
+
+            Console.WriteLine();
+
         }
 
         static T DoWithCatch<T>(Func<T> func, string errorType)
@@ -87,65 +97,69 @@ namespace HisRoyalRedness.com
             if (literalToken != null)
             {
                 string val = "";
-                string dataType = "";
-
                 switch(literalToken.DataType)
                 {
                     case TokenDataType.Float:
                         {
                             var typedToken = literalToken as FloatToken;
                             val = typedToken.TypedValue.ToString("0.000");
-                            dataType = includeType ? "Float" : null;
                         }
                         break;
                     case TokenDataType.Timespan:
                         {
                             var typedToken = literalToken as TimespanToken;
                             val = typedToken.ToLongString();
-                            dataType = includeType ? "Timespan" : null;
                         }
                         break;
                     case TokenDataType.Time:
                         {
                             var typedToken = literalToken as TimeToken;
                             val = typedToken.TypedValue.ToString();
-                            dataType = includeType ? "Time" : null;
                         }
                         break;
                     case TokenDataType.Date:
                         {
                             var typedToken = literalToken as DateToken;
                             val = typedToken.TypedValue.ToString("yyyy-MM-dd HH:mm:ss");
-                            dataType = includeType ? "Date" : null;
                         }
                         break;
                     case TokenDataType.LimitedInteger:
                         {
                             var typedToken = literalToken as LimitedIntegerToken;
                             val = typedToken.TypedValue.ToString();
-                            dataType = includeType ? $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}" : null;
+                            if (includeType)
+                                val += $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}";
                         }
                         break;
                     case TokenDataType.UnlimitedInteger:
                         {
                             var typedToken = literalToken as UnlimitedIntegerToken;
                             val = typedToken.TypedValue.ToString();
-                            dataType = includeType ? "Unlimited Integer" : null;
                         }
                         break;
                     default:
                         return $"Unrecognised data type {literalToken.DataType}";
                 }
 
-                return string.IsNullOrWhiteSpace(dataType)
-                    ? val
-                    : $"{val}   -   {dataType}";
+                return includeType
+                    ? $"{literalToken.DataType,-40}   {val}"
+                    : val;
             }
 
             var opToken = token as OperatorToken;
             if (opToken != null)
             {
-                return opToken.Operator.ToString();
+                return includeType
+                    ? $"{opToken.Operator,-40}   {opToken.Operator.GetEnumDescription()}"
+                    : opToken.Operator.GetEnumDescription();
+            }
+
+            var grpToken = token as GroupingToken;
+            if (grpToken != null)
+            {
+                return includeType
+                    ? $"{grpToken.GroupingOperator,-40}   {grpToken.GroupingOperator.GetEnumDescription()}"
+                    : grpToken.GroupingOperator.GetEnumDescription();
             }
 
             return null;

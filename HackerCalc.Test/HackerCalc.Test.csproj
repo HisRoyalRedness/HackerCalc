@@ -61,6 +61,7 @@
     <Compile Include="Basic parse testing\DateParseTest.cs" />
     <Compile Include="Basic parse testing\FloatParseTest.cs" />
     <Compile Include="Basic parse testing\LimitedIntegerParseTest.cs" />
+    <Compile Include="Basic parse testing\NegativeParseTest.cs" />
     <Compile Include="Basic parse testing\TimeParseTest.cs" />
     <Compile Include="Basic parse testing\TimespanParseTest.cs" />
     <Compile Include="Basic parse testing\UnlimitedIntegerParseTest.cs" />

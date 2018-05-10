@@ -154,7 +154,18 @@ namespace HisRoyalRedness.com
         public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue, bool evaluate = false)
             where TToken : class, ILiteralToken
         {
-            var rawToken = Parser.ParseExpression(stringToParse);
+            IToken rawToken = null;
+            try
+            {
+                rawToken = Parser.ParseExpression(stringToParse);
+            }
+            catch(ParseException)
+            {
+                if (string.IsNullOrWhiteSpace(expectedValue))
+                    return;
+            }
+
+
             if (evaluate)
                 rawToken = rawToken?.Evaluate();
 

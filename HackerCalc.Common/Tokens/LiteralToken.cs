@@ -1,22 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace HisRoyalRedness.com
 {
     public enum TokenDataType
     {
+        [Description("Float")]
         Float,
+        [Description("Unlimited Integer")]
         UnlimitedInteger,
+        [Description("Limited Integer")]
         LimitedInteger,
+        [Description("Rational Number")]
         [IgnoreEnum]
         RationalNumber,
+        [Description("Irrational Number")]
         [IgnoreEnum]
         IrrationalNumber, // Replace float?
+        [Description("Digital Integer")]
         [IgnoreEnum]
         DigitalInteger,
+        [Description("Timespan")]
         Timespan,
+        [Description("Time")]
         Time,
+        [Description("Date")]
         Date
     }
 

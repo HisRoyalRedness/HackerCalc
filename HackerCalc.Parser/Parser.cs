@@ -13,17 +13,27 @@ namespace HisRoyalRedness.com
     public partial class Parser
     {
         public static IToken ParseExpression(string expression)
+            => ParseExpression(expression, null, null);
+
+        public static IToken ParseExpression(string expression, List<Token> scannedTokens)
+            => ParseExpression(expression, scannedTokens, null);
+
+        public static IToken ParseExpression(string expression, List<Token> scannedTokens, List<IToken> parsedTokens)
         {
             IToken rootToken = null;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms);
+                if (scannedTokens != null)
+                    scanner.ScannedTokens = tkn => scannedTokens.Add(tkn);
                 var parser = new Parser(scanner);
+                parser._parsedTokens = parsedTokens;
                 if (parser.Parse())
                     rootToken = parser.RootToken;
             }
             return rootToken;
         }
+
 
         public static IEnumerable<Token> ScanExpression(string expression)
         {
@@ -183,9 +193,26 @@ namespace HisRoyalRedness.com
                 return false;
         }
 
+        public bool IsBracket()
+        {
+            if (la.kind == _subToken)
+            {
+                var next = scanner.Peek().kind;
+                scanner.ResetPeek();
+                return next == _openBracket;
+            }
+            else
+                return la.kind == _openBracket;
+        }
+
         // Checks if partial equations are enabled, and if is, if the next token is EOF
         public bool IsPartialEquation() => Constants.IsPartialEquationAllowed && la.kind == 0;
         #endregion Resolvers
+
+        void AddToken(IToken token)
+            => _parsedTokens?.Add(token);
+
+        List<IToken> _parsedTokens = null;
 
         public IToken RootToken { get; private set; }
     }

@@ -21,7 +21,7 @@ namespace HisRoyalRedness.com
         Root,
         [Description("%")]
         Modulo,
-        [Description("!~")]
+        [Description("~")]
         BitwiseNegate,          // i.e. 2's complement
         [Description("!-")]
         NumericNegate,          // i.e. value * -1
@@ -33,12 +33,20 @@ namespace HisRoyalRedness.com
         And,
         [Description("|")]
         Or,
-        [Description("!!")]
+        [Description("!")]
         Not,
         [Description("^")]
         Xor,
 
         Cast
+    }
+
+    public enum GroupingType
+    {
+        [Description("(")]
+        LeftBracket,
+        [Description(")")]
+        RightBracket
     }
 
     public interface IOperatorToken : IToken
@@ -100,6 +108,33 @@ namespace HisRoyalRedness.com
         }
 
         public override string ToString() => $"{Operator.GetEnumDescription()}";
+    }
+
+    public class GroupingToken : TokenBase<GroupingToken>, IOperatorToken
+    {
+        public GroupingToken(GroupingType op)
+            : base()
+        {
+            GroupingOperator = op;
+        }
+
+        public GroupingType GroupingOperator { get; private set; }
+
+        public bool IsUnary => true;
+        public IToken Left => null;
+        public IToken Right => null;
+
+        public static GroupingToken Parse(string value)
+        {
+            switch (value)
+            {
+                case "(": return new GroupingToken(GroupingType.LeftBracket);
+                case ")": return new GroupingToken(GroupingType.RightBracket);
+                default: throw new ParseException($"Unrecognised grouping operator {value}.");
+            }
+        }
+
+        public override string ToString() => $"{GroupingOperator.GetEnumDescription()}";
     }
 
     public class CastOperatorToken : OperatorToken
