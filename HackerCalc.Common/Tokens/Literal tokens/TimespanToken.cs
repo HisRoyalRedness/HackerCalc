@@ -7,12 +7,8 @@ namespace HisRoyalRedness.com
     public class TimespanToken : LiteralToken<TimeSpan, TimespanToken>
     {
         #region Constructors
-        public TimespanToken(string value, TimeSpan typedValue)
-            : base(TokenDataType.Timespan, value, typedValue)
-        { }
-
         public TimespanToken(TimeSpan typedValue)
-            : this(typedValue.ToString(), typedValue)
+            : base(TokenDataType.Timespan, typedValue)
         { }
 
         public TimespanToken()
@@ -21,11 +17,11 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static TimespanToken Parse(string value, TimeSpan timespan)
-            => new TimespanToken(value, timespan);
+        public static TimespanToken Parse(TimeSpan timespan)
+            => new TimespanToken(timespan);
 
         public TimespanToken AddCompoundPortions(TimespanToken other)
-            => new TimespanToken(string.Join(" ", Value, other.Value), TypedValue + other.TypedValue);
+            => new TimespanToken(TypedValue + other.TypedValue);
         #endregion Parsing
 
         #region Operator overrides
@@ -54,7 +50,7 @@ namespace HisRoyalRedness.com
                     return new DateToken(DateTime.Now.Date + TypedValue) as TToken;
 
                 case nameof(TimeToken):
-                    return new TimeToken(Value, TypedValue) as TToken;
+                    return new TimeToken(TypedValue) as TToken;
 
                 default:
                     return null;

@@ -8,7 +8,7 @@ namespace HisRoyalRedness.com
 {
     [TestCategory("Needs fixing")]
     [TestClass]
-    [TestCategory("Incomplete")]
+    [TestCategory(TestCommon.INCOMPLETE)]
     public class IntegerParseTest
     {
         //        [DataTestMethod]

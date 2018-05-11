@@ -143,15 +143,8 @@ namespace HisRoyalRedness.com
             => new OperatorToken(opType).Tap(ot => ot.Left = left).Tap(ot => ot.Right = right);
         #endregion MakeToken
 
-        public static object GetInstanceField(Type type, object instance, string fieldName)
-        {
-            var bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-            FieldInfo field = type.GetField(fieldName, bindFlags);
-            return field.GetValue(instance);
-        }
-
         #region Literal token parsing
-        public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue, bool evaluate = false)
+        public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue)
             where TToken : class, ILiteralToken
         {
             IToken rawToken = null;
@@ -165,26 +158,16 @@ namespace HisRoyalRedness.com
                     return;
             }
 
-
-            if (evaluate)
-                rawToken = rawToken?.Evaluate();
-
             // If expectedTokenStr is null, then we expect the parse to fail. 
             // No need to check anything else after that
             if (string.IsNullOrWhiteSpace(expectedValue))
-            {
-                if (evaluate && rawToken != null)
-                    rawToken.Should().NotBeOfType<TToken>();
-                else
-                    rawToken.Should().BeNull();
+            { 
+                rawToken.Should().BeNull();
                 return;
             }
-            else
-            {
-                rawToken.Should().NotBeNull("the token should parse correctly");
-                rawToken.Should().BeOfType<TToken>();
-            }
 
+            rawToken.Should().NotBeNull("the token should parse correctly");
+            rawToken.Should().BeOfType<TToken>();
 
             var typedToken = rawToken as TToken;
             typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
@@ -301,6 +284,48 @@ namespace HisRoyalRedness.com
             token.Operator.Should().Be(expectedType);
         }
         #endregion Operator parsing
+
+        #region Evaluation checking
+        public static void ExpressionEvaluatesTo<TToken>(string stringToParse, string expectedValue)
+            where TToken : class, ILiteralToken
+        {
+            var expr = Parser.ParseExpression(stringToParse);
+            expr.Should().NotBeNull("the expression is expected to parse correctly");
+
+            var token = expr.Evaluate();
+
+
+            // If expectedValue is null, then we expect the evaluation to fail. 
+            // No need to check anything else after that
+            if (string.IsNullOrWhiteSpace(expectedValue))
+            {
+                token.Should().BeNull();
+                return;
+            }
+
+            token.Should().NotBeNull("the expression should evaluate correctly");
+            token.Should().BeOfType<TToken>();
+
+            var typedToken = token as TToken;
+            typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
+            LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
+        }
+        #endregion Evaluation checking
+
+        public static object GetInstanceField(Type type, object instance, string fieldName)
+        {
+            var bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            FieldInfo field = type.GetField(fieldName, bindFlags);
+            return field.GetValue(instance);
+        }
+
+        #region Test trait descriptions
+        public const string INCOMPLETE = "Incomplete";
+        public const string BASIC_PARSE = "Basic parse";
+        public const string BASIC_OPERATION = "Basic operation";
+        public const string LITERAL_TOKEN_PARSE = "Literal token parse";
+        public const string OPERATOR_TOKEN_PARSE = "Operator token parse";
+        #endregion Test trait descriptions
 
         public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths => _integerBitWidths;
 

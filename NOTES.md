@@ -94,6 +94,9 @@ Change log
 Todo
 ----
 
+* CASTING!!!!
+* Test timezones in date parsing
+
 * In the process of adding the operation type result maps
 * Complete the implementation of functions
 * Implement all the integer types

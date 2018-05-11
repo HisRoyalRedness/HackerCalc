@@ -410,7 +410,7 @@ TimespanSeconds<out TimespanToken token>                        (. var seconds =
                             dec_unlimited_int                   (. seconds = t.val; .)
                             ts_seconds_type
                         )
-                    )                                           (. token = TimespanToken.Parse($"{seconds}sec", TimeSpan.FromSeconds(double.Parse(seconds))); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds))); .)
 .
 
 TimespanMinutes<out TimespanToken token>
@@ -426,7 +426,7 @@ TimespanMinutes<out TimespanToken token>
                             dec_unlimited_int                   (. minutes = t.val; .)
                             ts_minutes_type
                         )
-                    )                                           (. token = TimespanToken.Parse($"{minutes}min", TimeSpan.FromMinutes(double.Parse(minutes))); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes))); .)
 .
 
 TimespanHours<out TimespanToken token>
@@ -442,7 +442,7 @@ TimespanHours<out TimespanToken token>
                             dec_unlimited_int                   (. hours = t.val; .)
                             ts_hours_type
                         )
-                    )                                           (. token = TimespanToken.Parse($"{hours}hrs", TimeSpan.FromHours(double.Parse(hours))); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours))); .)
 .
 
 TimespanDays<out TimespanToken token>
@@ -458,7 +458,7 @@ TimespanDays<out TimespanToken token>
                             dec_unlimited_int                   (. days = t.val; .)
                             ts_days_type
                         )
-                    )                                           (. token = TimespanToken.Parse($"{days}days", TimeSpan.FromDays(double.Parse(days))); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days))); .)
 .
 
 END HackerCalc.

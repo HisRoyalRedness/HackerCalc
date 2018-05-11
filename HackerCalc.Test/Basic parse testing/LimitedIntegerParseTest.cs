@@ -7,9 +7,9 @@ using System.Globalization;
 
 namespace HisRoyalRedness.com
 {
-    [TestCategory(nameof(UnlimitedIntegerToken))]
-    [TestCategory("Basic parse")]
-    [TestCategory("Literal token parse")]
+    [TestCategory(nameof(LimitedIntegerToken))]
+    [TestCategory(TestCommon.BASIC_PARSE)]
+    [TestCategory(TestCommon.LITERAL_TOKEN_PARSE)]
     [TestClass]
     public class LimitedIntegerParseTest
     {

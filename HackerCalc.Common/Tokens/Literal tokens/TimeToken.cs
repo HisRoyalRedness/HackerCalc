@@ -7,16 +7,12 @@ namespace HisRoyalRedness.com
     public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
         #region Constructors
-        public TimeToken(string value, TimeSpan typedValue)
-            : base(TokenDataType.Time, value, typedValue)
+        public TimeToken(TimeSpan typedValue)
+            : base(TokenDataType.Time, typedValue)
         {
             if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
                 throw new OverflowException("Time must be within the range of a single day");
         }
-
-        public TimeToken(TimeSpan typedValue)
-            : this(typedValue.ToString(), typedValue)
-        { }
 
         public TimeToken()
             : this(TimeSpan.Zero)
@@ -27,7 +23,7 @@ namespace HisRoyalRedness.com
         public static TimeToken Parse(string value)
         {
             if (TimeSpan.TryParse(value, out TimeSpan time))
-                return new TimeToken(value, time);
+                return new TimeToken(time);
             else
                 throw new ParseException($"Invalid time format '{value}'");
         }
@@ -53,7 +49,7 @@ namespace HisRoyalRedness.com
                     return new DateToken(DateTime.Now.Date + TypedValue) as TToken;
 
                 case nameof(TimespanToken):
-                    return new TimespanToken(Value, TypedValue) as TToken;
+                    return new TimespanToken(TypedValue) as TToken;
 
                 default:
                     return null;

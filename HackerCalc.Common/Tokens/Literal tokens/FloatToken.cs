@@ -8,18 +8,14 @@ namespace HisRoyalRedness.com
     public class FloatToken : LiteralToken<double, FloatToken>
     {
         #region Constructors
-        public FloatToken(string value, double typedValue)
-            : base(TokenDataType.Float, value, typedValue)
-        { }
-
         public FloatToken(double typedValue)
-            : this(typedValue.ToString(), typedValue)
+            : base(TokenDataType.Float, typedValue)
         { }
         #endregion Constructors
 
         #region Parsing
         public static FloatToken Parse(string value, bool isNeg = false)
-            => new FloatToken(value, double.Parse(isNeg ? $"-{value}" : value));
+            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value));
         #endregion Parsing
 
         #region Operator overloads

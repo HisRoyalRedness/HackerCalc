@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace HisRoyalRedness.com
 {
-    [TestCategory("Basic parse")]
+    [TestCategory(TestCommon.BASIC_PARSE)]
     [TestClass]
     public class NegativeParseTest
     {

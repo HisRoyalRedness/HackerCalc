@@ -8,16 +8,12 @@ namespace HisRoyalRedness.com
     public class DateToken : LiteralToken<DateTime, DateToken>
     {
         #region Constructors
-        public DateToken(string value, DateTime typedValue)
-            : base(TokenDataType.Date, value, typedValue)
-        { }
-
         public DateToken(DateTime typedValue)
-            : this(typedValue.ToString("yyyy-MM-dd HH:mm:ss"), typedValue)
+            : base(TokenDataType.Date, typedValue)
         { }
 
         public DateToken()
-            : this("now", DateTime.Now)
+            : this(DateTime.Now)
         { }
         #endregion Constructors
 
@@ -35,7 +31,7 @@ namespace HisRoyalRedness.com
 
             var dateTimeStr = string.Join("-", portions);
             if (DateTime.TryParse(dateTimeStr, out DateTime dateTime))
-                return new DateToken(value, DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
+                return new DateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
             else
                 throw new ParseException($"Invalid date format '{dateTimeStr}'");
         }
@@ -44,7 +40,7 @@ namespace HisRoyalRedness.com
         #region Operator overrides
         // Used while parsing
         public static DateToken operator +(DateToken a, TimeToken b)
-            => new DateToken(string.Join(" ", a.Value, b.Value), a.TypedValue + b.TypedValue);
+            => new DateToken(a.TypedValue + b.TypedValue);
         public static DateToken operator +(TimeToken a, DateToken b) => b + a;
 
 

@@ -7,8 +7,8 @@ using System.Numerics;
 namespace HisRoyalRedness.com
 {
     [TestCategory(nameof(TimeToken))]
-    [TestCategory("Basic parse")]
-    [TestCategory("Literal token parse")]
+    [TestCategory(TestCommon.BASIC_PARSE)]
+    [TestCategory(TestCommon.LITERAL_TOKEN_PARSE)]
     [TestClass]
     public class TimeParseTest
     {

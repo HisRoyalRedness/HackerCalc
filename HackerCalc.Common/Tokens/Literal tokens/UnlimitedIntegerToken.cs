@@ -7,12 +7,8 @@ namespace HisRoyalRedness.com
     public class UnlimitedIntegerToken : LiteralToken<BigInteger, UnlimitedIntegerToken>
     {
         #region Constructors
-        public UnlimitedIntegerToken(string value, BigInteger typedValue)
-            : base(TokenDataType.UnlimitedInteger, value, typedValue)
-        { }
-
         public UnlimitedIntegerToken(BigInteger typedValue)
-            : this(typedValue.ToString(), typedValue)
+            : base(TokenDataType.UnlimitedInteger, typedValue)
         { }
 
         UnlimitedIntegerToken(BigInteger typedValue, bool isNeg)

@@ -7,8 +7,8 @@ using FluentAssertions;
 namespace HisRoyalRedness.com
 {
     [TestCategory(nameof(FloatToken))]
-    [TestCategory("Basic parse")]
-    [TestCategory("Literal token parse")]
+    [TestCategory(TestCommon.BASIC_PARSE)]
+    [TestCategory(TestCommon.LITERAL_TOKEN_PARSE)]
     [TestClass]
     public class FloatParseTest
     {

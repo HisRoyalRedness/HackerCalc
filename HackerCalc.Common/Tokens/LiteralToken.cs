@@ -70,16 +70,14 @@ namespace HisRoyalRedness.com
     public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>, ILiteralTokenEval
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
-        public LiteralToken(TokenDataType dataType, string value, TBaseType typedValue)
+        public LiteralToken(TokenDataType dataType, TBaseType typedValue)
             : base()
         {
             DataType = dataType;
-            Value = value;
             TypedValue = typedValue;
         }
 
         public TokenDataType DataType { get; private set; }
-        public string Value { get; private set; }
         public bool IsFloat => DataType == TokenDataType.Float;
         public bool IsLimitedInteger => DataType == TokenDataType.LimitedInteger;
         public bool IsUnlimitedInteger => DataType == TokenDataType.UnlimitedInteger;
@@ -138,7 +136,7 @@ namespace HisRoyalRedness.com
         #endregion ILiteralTokenEval implementation
 
         #region ToString
-        public override string ToString() => $"{Value}";
+        public override string ToString() => $"{TypedValue}";
         #endregion ToString
 
         static Dictionary<TokenDataType, ILiteralToken> _typeMapping = new Dictionary<TokenDataType, ILiteralToken>();

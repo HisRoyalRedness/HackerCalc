@@ -4,35 +4,29 @@ using System.Numerics;
 
 namespace HisRoyalRedness.com
 {
-    public class RationalToken : LiteralToken<BigInteger, RationalToken>
+    public class RationalNumberToken : LiteralToken<BigInteger, RationalNumberToken>
     {
         #region Constructors
-        public RationalToken(string value, BigInteger typedValue)
-            : base(TokenDataType.RationalNumber, value, typedValue)
-        { }
-
-        public RationalToken(BigInteger typedValue)
-            : this(typedValue.ToString(), typedValue)
+        public RationalNumberToken(BigInteger typedValue)
+            : base(TokenDataType.RationalNumber, typedValue)
         { }
         #endregion Constructors
 
-        #region Parsing
-        public static RationalToken Parse(string value)
-            => new RationalToken(BigInteger.Parse(value, NumberStyles.Integer));
-        #endregion Parsing
+        public override ILiteralToken NumericNegate()
+            => new RationalNumberToken(TypedValue * -1);
 
-        //public override ILiteralToken Negate()
-        //    => new RationalToken(TypedValue * -1);
+        public override ILiteralToken BitwiseNegate()
+            => throw new InvalidOperationException($"{nameof(RationalNumberToken)} does not support {nameof(BitwiseNegate)}, as it doesn't have a fixed bit width.");
 
         #region Operator overloads
-        public static RationalToken operator +(RationalToken a, RationalToken b)
-            => new RationalToken(a.TypedValue + b.TypedValue);
-        public static RationalToken operator -(RationalToken a, RationalToken b)
-            => new RationalToken(a.TypedValue - b.TypedValue);
-        public static RationalToken operator *(RationalToken a, RationalToken b)
-            => new RationalToken(a.TypedValue * b.TypedValue);
-        public static RationalToken operator /(RationalToken a, RationalToken b)
-            => new RationalToken(a.TypedValue / b.TypedValue);
+        public static RationalNumberToken operator +(RationalNumberToken a, RationalNumberToken b)
+            => new RationalNumberToken(a.TypedValue + b.TypedValue);
+        public static RationalNumberToken operator -(RationalNumberToken a, RationalNumberToken b)
+            => new RationalNumberToken(a.TypedValue - b.TypedValue);
+        public static RationalNumberToken operator *(RationalNumberToken a, RationalNumberToken b)
+            => new RationalNumberToken(a.TypedValue * b.TypedValue);
+        public static RationalNumberToken operator /(RationalNumberToken a, RationalNumberToken b)
+            => new RationalNumberToken(a.TypedValue / b.TypedValue);
         #endregion Operator overloads
 
         #region Casting
@@ -62,11 +56,11 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as RationalToken);
-        public override bool Equals(RationalToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as RationalNumberToken);
+        public override bool Equals(RationalNumberToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(RationalToken a, RationalToken b)
+        public static bool operator ==(RationalNumberToken a, RationalNumberToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -74,11 +68,11 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(RationalToken a, RationalToken b) => !(a == b);
+        public static bool operator !=(RationalNumberToken a, RationalNumberToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(RationalToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(RationalNumberToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
         #region ToString

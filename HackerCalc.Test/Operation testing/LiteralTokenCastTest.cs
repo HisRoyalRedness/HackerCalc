@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace HisRoyalRedness.com
 {
     [TestClass]
-    [TestCategory("Incomplete")]
+    [TestCategory(TestCommon.INCOMPLETE)]
     public class LiteralTokenCastTest
     {
         [DataTestMethod]
