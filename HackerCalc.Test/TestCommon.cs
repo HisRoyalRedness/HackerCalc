@@ -272,11 +272,11 @@ namespace HisRoyalRedness.com
             token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
             var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
+            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(UnlimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             var rightToken = token.Right as UnlimitedIntegerToken;
-            rightToken.Should().NotBeNull("the right token is expected to be an UnlimitedIntegerToken");
+            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(UnlimitedIntegerToken)}");
             rightToken.TypedValue.Should().Be(2);
 
             token.Operator.Should().Be(expectedType);
@@ -293,7 +293,7 @@ namespace HisRoyalRedness.com
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
             var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull("the left token is expected to be an UnlimitedIntegerToken");
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(UnlimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");

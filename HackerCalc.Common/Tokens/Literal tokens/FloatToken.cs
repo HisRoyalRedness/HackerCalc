@@ -33,6 +33,9 @@ namespace HisRoyalRedness.com
             => new FloatToken(a.TypedValue / b.TypedValue);
         #endregion Operator overloads
 
+        public override ILiteralToken NumericNegate()
+            => new FloatToken(TypedValue * -1.0);
+
         #region Casting
         protected override TToken InternalCastTo<TToken>()
         {
@@ -83,7 +86,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region ToString
-        public override string ToString() => $"{TypedValue:0.000}F";
+        public override string ToString() => $"{TypedValue:0.000}";
         #endregion ToString
     }
 }
