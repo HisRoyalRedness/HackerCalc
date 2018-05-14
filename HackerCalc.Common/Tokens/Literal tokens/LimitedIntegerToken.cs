@@ -201,6 +201,9 @@ namespace HisRoyalRedness.com
         public BigInteger Max => _minAndMax[SignAndBitWidth].Max;
         public BigInteger Mask => _minAndMax[SignAndBitWidth].Mask;
 
+        public static BigInteger MinValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Min;
+        public static BigInteger MaxValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Max;
+
         #region SignAndBitWidthPair
         [DebuggerDisplay("{DisplayString}")]
         public class BitWidthAndSignPair : IEquatable<BitWidthAndSignPair>

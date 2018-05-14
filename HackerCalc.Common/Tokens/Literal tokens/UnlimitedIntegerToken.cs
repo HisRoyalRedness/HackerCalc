@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Numerics;
+using System.Linq;
 
 namespace HisRoyalRedness.com
 {
@@ -68,8 +69,23 @@ namespace HisRoyalRedness.com
                 case nameof(FloatToken):
                     return new FloatToken((double)TypedValue) as TToken;
 
-                //case nameof(LimitedIntegerToken):
-                //    return new LimitedIntegerToken(TypedValue) as TToken;
+                case nameof(LimitedIntegerToken):
+                    {
+                        if (TypedValue < 0)
+                        {
+                            foreach (var signAndBitwidth in EnumExtensions.GetEnumCollection<LimitedIntegerToken.IntegerBitWidth>().Select(bw => new LimitedIntegerToken.BitWidthAndSignPair(bw, true)))
+                                if (TypedValue >= LimitedIntegerToken.MinValue(signAndBitwidth))
+                                    return new LimitedIntegerToken(TypedValue, signAndBitwidth.BitWidth, signAndBitwidth.IsSigned) as TToken;
+                        }
+                        else
+                        {
+                            foreach (var bw in EnumExtensions.GetEnumCollection<LimitedIntegerToken.IntegerBitWidth>())
+                                foreach (var signAndBitwidth in new[] { true, false }.Select(s => new LimitedIntegerToken.BitWidthAndSignPair(bw, s)))
+                                    if (TypedValue <= LimitedIntegerToken.MaxValue(signAndBitwidth))
+                                        return new LimitedIntegerToken(TypedValue, signAndBitwidth.BitWidth, signAndBitwidth.IsSigned) as TToken;
+                        }
+                        throw new IntegerOverflowException($"The value '{TypedValue}' is out of range of {nameof(LimitedIntegerToken)}");
+                    }
 
                 case nameof(TimespanToken):
                     return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;

@@ -90,11 +90,11 @@ Change log
 |            | Added power and root operators (parsing)                                                                     |
 |            | Partial support for parsing functions                                                                        |
 | 2018-05-07 | Begin switching over to LimitedIntegerToken and removing IntegerToken                                        |
+| 2018-05-14 | Implemented casting from Unlimited to Limited                                                                |
 
 Todo
 ----
 
-* CASTING!!!!
 * Test timezones in date parsing
 
 * In the process of adding the operation type result maps
