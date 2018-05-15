@@ -78,16 +78,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj">
-      <Project>{c07ad894-0d40-4c1f-b650-519f6f4ad85e}</Project>
-      <Name>HackerCalc.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HackerCalc.Parser\HackerCalc.Parser.csproj">
-      <Project>{217c1b3e-acc6-41bb-b9d3-5c937b9148b2}</Project>
-      <Name>HackerCalc.Parser</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

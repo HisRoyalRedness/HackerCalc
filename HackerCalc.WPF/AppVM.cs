@@ -14,34 +14,17 @@ namespace HisRoyalRedness.com
             set
             {
                 if (SetProperty(ref _equation, value))
-                {
-                    try
-                    {
-                        var token = Parser.ParseExpression(_equation);
-                        var eval = token?.Evaluate()?.ToString() ?? "";
-                        if (string.IsNullOrEmpty(eval))
-                            Errors = "Error";
-                        else
-                        { 
-                            Evaluation = eval;
-                            Errors = "";
-                        }
-                    }
-                    catch (ApplicationException aex)
-                    {
-                        Errors = aex.Message;
-                    }
-                }
+                    Evaluate(_equation);
             }
         }
         string _equation = default(string);
 
-        public string Evaluation
+        public IToken Evaluation
         {
-            get => _evaluation;
-            set { SetProperty(ref _evaluation, value); }
+            get => _evaluationToken;
+            set { SetProperty(ref _evaluationToken, value); }
         }
-        string _evaluation = default(string);
+        IToken _evaluationToken = null;
 
         public string Errors
         {
@@ -51,5 +34,17 @@ namespace HisRoyalRedness.com
         string _errors = default(string);
 
 
+        void Evaluate(string expression)
+        {
+            try
+            {
+                Evaluation = Parser.ParseExpression(expression)?.Evaluate();
+                Errors = Evaluation == null ? "Error" : string.Empty;
+            }
+            catch (ApplicationException aex)
+            {
+                Errors = aex.Message;
+            }
+        }
     }
 }

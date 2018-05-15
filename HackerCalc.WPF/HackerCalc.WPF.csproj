@@ -8,11 +8,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>HisRoyalRedness.com</RootNamespace>
     <AssemblyName>HackerCalc.WPF</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -67,6 +69,7 @@
     </Compile>
     <Compile Include="AppModel.cs" />
     <Compile Include="AppVM.cs" />
+    <Compile Include="Converters.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -105,7 +108,7 @@
       <Name>HackerCalc.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\HackerCalc.Parser\HackerCalc.Parser.csproj">
-      <Project>{217c1b3e-acc6-41bb-b9d3-5c937b9148b2}</Project>
+      <Project>{ee6a6ec5-3106-49f7-8877-faec780e7001}</Project>
       <Name>HackerCalc.Parser</Name>
     </ProjectReference>
   </ItemGroup>

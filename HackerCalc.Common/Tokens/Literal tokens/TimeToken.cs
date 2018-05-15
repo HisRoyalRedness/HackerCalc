@@ -11,7 +11,7 @@ namespace HisRoyalRedness.com
             : base(TokenDataType.Time, typedValue)
         {
             if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
-                throw new OverflowException("Time must be within the range of a single day");
+                throw new TimeOverflowException("Time must be within the range of a single day");
         }
 
         public TimeToken()
