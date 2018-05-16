@@ -61,6 +61,8 @@ namespace HisRoyalRedness.com
 
             switch (typeof(TToken).Name)
             {
+                case nameof(TimeToken):
+                    return new TimeToken(TypedValue.TimeOfDay) as TToken;
                 default:
                     return null;
             }

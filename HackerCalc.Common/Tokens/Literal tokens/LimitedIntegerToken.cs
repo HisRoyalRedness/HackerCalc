@@ -232,6 +232,7 @@ namespace HisRoyalRedness.com
             public override int GetHashCode() => IsSigned ? -(int)BitWidth : (int)BitWidth;
 
             string DisplayString => $"{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
+            public override string ToString() => DisplayString;
         }
         #endregion SignAndBitWidthPair
 

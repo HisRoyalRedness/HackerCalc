@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HisRoyalRedness.com"
         xmlns:common="clr-namespace:HisRoyalRedness.com;assembly=HackerCalc.Common"
+        xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="HackerCalc" Height="450" Width="800">
 
@@ -18,25 +19,47 @@
                 <Setter Property="Margin" Value="2" />
             </Style>
 
+            <Style TargetType="TextBlock" x:Key="AnswerField">
+                <Setter Property="FontSize" Value="20" />
+            </Style>
+
             <local:LiteralTokenToValueConverter x:Key="LiteralTokenToValue" />
             <local:LiteralTokenToTypeConverter x:Key="LiteralTokenToType" />
+            <local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />
             <local:NullConverter x:Key="Null" />
 
             <DataTemplate DataType="{x:Type common:LimitedIntegerToken}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock 
+                        Style="{StaticResource AnswerField}"
+                        Text="{Binding TypedValue}" />
+                </Grid>
+            </DataTemplate>
+            
+            <DataTemplate DataType="{x:Type common:UnlimitedIntegerToken}">
                 <TextBlock Text="{Binding TypedValue}" />
             </DataTemplate>
-            <DataTemplate DataType="{x:Type common:UnlimitedIntegerToken}">
-                <TextBlock Text="UnlimitedIntegerToken" />
-            </DataTemplate>
+            
             <DataTemplate DataType="{x:Type common:FloatToken}">
                 <TextBlock Text="FloatToken" />
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type common:DateToken}">
                 <TextBlock Text="DateToken" />
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type common:TimeToken}">
                 <TextBlock Text="TimeToken" />
             </DataTemplate>
+            
             <DataTemplate DataType="{x:Type common:TimespanToken}">
                 <TextBlock Text="TimespanToken" />
             </DataTemplate>
@@ -51,6 +74,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
 
@@ -59,32 +85,65 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Equation: " />
+        <TextBlock 
+            Text="Equation: " />
         <TextBox 
             Text="{Binding Equation, UpdateSourceTrigger=PropertyChanged}" 
             Grid.Row="0" Grid.Column="1" />
 
-        <TextBlock 
-            Text="Evalution: "
-            Grid.Row="1"/>
-        <TextBlock 
-            Text="{Binding Evaluation, Converter={StaticResource LiteralTokenToValue}}" 
-            Grid.Row="1" Grid.Column="1" />
+        <RichTextBox
+            FontFamily="Calibri"
+            IsReadOnly="True"
+            Grid.Row="1" Grid.Column="1">
+            <FlowDocument FontSize="40">
+                <Paragraph>
+                    <Run 
+                        Text="{Binding Evaluation, Mode=OneWay, Converter={StaticResource LiteralTokenToValue}}" />
+                    <Run
+                        FontSize="20"
+                        BaselineAlignment="Subscript"
+                        Foreground="#aaaaaa"
+                        Text="{Binding Evaluation, Mode=OneWay, Converter={StaticResource LiteralTokenToType}}" />
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
 
-        <TextBlock 
-            Text="Data type: "
-            Grid.Row="2"/>
-        <ContentPresenter 
-            Content="{Binding Evaluation}"
-            Grid.Row="2" Grid.Column="1">
-        </ContentPresenter>
+        <!--<xceed:RichTextBox
+            FontFamily="Calibri"
+            IsReadOnly="True"
+            Text="{Binding Evaluation, Converter={StaticResource LiteralTokenToXaml}}"
+            Grid.Row="1" Grid.Column="1">
+            <xceed:RichTextBox.TextFormatter>
+                <xceed:XamlFormatter />
+            </xceed:RichTextBox.TextFormatter>
+        </xceed:RichTextBox>-->
 
         <TextBlock
+            Text="Hex"
+            Grid.Row="2" Grid.Column="0" />
+        <TextBlock
+            Grid.Row="2" Grid.Column="1" />
+
+        <TextBlock
+            Text="Dec"
+            Grid.Row="3" Grid.Column="0" />
+        <TextBlock
+            Text="{Binding DecValue}"
+            Grid.Row="3" Grid.Column="1" />
+
+        <TextBlock
+            Text="Oct"
+            Grid.Row="4" Grid.Column="0" />
+        <TextBlock
+            Grid.Row="4" Grid.Column="1" />
+
+       
+        <TextBlock
             Text="Errors: " 
-            Grid.Row="3"/>
+            Grid.Row="5"/>
         <TextBlock 
             Text="{Binding Errors}" 
-            Grid.Row="3" Grid.Column="1" />
+            Grid.Row="5" Grid.Column="1" />
 
 
     </Grid>
