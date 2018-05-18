@@ -56,6 +56,47 @@ namespace HisRoyalRedness.com
         }
     }
 
+    public static class EnumerableExtensions
+    {
+        public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> collection, int batchSize)
+        {
+            var nextbatch = new List<T>(batchSize);
+            foreach (T item in collection)
+            {
+                nextbatch.Add(item);
+                if (nextbatch.Count == batchSize)
+                {
+                    yield return nextbatch.ToArray();
+                    nextbatch = new List<T>(batchSize);
+                }
+            }
+            if (nextbatch.Count > 0)
+                yield return nextbatch.ToArray();
+        }
+    }
+
+
+    public static class StringExtensions
+    {
+        public static string BatchWithDelim(this string data, int batchSize, string delim = " ")
+            => BatchWithDelim(data, batchSize, delim, false, ' ');
+        public static string BatchWithDelim(this string data, int batchSize, string delim, char padChar)
+            => BatchWithDelim(data, batchSize, delim, true, padChar);
+
+        static string BatchWithDelim(this string data, int batchSize, string delim, bool pad, char padChar)
+            => new string(
+            string.Join(delim,
+                (data ?? "").Trim()
+                .Reverse()
+                .Batch(batchSize)
+                .Select(b => 
+                    b.Length < batchSize && pad
+                        ? new string(padChar, (batchSize - b.Length)) + new string(b)
+                        : new string(b)))
+            .Reverse()
+            .ToArray());
+    }
+
     public static class BigIntegerExtensions
     {
         public static BigInteger BigIntegerFromBinary(this string value)
@@ -74,5 +115,41 @@ namespace HisRoyalRedness.com
             }
             return res;
         }
+
+        public static string ToHexadecimalString(this BigInteger bigint, bool showSign = false)
+            => BigInteger.Abs(bigint).ToString("X").TrimStart('0').AddSign(showSign && bigint < 0);
+
+        public static string ToDecimalString(this BigInteger bigint, bool showSign = false)
+            => BigInteger.Abs(bigint).ToString().AddSign(showSign && bigint < 0);
+
+        public static string ToOctalString(this BigInteger bigint, bool showSign = false)
+        {
+            var absInt = BigInteger.Abs(bigint);
+            var digits = new List<int>(10);
+            while(absInt > 0)
+            {
+                digits.Add((int)(absInt & 0x7));
+                absInt >>= 3;
+            }
+            return new string(digits.Reverse<int>().Select(i => (char)(i + 0x30)).ToArray()).AddSign(showSign && bigint < 0);
+        }
+
+        public static bool[] ToBinaryArray(this BigInteger bigint)
+        {
+            var absInt = BigInteger.Abs(bigint);
+            var digits = new List<bool>(64);
+            while (absInt > 0)
+            {
+                digits.Add((absInt & 1) == BigInteger.One);
+                absInt >>= 1;
+            }
+            return digits.Reverse<bool>().ToArray();
+        }
+
+        public static string ToBinaryString(this BigInteger bigint, bool showSign = false)
+            => new string(ToBinaryArray(bigint).Select(b => b ? '1' : '0').ToArray()).AddSign(showSign && bigint < 0);
+
+        static string AddSign(this string numString, bool addSign)
+            => addSign ? $"-{numString}" : numString;
     }
 }

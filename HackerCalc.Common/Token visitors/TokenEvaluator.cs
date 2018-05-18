@@ -918,8 +918,8 @@ namespace HisRoyalRedness.com
 
     public static class TokenEvaluatorExtensions
     {
-        public static IToken Evaluate(this IToken token, EvaluatorSettings settings = null)
-            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings()));
+        public static ILiteralToken Evaluate(this IToken token, EvaluatorSettings settings = null)
+            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings())) as ILiteralToken;
     }
 
     public class EvaluatorSettings

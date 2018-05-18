@@ -125,5 +125,12 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
+
+        #region Other number bases
+        public override string ToHex() => TypedValue.ToHexadecimalString().BatchWithDelim(4);
+        public override string ToDec() => TypedValue.ToString().BatchWithDelim(3, ",");
+        public override string ToOct() => TypedValue.ToOctalString().BatchWithDelim(3);
+        public override string ToBin() => TypedValue.ToBinaryString().BatchWithDelim(4);
+        #endregion Other number bases
     }
 }

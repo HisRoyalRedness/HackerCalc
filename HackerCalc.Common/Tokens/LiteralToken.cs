@@ -59,6 +59,11 @@ namespace HisRoyalRedness.com
         ILiteralToken NumericNegate();
         ILiteralToken BitwiseNegate();
         ILiteralToken CastTo(TokenDataType dataType);
+
+        string ToHex();
+        string ToDec();
+        string ToOct();
+        string ToBin();
     }
 
     public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable, IComparable<TTypedToken>
@@ -86,6 +91,11 @@ namespace HisRoyalRedness.com
 
         public virtual ILiteralToken NumericNegate() { throw new InvalidOperationException($"Numeric negation is not supported by {typeof(TTypedToken).Name}."); }
         public virtual ILiteralToken BitwiseNegate() { throw new InvalidOperationException($"Bitwise negation is not supported by {typeof(TTypedToken).Name}."); }
+
+        public abstract string ToHex();
+        public abstract string ToDec();
+        public abstract string ToOct();
+        public abstract string ToBin();
 
         #region Casting
         protected virtual TToken InternalCastTo<TToken>()

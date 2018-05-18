@@ -193,6 +193,13 @@ namespace HisRoyalRedness.com
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
 
+        #region Other number bases
+        public override string ToHex() => TypedValue.ToHexadecimalString().PadLeft((int)BitWidth / 4, '0').BatchWithDelim(4);
+        public override string ToDec() => TypedValue.ToString().BatchWithDelim(3, ",");
+        public override string ToOct() => TypedValue.ToOctalString().PadLeft(((int)BitWidth - 1) / 3 + 1, '0').BatchWithDelim(3);
+        public override string ToBin() => TypedValue.ToBinaryString().PadLeft((int)BitWidth, '0').BatchWithDelim(4);
+        #endregion Other number bases
+
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;
         public IntegerBitWidth BitWidth => SignAndBitWidth.BitWidth;

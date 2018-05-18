@@ -84,5 +84,12 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => $"{TypedValue:0.000}";
         #endregion ToString
+
+        #region Other number bases
+        public override string ToHex() => string.Empty;
+        public override string ToDec() => string.Empty;
+        public override string ToOct() => string.Empty;
+        public override string ToBin() => string.Empty;
+        #endregion Other number bases
     }
 }

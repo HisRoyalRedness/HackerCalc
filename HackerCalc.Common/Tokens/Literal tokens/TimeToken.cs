@@ -76,5 +76,12 @@ namespace HisRoyalRedness.com
         #region Comparison
         public override int CompareTo(TimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
+
+        #region Other number bases
+        public override string ToHex() => string.Empty;
+        public override string ToDec() => string.Empty;
+        public override string ToOct() => string.Empty;
+        public override string ToBin() => string.Empty;
+        #endregion Other number bases
     }
 }

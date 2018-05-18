@@ -9,6 +9,8 @@ namespace HisRoyalRedness.com
 {
     public class AppVM : NotifyBase
     {
+        public OtherBasesVM OtherBases { get; } = new OtherBasesVM();
+
         public string Equation
         {
             get => _equation;
@@ -20,33 +22,12 @@ namespace HisRoyalRedness.com
         }
         string _equation = default(string);
 
-        public IToken Evaluation
+        public ILiteralToken Evaluation
         {
             get => _evaluationToken;
             private set { SetProperty(ref _evaluationToken, value); }
         }
-        IToken _evaluationToken = null;
-
-        public string HexValue
-        {
-            get => _hexValue;
-            private set { SetProperty(ref _hexValue, value); }
-        }
-        string _hexValue = "";
-
-        public string DecValue
-        {
-            get => _decValue;
-            private set { SetProperty(ref _decValue, value); }
-        }
-        string _decValue = "";
-
-        public string OctValue
-        {
-            get => _octValue;
-            private set { SetProperty(ref _octValue, value); }
-        }
-        string _octValue = "";
+        ILiteralToken _evaluationToken = null;
 
         public string Errors
         {
@@ -62,36 +43,11 @@ namespace HisRoyalRedness.com
             {
                 Evaluation = Parser.ParseExpression(expression)?.Evaluate();
                 Errors = Evaluation == null ? "Error" : string.Empty;
-                switch (Evaluation?.GetType()?.Name)
-                {
-                    case nameof(LimitedIntegerToken):
-                        SetBaseNumbers(((LimitedIntegerToken)Evaluation).TypedValue);
-                        break;
-
-                    case nameof(UnlimitedIntegerToken):
-                        SetBaseNumbers(((UnlimitedIntegerToken)Evaluation).TypedValue);
-                        break;
-
-                    default:
-                        SetBaseNumbers(null);
-                        break;
-                }
+                OtherBases.Token = Evaluation;
             }
             catch (ApplicationException aex)
             {
                 Errors = aex.Message;
-            }
-        }
-
-        void SetBaseNumbers(BigInteger? value)
-        {
-            if (value == null)
-            {
-                DecValue = "";
-            }
-            else
-            {
-                DecValue = value.Value.ToString();
             }
         }
     }

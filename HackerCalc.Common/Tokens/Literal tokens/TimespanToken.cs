@@ -101,5 +101,12 @@ namespace HisRoyalRedness.com
         string LongStringPortions(int value, string singular)
             => value == 1 ? $"1 {singular}" : $"{value} {singular}s";
         #endregion ToString
+
+        #region Other number bases
+        public override string ToHex() => string.Empty;
+        public override string ToDec() => string.Empty;
+        public override string ToOct() => string.Empty;
+        public override string ToBin() => string.Empty;
+        #endregion Other number bases
     }
 }

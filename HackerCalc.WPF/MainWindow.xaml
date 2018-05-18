@@ -26,6 +26,7 @@
             <local:LiteralTokenToValueConverter x:Key="LiteralTokenToValue" />
             <local:LiteralTokenToTypeConverter x:Key="LiteralTokenToType" />
             <local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />
+            <local:HiddenIfEmptyConverter x:Key="HiddenIfEmpty" />
             <local:NullConverter x:Key="Null" />
 
             <DataTemplate DataType="{x:Type common:LimitedIntegerToken}">
@@ -108,42 +109,44 @@
             </FlowDocument>
         </RichTextBox>
 
-        <!--<xceed:RichTextBox
-            FontFamily="Calibri"
-            IsReadOnly="True"
-            Text="{Binding Evaluation, Converter={StaticResource LiteralTokenToXaml}}"
-            Grid.Row="1" Grid.Column="1">
-            <xceed:RichTextBox.TextFormatter>
-                <xceed:XamlFormatter />
-            </xceed:RichTextBox.TextFormatter>
-        </xceed:RichTextBox>-->
-
         <TextBlock
             Text="Hex"
-            Grid.Row="2" Grid.Column="0" />
-        <TextBlock
+            Grid.Row="2" Grid.Column="0" />        
+        <local:NumberBase
+            Token="{Binding Evaluation, Mode=OneWay}"
+            Base="16"
             Grid.Row="2" Grid.Column="1" />
 
         <TextBlock
             Text="Dec"
             Grid.Row="3" Grid.Column="0" />
-        <TextBlock
-            Text="{Binding DecValue}"
+        <local:NumberBase
+            Token="{Binding Evaluation, Mode=OneWay}"
+            Base="10"
             Grid.Row="3" Grid.Column="1" />
 
         <TextBlock
             Text="Oct"
             Grid.Row="4" Grid.Column="0" />
-        <TextBlock
+        <local:NumberBase
+            Token="{Binding Evaluation, Mode=OneWay}"
+            Base="8"
             Grid.Row="4" Grid.Column="1" />
 
-       
+        <TextBlock
+            Text="Bin"
+            Grid.Row="5" Grid.Column="0" />
+        <local:NumberBase
+            Token="{Binding Evaluation, Mode=OneWay}"
+            Base="2"
+            Grid.Row="5" Grid.Column="1" />
+
         <TextBlock
             Text="Errors: " 
-            Grid.Row="5"/>
+            Grid.Row="6"/>
         <TextBlock 
             Text="{Binding Errors}" 
-            Grid.Row="5" Grid.Column="1" />
+            Grid.Row="6" Grid.Column="1" />
 
 
     </Grid>
