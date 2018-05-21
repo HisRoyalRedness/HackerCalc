@@ -153,6 +153,20 @@ namespace HisRoyalRedness.com
             => value;
     }
 
+    public class RelativeSizeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var val = value as double?;
+            return val.HasValue && double.TryParse((parameter as string ?? "1.0"), out double scale)
+                ? (val * scale).ToString()
+                : null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => new NotSupportedException();
+    }
+
     public class NullConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

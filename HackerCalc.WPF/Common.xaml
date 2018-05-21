@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:System="clr-namespace:System;assembly=mscorlib"
+                    xmlns:local="clr-namespace:HisRoyalRedness.com">
+
+    <System:Double x:Key="DefaultRichTextFontSize">18.0</System:Double>
+    <System:Double x:Key="SubscriptRichTextFontSize">10</System:Double>
+    <System:Double x:Key="EvaluationRichTextFontSize">40</System:Double>
+    <System:String x:Key="SubscriptRatio">0.6</System:String>
+
+    <SolidColorBrush Color="#999999" x:Key="SubscriptForeground" />
+    <FontFamily x:Key="DefaultFontFamily">Calibri</FontFamily>
+    
+    <Style TargetType="RichTextBox">
+        <Setter Property="FontSize" Value="{StaticResource DefaultRichTextFontSize}" />
+        <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+        <Setter Property="IsReadOnly" Value="True" />
+    </Style>
+
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+    </Style>    
+    
+    <local:LiteralTokenToValueConverter x:Key="LiteralTokenToValue" />
+    <local:LiteralTokenToTypeConverter x:Key="LiteralTokenToType" />
+    <local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />
+    <local:HiddenIfEmptyConverter x:Key="HiddenIfEmpty" />
+    <local:RelativeSizeConverter x:Key="RelativeSize" />
+    <local:NullConverter x:Key="Null" />
+
+</ResourceDictionary>

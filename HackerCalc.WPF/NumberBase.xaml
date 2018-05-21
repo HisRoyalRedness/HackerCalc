@@ -7,15 +7,22 @@
              mc:Ignorable="d"
              d:DesignHeight="50" d:DesignWidth="100">
 
-    <RichTextBox
-        FontFamily="Calibri"
-        IsReadOnly="True">
-        <FlowDocument FontSize="18">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Common.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <RichTextBox>
+        <FlowDocument>
             <Paragraph>
-                <Run x:Name="numRun" />
+                <Run 
+                    x:Name="numRun" />
                 <Run
-                    FontSize="10"
-                    Foreground="#999999"
+                    FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType={x:Type Paragraph}}, Converter={StaticResource RelativeSize}, ConverterParameter={StaticResource SubscriptRatio}}"
+                    Foreground="{StaticResource SubscriptForeground}"
                     BaselineAlignment="Subscript"
                     x:Name="baseRun" />
             </Paragraph>
