@@ -12,7 +12,7 @@ namespace HisRoyalRedness.com
     using BinaryOperandTypeMap = Dictionary<TokenEvaluator.OperandTypePair, TokenEvaluator.OperandTypePair>;
     using BinaryOperandResultTypeMap = Dictionary<TokenEvaluator.OperandTypePair, TokenDataType>;
 
-    public interface ILiteralTokenEval : ILiteralToken
+    public interface ILiteralTokenEval : IOldLiteralToken
     {
         // Returns true if we have an incomplete equation, and this token
         // is the last token that we can evaluate
@@ -63,7 +63,7 @@ namespace HisRoyalRedness.com
                 return null;
 #endif
 
-            if (token is ILiteralToken)
+            if (token is IOldLiteralToken)
                 return token;
 
             else if (token is IOperatorToken)
@@ -72,7 +72,7 @@ namespace HisRoyalRedness.com
 
                 if (opToken.IsUnary)
                 {
-                    var litToken = Visit(opToken.Left) as ILiteralToken;
+                    var litToken = Visit(opToken.Left) as IOldLiteralToken;
 
                     switch (opToken.Operator)
                     {
@@ -81,7 +81,7 @@ namespace HisRoyalRedness.com
                                 var castOp = opToken as CastOperatorToken;
                                 var castToken = litToken.CastTo(castOp.CastToType);
                                 return castOp.CastToType == TokenDataType.LimitedInteger
-                                    ? (castToken as LimitedIntegerToken).Upcast(castOp.BitWidth, castOp.IsSigned)
+                                    ? (castToken as OldLimitedIntegerToken).Upcast(castOp.BitWidth, castOp.IsSigned)
                                     : castToken;
                             }
 
@@ -98,8 +98,8 @@ namespace HisRoyalRedness.com
                 else
                 {
                     var pair = new TokenPair(
-                        Visit(opToken.Left) as ILiteralToken,
-                        Visit(opToken.Right) as ILiteralToken);
+                        Visit(opToken.Left) as IOldLiteralToken,
+                        Visit(opToken.Right) as IOldLiteralToken);
 
 #if INCOMPLETE_EQ
                     // If the expression is only partially entered, try calculate the value 
@@ -151,34 +151,34 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.Date:
                         if (pair.Right.DataType == TokenDataType.Timespan)
-                            return ((DateToken)pair.Left) + ((TimespanToken)pair.Right);
+                            return ((OldDateToken)pair.Left) + ((OldTimespanToken)pair.Right);
                         break;
                     case TokenDataType.Float:
                         if (pair.Right.DataType == TokenDataType.Float)
-                            return ((FloatToken)pair.Left) + ((FloatToken)pair.Right);
+                            return ((OldFloatToken)pair.Left) + ((OldFloatToken)pair.Right);
                         break;
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left) + ((LimitedIntegerToken)pair.Right);
+                            return ((OldLimitedIntegerToken)pair.Left) + ((OldLimitedIntegerToken)pair.Right);
                         break;
                     case TokenDataType.Time:
                         if (pair.Right.DataType == TokenDataType.Timespan)
-                            return ((TimeToken)pair.Left) + ((TimespanToken)pair.Right);
+                            return ((OldTimeToken)pair.Left) + ((OldTimespanToken)pair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (pair.Right.DataType)
                         {
                             case TokenDataType.Date:
-                                return ((DateToken)pair.Right) + ((TimespanToken)pair.Left);
+                                return ((OldDateToken)pair.Right) + ((OldTimespanToken)pair.Left);
                             case TokenDataType.Time:
-                                return ((TimespanToken)pair.Left) + ((TimeToken)pair.Right);
+                                return ((OldTimespanToken)pair.Left) + ((OldTimeToken)pair.Right);
                             case TokenDataType.Timespan:
-                                return ((TimespanToken)pair.Left) + ((TimespanToken)pair.Right);
+                                return ((OldTimespanToken)pair.Left) + ((OldTimespanToken)pair.Right);
                         }
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left) + ((UnlimitedIntegerToken)pair.Right);
+                            return ((OldUnlimitedIntegerToken)pair.Left) + ((OldUnlimitedIntegerToken)pair.Right);
                         break;
                 }
             return null;
@@ -256,35 +256,35 @@ namespace HisRoyalRedness.com
                         switch (pair.Right.DataType)
                         {
                             case TokenDataType.Timespan:
-                                return ((DateToken)pair.Left) - ((TimespanToken)pair.Right);
+                                return ((OldDateToken)pair.Left) - ((OldTimespanToken)pair.Right);
                             case TokenDataType.Date:
-                                return ((DateToken)pair.Left) - ((DateToken)pair.Right);
+                                return ((OldDateToken)pair.Left) - ((OldDateToken)pair.Right);
                         }
                         break;
                     case TokenDataType.Float:
                         if (pair.Right.DataType == TokenDataType.Float)
-                            return ((FloatToken)pair.Left) - ((FloatToken)pair.Right);
+                            return ((OldFloatToken)pair.Left) - ((OldFloatToken)pair.Right);
                         break;
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left) - ((LimitedIntegerToken)pair.Right);
+                            return ((OldLimitedIntegerToken)pair.Left) - ((OldLimitedIntegerToken)pair.Right);
                         break;
                     case TokenDataType.Time:
                         if (pair.Right.DataType == TokenDataType.Timespan)
-                            return ((TimeToken)pair.Left) - ((TimespanToken)pair.Right);
+                            return ((OldTimeToken)pair.Left) - ((OldTimespanToken)pair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (pair.Right.DataType)
                         {
                             case TokenDataType.Date:
-                                return ((DateToken)pair.Right) - ((TimespanToken)pair.Left);
+                                return ((OldDateToken)pair.Right) - ((OldTimespanToken)pair.Left);
                             case TokenDataType.Timespan:
-                                return ((TimespanToken)pair.Left) - ((TimespanToken)pair.Right);
+                                return ((OldTimespanToken)pair.Left) - ((OldTimespanToken)pair.Right);
                         }
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left) - ((UnlimitedIntegerToken)pair.Right);
+                            return ((OldUnlimitedIntegerToken)pair.Left) - ((OldUnlimitedIntegerToken)pair.Right);
                         break;
                 }
             }
@@ -364,22 +364,22 @@ namespace HisRoyalRedness.com
                         switch (pair.Right.DataType)
                         {
                             case TokenDataType.Float:
-                                return ((FloatToken)pair.Left) * ((FloatToken)pair.Right);
+                                return ((OldFloatToken)pair.Left) * ((OldFloatToken)pair.Right);
                             case TokenDataType.Timespan:
-                                return ((FloatToken)pair.Left) * ((TimespanToken)pair.Right);
+                                return ((OldFloatToken)pair.Left) * ((OldTimespanToken)pair.Right);
                         }
                         break;
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left) * ((LimitedIntegerToken)pair.Right);
+                            return ((OldLimitedIntegerToken)pair.Left) * ((OldLimitedIntegerToken)pair.Right);
                         break;
                     case TokenDataType.Timespan:
                         if (pair.Right.DataType == TokenDataType.Float)
-                            return ((TimespanToken)pair.Left) * ((FloatToken)pair.Right);
+                            return ((OldTimespanToken)pair.Left) * ((OldFloatToken)pair.Right);
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left) * ((UnlimitedIntegerToken)pair.Right);
+                            return ((OldUnlimitedIntegerToken)pair.Left) * ((OldUnlimitedIntegerToken)pair.Right);
                         break;
                 }
             }
@@ -453,24 +453,24 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.Float:
                         if (pair.Right.DataType == TokenDataType.Float)
-                            return ((FloatToken)pair.Left) / ((FloatToken)pair.Right);
+                            return ((OldFloatToken)pair.Left) / ((OldFloatToken)pair.Right);
                         break;
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left) / ((LimitedIntegerToken)pair.Right);
+                            return ((OldLimitedIntegerToken)pair.Left) / ((OldLimitedIntegerToken)pair.Right);
                         break;
                     case TokenDataType.Timespan:
                         switch (pair.Right.DataType)
                         {
                             case TokenDataType.Float:
-                                return ((TimespanToken)pair.Left) / ((FloatToken)pair.Right);
+                                return ((OldTimespanToken)pair.Left) / ((OldFloatToken)pair.Right);
                             case TokenDataType.Timespan:
-                                return ((TimespanToken)pair.Left) / ((TimespanToken)pair.Right);
+                                return ((OldTimespanToken)pair.Left) / ((OldTimespanToken)pair.Right);
                         }
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left) / ((UnlimitedIntegerToken)pair.Right);
+                            return ((OldUnlimitedIntegerToken)pair.Left) / ((OldUnlimitedIntegerToken)pair.Right);
                         break;
                 }
             }
@@ -543,15 +543,15 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left).LeftShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldLimitedIntegerToken)pair.Left).LeftShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         else if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left).LeftShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldLimitedIntegerToken)pair.Left).LeftShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left).LeftShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldUnlimitedIntegerToken)pair.Left).LeftShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         else if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left).LeftShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldUnlimitedIntegerToken)pair.Left).LeftShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         break;
                 }
             return null;
@@ -613,15 +613,15 @@ namespace HisRoyalRedness.com
                 {
                     case TokenDataType.LimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left).RightShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldLimitedIntegerToken)pair.Left).RightShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         else if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((LimitedIntegerToken)pair.Left).RightShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldLimitedIntegerToken)pair.Left).RightShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         break;
                     case TokenDataType.UnlimitedInteger:
                         if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left).RightShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldUnlimitedIntegerToken)pair.Left).RightShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         else if (pair.Right.DataType == TokenDataType.UnlimitedInteger)
-                            return ((UnlimitedIntegerToken)pair.Left).RightShift((int)((LimitedIntegerToken)pair.Right).TypedValue);
+                            return ((OldUnlimitedIntegerToken)pair.Left).RightShift((int)((OldLimitedIntegerToken)pair.Right).TypedValue);
                         break;
                 }
             return null;
@@ -794,7 +794,7 @@ namespace HisRoyalRedness.com
         #region TokenPair
         public class TokenPair
         {
-            public TokenPair(ILiteralToken left, ILiteralToken right)
+            public TokenPair(IOldLiteralToken left, IOldLiteralToken right)
             {
                 if (left == null)
                     throw new ArgumentNullException(nameof(left));
@@ -807,8 +807,8 @@ namespace HisRoyalRedness.com
                 Right = right;
             }
 
-            public ILiteralToken Left { get; set; }
-            public ILiteralToken Right { get; set; }
+            public IOldLiteralToken Left { get; set; }
+            public IOldLiteralToken Right { get; set; }
 
             public OperandTypePair TypesFromMap(BinaryOperandTypeMap map)
             {
@@ -918,8 +918,8 @@ namespace HisRoyalRedness.com
 
     public static class TokenEvaluatorExtensions
     {
-        public static ILiteralToken Evaluate(this IToken token, EvaluatorSettings settings = null)
-            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings())) as ILiteralToken;
+        public static IOldLiteralToken Evaluate(this IToken token, EvaluatorSettings settings = null)
+            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings())) as IOldLiteralToken;
     }
 
     public class EvaluatorSettings

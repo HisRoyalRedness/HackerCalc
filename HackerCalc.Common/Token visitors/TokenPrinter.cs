@@ -75,8 +75,8 @@ namespace HisRoyalRedness.com
                     break;
 
                 default:
-                    if (typeof(ILiteralToken).IsAssignableFrom(token.GetType()))
-                        sb.Append($"{((ILiteralToken)token).ObjectValue} ");
+                    if (typeof(IOldLiteralToken).IsAssignableFrom(token.GetType()))
+                        sb.Append($"{((IOldLiteralToken)token).ObjectValue} ");
 
                     else
                         throw new UnrecognisedTokenException($"Unrecognised token type {token.GetType().Name}");

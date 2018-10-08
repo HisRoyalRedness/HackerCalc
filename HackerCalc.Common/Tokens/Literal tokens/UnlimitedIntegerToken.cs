@@ -1,106 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Numerics;
 using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+/*
+    UnlimitedIntegerToken
+
+        Literals that are parsed from input, and determined to not be
+        bound by any particular bitwidth. They could in theory be infinite.
+
+    Keith Fletcher
+    Oct 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
 
 namespace HisRoyalRedness.com
 {
     public class UnlimitedIntegerToken : LiteralToken<BigInteger, UnlimitedIntegerToken>
     {
         #region Constructors
-        public UnlimitedIntegerToken(BigInteger typedValue)
-            : base(TokenDataType.UnlimitedInteger, typedValue)
+        public UnlimitedIntegerToken(BigInteger typedValue, bool isNeg, string rawToken)
+            : base(LiteralTokenType.UnlimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken)
         { }
-
-        UnlimitedIntegerToken(BigInteger typedValue, bool isNeg)
-            : this(isNeg ? typedValue * -1 : typedValue)
-        { }
-
         #endregion Constructors
 
         #region Parsing
-        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg = false)
+        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg)
         {
             switch (numBase)
             {
                 case IntegerBase.Binary:
-                    return new UnlimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), isNeg);
+                    return new UnlimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), isNeg, $"{(isNeg ? "-" : "")}{value}");
+                case IntegerBase.Octal:
+                    return new UnlimitedIntegerToken(value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(), isNeg, $"{(isNeg ? "-" : "")}{value}");
                 case IntegerBase.Decimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), isNeg);
+                    return new UnlimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), isNeg, $"{(isNeg ? "-" : "")}{value}");
                 case IntegerBase.Hexadecimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isNeg);
+                    return new UnlimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isNeg, $"{(isNeg ? "-" : "")}{value}");
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
         }
         #endregion Parsing
-
-        #region Operator overloads
-        public static UnlimitedIntegerToken operator +(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
-            => new UnlimitedIntegerToken(a.TypedValue + b.TypedValue);
-        public static UnlimitedIntegerToken operator -(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
-            => new UnlimitedIntegerToken(a.TypedValue - b.TypedValue);
-        public static UnlimitedIntegerToken operator *(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
-            => new UnlimitedIntegerToken(a.TypedValue * b.TypedValue);
-        public static UnlimitedIntegerToken operator /(UnlimitedIntegerToken a, UnlimitedIntegerToken b)
-            => new UnlimitedIntegerToken(a.TypedValue / b.TypedValue);
-        #endregion Operator overloads
-
-        public override ILiteralToken NumericNegate()
-            => new UnlimitedIntegerToken(TypedValue * -1);
-
-        public override ILiteralToken BitwiseNegate()
-            => throw new InvalidOperationException($"{nameof(UnlimitedIntegerToken)} does not support {nameof(BitwiseNegate)}, as it doesn't have a fixed bit width.");
-
-        public UnlimitedIntegerToken LeftShift(int shift)
-            => new UnlimitedIntegerToken(TypedValue << shift);
-
-        public UnlimitedIntegerToken RightShift(int shift)
-            => new UnlimitedIntegerToken(TypedValue >> shift);
-
-        #region Casting
-        protected override TToken InternalCastTo<TToken>()
-        {
-            if (typeof(TToken).Name == GetType().Name)
-                return this as TToken;
-
-            switch (typeof(TToken).Name)
-            {
-                case nameof(FloatToken):
-                    return new FloatToken((double)TypedValue) as TToken;
-
-                case nameof(LimitedIntegerToken):
-                    {
-                        if (TypedValue < 0)
-                        {
-                            foreach (var signAndBitwidth in EnumExtensions.GetEnumCollection<LimitedIntegerToken.IntegerBitWidth>().Select(bw => new LimitedIntegerToken.BitWidthAndSignPair(bw, true)))
-                                if (TypedValue >= LimitedIntegerToken.MinValue(signAndBitwidth))
-                                    return new LimitedIntegerToken(TypedValue, signAndBitwidth.BitWidth, signAndBitwidth.IsSigned) as TToken;
-                        }
-                        else
-                        {
-                            foreach (var bw in EnumExtensions.GetEnumCollection<LimitedIntegerToken.IntegerBitWidth>())
-                                foreach (var signAndBitwidth in new[] { true, false }.Select(s => new LimitedIntegerToken.BitWidthAndSignPair(bw, s)))
-                                    if (TypedValue <= LimitedIntegerToken.MaxValue(signAndBitwidth))
-                                        return new LimitedIntegerToken(TypedValue, signAndBitwidth.BitWidth, signAndBitwidth.IsSigned) as TToken;
-                        }
-                        throw new IntegerOverflowException($"The value '{TypedValue}' is out of range of {nameof(LimitedIntegerToken)}");
-                    }
-
-                case nameof(TimespanToken):
-                    return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(TimeToken):
-                    return new TimeToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(DateToken):
-                    return new DateToken(DateTime.Now.Date + TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                default:
-                    return null;
-            }
-        }
-        #endregion Casting
 
         #region Equality
         public override bool Equals(object obj) => Equals(obj as UnlimitedIntegerToken);
@@ -125,12 +71,32 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
-
-        #region Other number bases
-        public override string ToHex() => TypedValue.ToHexadecimalString().BatchWithDelim(4);
-        public override string ToDec() => TypedValue.ToString().BatchWithDelim(3, ",");
-        public override string ToOct() => TypedValue.ToOctalString().BatchWithDelim(3);
-        public override string ToBin() => TypedValue.ToBinaryString().BatchWithDelim(4);
-        #endregion Other number bases
     }
 }
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

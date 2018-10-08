@@ -8,58 +8,15 @@ namespace HisRoyalRedness.com
     public class FloatToken : LiteralToken<double, FloatToken>
     {
         #region Constructors
-        public FloatToken(double typedValue)
-            : base(TokenDataType.Float, typedValue)
+        public FloatToken(double typedValue, string rawToken = null)
+            : base(LiteralTokenType.Float, typedValue, rawToken)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static FloatToken Parse(string value, bool isNeg = false)
-            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value));
+        public static FloatToken Parse(string value, bool isNeg, string rawToken)
+            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}");
         #endregion Parsing
-
-        #region Operator overloads
-        public static FloatToken operator +(FloatToken a, FloatToken b)
-            => new FloatToken(a.TypedValue + b.TypedValue);
-        public static FloatToken operator -(FloatToken a, FloatToken b)
-            => new FloatToken(a.TypedValue - b.TypedValue);
-        public static FloatToken operator *(FloatToken a, FloatToken b)
-            => new FloatToken(a.TypedValue * b.TypedValue);
-        public static FloatToken operator /(FloatToken a, FloatToken b)
-            => new FloatToken(a.TypedValue / b.TypedValue);
-        #endregion Operator overloads
-
-        public override ILiteralToken NumericNegate()
-            => new FloatToken(TypedValue * -1.0);
-
-        #region Casting
-        protected override TToken InternalCastTo<TToken>()
-        {
-            if (typeof(TToken).Name == GetType().Name)
-                return this as TToken;
-
-            switch (typeof(TToken).Name)
-            {
-                case nameof(UnlimitedIntegerToken):
-                    return new UnlimitedIntegerToken(new BigInteger(TypedValue)) as TToken;
-
-                //case nameof(LimitedIntegerToken):
-                //    return new LimitedIntegerToken(new BigInteger(TypedValue)) as TToken;
-
-                case nameof(TimespanToken):
-                    return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(TimeToken):
-                    return new TimeToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(DateToken):
-                    return new DateToken(DateTime.Now.Date + TimeSpan.FromSeconds(TypedValue)) as TToken;
-
-                default:
-                    return null;
-            }
-        }
-        #endregion Casting
 
         #region Equality
         public override bool Equals(object obj) => Equals(obj as FloatToken);
@@ -84,12 +41,5 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => $"{TypedValue:0.000}";
         #endregion ToString
-
-        #region Other number bases
-        public override string ToHex() => string.Empty;
-        public override string ToDec() => string.Empty;
-        public override string ToOct() => string.Empty;
-        public override string ToBin() => string.Empty;
-        #endregion Other number bases
     }
 }

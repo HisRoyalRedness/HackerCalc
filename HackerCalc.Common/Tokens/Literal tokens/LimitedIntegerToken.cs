@@ -3,33 +3,45 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Numerics;
 using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 
+/*
+    LimitedIntegerToken
+
+        Literals that are parsed from input, and determined to be integers
+        that have a bitwidth attached.
+
+    Keith Fletcher
+    Oct 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
 
 namespace HisRoyalRedness.com
 {
     public class LimitedIntegerToken : LiteralToken<BigInteger, LimitedIntegerToken>
     {
         #region Constructors
-        public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned)
-            : base(TokenDataType.LimitedInteger, typedValue)
+        public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken)
+            : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken)
         {
+            if (isNeg)
+                typedValue *= -1;
             SignAndBitWidth = new BitWidthAndSignPair(bitWidth, isSigned);
             var limit = _minAndMax[SignAndBitWidth];
             if (typedValue < limit.Min)
                 throw new ParseException($"{typedValue} is less than the minimum of {limit.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
             else if (typedValue > limit.Max)
                 throw new ParseException($"{typedValue} is greater than the maximum of {limit.Max} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
+
+            Min = _minAndMax[SignAndBitWidth].Min;
+            Max = _minAndMax[SignAndBitWidth].Max;
+            Mask = _minAndMax[SignAndBitWidth].Mask;
         }
-
-        LimitedIntegerToken(BigInteger typedValue, BitWidthAndSignPair signAndBitWidth)
-            : this(typedValue, signAndBitWidth.BitWidth, signAndBitWidth.IsSigned)
-        { }
-
-        LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg)
-            : this((isNeg ? typedValue * -1 : typedValue), bitWidth, isSigned)
-        { }
 
         static LimitedIntegerToken()
         {
@@ -43,18 +55,18 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, string bitWidth, bool isSigned, bool isNeg = false)
-            => Parse(value, numBase, ParseBitWidth(bitWidth), isSigned, isNeg);
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned,bool isNeg = false)
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken = null)
         {
             switch (numBase)
             {
                 case IntegerBase.Binary:
-                    return new LimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), bitWidth, isSigned, isNeg);
+                    return new LimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
+                case IntegerBase.Octal:
+                    return new LimitedIntegerToken(value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
                 case IntegerBase.Decimal:
-                    return new LimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), bitWidth, isSigned, isNeg);
+                    return new LimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
                 case IntegerBase.Hexadecimal:
-                    return new LimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), bitWidth, isSigned, isNeg);
+                    return new LimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
@@ -88,86 +100,10 @@ namespace HisRoyalRedness.com
                 case "(i128)":
                 case "(u128)":
                     return IntegerBitWidth._128;
-                default: throw new ArgumentOutOfRangeException("Invalid bit width");
+                default: throw new ParseException("Invalid bit width");
             }
         }
         #endregion Parsing
-
-        #region Operator overloads
-        public static LimitedIntegerToken operator +(LimitedIntegerToken a, LimitedIntegerToken b)
-            => new LimitedIntegerToken(a.TypedValue + b.TypedValue, Upcast(a.SignAndBitWidth, b.SignAndBitWidth));
-        public static LimitedIntegerToken operator -(LimitedIntegerToken a, LimitedIntegerToken b)
-            => new LimitedIntegerToken(a.TypedValue - b.TypedValue, Upcast(a.SignAndBitWidth, b.SignAndBitWidth));
-        public static LimitedIntegerToken operator *(LimitedIntegerToken a, LimitedIntegerToken b)
-            => new LimitedIntegerToken(a.TypedValue * b.TypedValue, Upcast(a.SignAndBitWidth, b.SignAndBitWidth));
-        public static LimitedIntegerToken operator /(LimitedIntegerToken a, LimitedIntegerToken b)
-            => new LimitedIntegerToken(a.TypedValue / b.TypedValue, Upcast(a.SignAndBitWidth, b.SignAndBitWidth));
-        #endregion Operator overloads
-
-        public override ILiteralToken NumericNegate()
-            => new LimitedIntegerToken(TypedValue * -1, SignAndBitWidth);
-
-        public override ILiteralToken BitwiseNegate()
-            => throw new InvalidOperationException($"{nameof(LimitedIntegerToken)} does not support {nameof(BitwiseNegate)}, as it doesn't have a fixed bit width.");
-
-        public LimitedIntegerToken LeftShift(int shift)
-            => new LimitedIntegerToken(TypedValue << shift, SignAndBitWidth);
-
-        public LimitedIntegerToken RightShift(int shift)
-            => new LimitedIntegerToken(TypedValue >> shift, SignAndBitWidth);
-
-        #region Casting
-        protected override TToken InternalCastTo<TToken>()
-        {
-            if (typeof(TToken).Name == GetType().Name)
-                return this as TToken;
-
-            switch (typeof(TToken).Name)
-            {
-                case nameof(FloatToken):
-                    return new FloatToken((double)TypedValue) as TToken;
-
-                case nameof(UnlimitedIntegerToken):
-                    return new UnlimitedIntegerToken(TypedValue) as TToken;
-
-                case nameof(TimespanToken):
-                    return new TimespanToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(TimeToken):
-                    return new TimeToken(TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                case nameof(DateToken):
-                    return new DateToken(DateTime.Now.Date + TimeSpan.FromSeconds((double)TypedValue)) as TToken;
-
-                default:
-                    return null;
-            }
-        }
-
-        public LimitedIntegerToken Upcast(IntegerBitWidth bitWidth, bool isSigned)
-        {
-            var signAndBitWidth = Upcast(SignAndBitWidth, new BitWidthAndSignPair(bitWidth, IsSigned));
-            return signAndBitWidth == SignAndBitWidth
-                ? this
-                : new LimitedIntegerToken(TypedValue, signAndBitWidth);
-        }
-
-        static BitWidthAndSignPair Upcast(BitWidthAndSignPair left, BitWidthAndSignPair right)
-        {
-            // Loosely based on the C++ operator arithmetic operations
-            // http://en.cppreference.com/w/cpp/language/operator_arithmetic
-
-            // Get the greater of the 2 bitwidths
-            var bitWidth = left.BitWidth >= right.BitWidth ? left.BitWidth : right.BitWidth;
-
-            // If both are signed or both unsigned, just use the greater of the bitwidths
-            if (!(left.IsSigned ^ right.IsSigned))
-                return new BitWidthAndSignPair(bitWidth, left.IsSigned);
-
-            // else, use the greater bitwidth and convert to unsigned
-            return new BitWidthAndSignPair(bitWidth, false);
-        }
-        #endregion Casting
 
         #region Equality
         public override bool Equals(object obj) => Equals(obj as LimitedIntegerToken);
@@ -193,23 +129,16 @@ namespace HisRoyalRedness.com
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
 
-        #region Other number bases
-        public override string ToHex() => TypedValue.ToHexadecimalString().PadLeft((int)BitWidth / 4, '0').BatchWithDelim(4);
-        public override string ToDec() => TypedValue.ToString().BatchWithDelim(3, ",");
-        public override string ToOct() => TypedValue.ToOctalString().PadLeft(((int)BitWidth - 1) / 3 + 1, '0').BatchWithDelim(3);
-        public override string ToBin() => TypedValue.ToBinaryString().PadLeft((int)BitWidth, '0').BatchWithDelim(4);
-        #endregion Other number bases
-
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;
         public IntegerBitWidth BitWidth => SignAndBitWidth.BitWidth;
 
-        public BigInteger Min => _minAndMax[SignAndBitWidth].Min;
-        public BigInteger Max => _minAndMax[SignAndBitWidth].Max;
-        public BigInteger Mask => _minAndMax[SignAndBitWidth].Mask;
+        public BigInteger Min { get; private set; }
+        public BigInteger Max { get; private set; }
+        public BigInteger Mask { get; private set; }
 
-        public static BigInteger MinValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Min;
-        public static BigInteger MaxValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Max;
+        static BigInteger MinValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Min;
+        static BigInteger MaxValue(BitWidthAndSignPair signAndbitWidth) => _minAndMax[signAndbitWidth].Max;
 
         #region SignAndBitWidthPair
         [DebuggerDisplay("{DisplayString}")]
@@ -230,7 +159,7 @@ namespace HisRoyalRedness.com
             public override bool Equals(object obj)
                 => obj as BitWidthAndSignPair == null ? false : Equals((BitWidthAndSignPair)obj);
 
-            public static bool operator==(BitWidthAndSignPair a, BitWidthAndSignPair b)
+            public static bool operator ==(BitWidthAndSignPair a, BitWidthAndSignPair b)
                 => a.BitWidth == b.BitWidth && a.IsSigned == b.IsSigned;
             public static bool operator !=(BitWidthAndSignPair a, BitWidthAndSignPair b)
                 => !(a == b);
@@ -300,3 +229,30 @@ namespace HisRoyalRedness.com
         static readonly Dictionary<BitWidthAndSignPair, MinAndMax> _minAndMax = new Dictionary<BitWidthAndSignPair, MinAndMax>();
     }
 }
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

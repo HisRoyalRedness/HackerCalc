@@ -5,20 +5,20 @@ using System.Linq;
 
 namespace HisRoyalRedness.com
 {
-    public class DateToken : LiteralToken<DateTime, DateToken>
+    public class OldDateToken : OldLiteralToken<DateTime, OldDateToken>
     {
         #region Constructors
-        public DateToken(DateTime typedValue)
+        public OldDateToken(DateTime typedValue)
             : base(TokenDataType.Date, typedValue)
         { }
 
-        public DateToken()
+        public OldDateToken()
             : this(DateTime.Now)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static DateToken Parse(string value, bool dmy = false)
+        public static OldDateToken Parse(string value, bool dmy = false)
         {
             var portions = value.Split('-');
             if (portions.Length != 3)
@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
 
             var dateTimeStr = string.Join("-", portions);
             if (DateTime.TryParse(dateTimeStr, out DateTime dateTime))
-                return new DateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
+                return new OldDateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local));
             else
                 throw new ParseException($"Invalid date format '{dateTimeStr}'");
         }
@@ -39,18 +39,18 @@ namespace HisRoyalRedness.com
 
         #region Operator overrides
         // Used while parsing
-        public static DateToken operator +(DateToken a, TimeToken b)
-            => new DateToken(a.TypedValue + b.TypedValue);
-        public static DateToken operator +(TimeToken a, DateToken b) => b + a;
+        public static OldDateToken operator +(OldDateToken a, OldTimeToken b)
+            => new OldDateToken(a.TypedValue + b.TypedValue);
+        public static OldDateToken operator +(OldTimeToken a, OldDateToken b) => b + a;
 
 
-        public static DateToken operator +(DateToken a, TimespanToken b)
-            => new DateToken(a.TypedValue + b.TypedValue);
-        public static DateToken operator +(TimespanToken a, DateToken b) => b + a;
-        public static DateToken operator -(DateToken a, TimespanToken b)
-            => new DateToken(a.TypedValue - b.TypedValue);
-        public static TimespanToken operator -(DateToken a, DateToken b)
-            => new TimespanToken(a.TypedValue - b.TypedValue);
+        public static OldDateToken operator +(OldDateToken a, OldTimespanToken b)
+            => new OldDateToken(a.TypedValue + b.TypedValue);
+        public static OldDateToken operator +(OldTimespanToken a, OldDateToken b) => b + a;
+        public static OldDateToken operator -(OldDateToken a, OldTimespanToken b)
+            => new OldDateToken(a.TypedValue - b.TypedValue);
+        public static OldTimespanToken operator -(OldDateToken a, OldDateToken b)
+            => new OldTimespanToken(a.TypedValue - b.TypedValue);
         #endregion Operator overrides
 
         #region Casting
@@ -61,8 +61,8 @@ namespace HisRoyalRedness.com
 
             switch (typeof(TToken).Name)
             {
-                case nameof(TimeToken):
-                    return new TimeToken(TypedValue.TimeOfDay) as TToken;
+                case nameof(OldTimeToken):
+                    return new OldTimeToken(TypedValue.TimeOfDay) as TToken;
                 default:
                     return null;
             }
@@ -70,11 +70,11 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as DateToken);
-        public override bool Equals(DateToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as OldDateToken);
+        public override bool Equals(OldDateToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(DateToken a, DateToken b)
+        public static bool operator ==(OldDateToken a, OldDateToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -82,11 +82,11 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(DateToken a, DateToken b) => !(a == b);
+        public static bool operator !=(OldDateToken a, OldDateToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(DateToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(OldDateToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
         #region Other number bases

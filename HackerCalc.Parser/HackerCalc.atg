@@ -1,3 +1,12 @@
+/*
+    HackerCalc grammar file
+
+    Keith Fletcher
+    Oct 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
 
 $namespace=HisRoyalRedness.com
 
@@ -22,6 +31,7 @@ CHARACTERS
     zero_to_two         = "012".
     zero_to_three       = "0123".
     zero_to_five        = "012345".
+    zero_to_seven       = "01234567".
 
 
     /* Ordered from tightest to loosest binding order */
@@ -42,10 +52,11 @@ CHARACTERS
     underscore          = '_'.
     
     /* datatype modifiers */
-    signed_int          = 'i'.
-    unsigned_int        = 'u'.
-    flt_type            = 'f'.
-    binary_type         = 'b'.
+    signed_int_mod      = 'i'.
+    unsigned_int_mod    = 'u'.
+    flt_type_mod        = 'f'.
+    binary_type_mod     = 'b'.
+    octal_type_mod      = 'o'.
 
 TOKENS
 
@@ -65,19 +76,21 @@ TOKENS
 
     /* Limited integers: These are integers limited to a particular bitwidth */
     /* Sign flags and bitwidth are added with CONTEXT to ensure that we parse them with no whitespace between the number, sign flag and bit width */
-    bin_limited_int     = binary_type zero_to_one { zero_to_one } CONTEXT ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" | "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ).
+    bin_limited_int     = binary_type_mod zero_to_one { zero_to_one } CONTEXT ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" | "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ).
+    oct_limited_int     = octal_type_mod zero_to_seven { zero_to_seven } CONTEXT ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" | "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ).
     dec_limited_int     = digit { digit } CONTEXT ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" | "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ).
     hex_limited_int     = "0x" hex { hex } CONTEXT ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" | "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ).
-    integer_type        = signed_int | unsigned_int. // 'i' or 'u'
+    //integer_type        = signed_int_mod | unsigned_int_mod. // 'i' or 'u'
 
     /* Unlimited integers: Not bound be any limits  */
-    bin_unlimited_int   = binary_type zero_to_one { zero_to_one }.
+    bin_unlimited_int   = binary_type_mod zero_to_one { zero_to_one }.
+    oct_unlimited_int   = octal_type_mod zero_to_seven { zero_to_seven }.
     dec_unlimited_int   = digit { digit }.
     hex_unlimited_int   = "0x" hex { hex }.
 
     true_float          = {digit} '.' digit {digit}.
-    typed_float         = digit { digit } CONTEXT ( flt_type ).
-    float_type          = flt_type.
+    typed_float         = digit { digit } CONTEXT ( flt_type_mod ).
+    float_type          = flt_type_mod.
 
     typed_ts_seconds    = ( digit { digit } | {digit} '.' digit {digit} ) CONTEXT ( "ts" ).
     timespan_type       = "ts".
@@ -110,7 +123,7 @@ TOKENS
     // A pseudo-token. We use this to differentiate between a subOp (minus) and a notToken (negation), i.e. 1-3 vs -(1+2)
     //negToken            = "-".
 
-    unlimited_cast      = openBrac signed_int closeBrac.
+    unlimited_cast      = openBrac signed_int_mod closeBrac.
     signed_cast         = openBrac ( "i4" | "i8" | "i16" | "i32" | "i64" | "i128" ) closeBrac.
     unsigned_cast       = openBrac ( "u4" | "u8" | "u16" | "u32" | "u64" | "u128" ) closeBrac.
     float_cast          = openBrac ( "f" | "fl" | "flt" | "float" ) closeBrac.
@@ -132,74 +145,79 @@ HackerCalc                                                      (. IToken token 
 .
 
 Expr<out IToken token>                                          
-=                   BitExpr<out token>
+=                   Term<out token>
 .
 
-BitExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
-=                   ShiftExpr<out tk>
-                    {
-                        bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        ShiftExpr<out tk>                       (. op.Right = tk; .)
-                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
-.
 
-ShiftExpr<out IToken token>                                     (. IToken tk = null; OperatorToken op = null; .)
-=                   AddExpr<out tk>
-                    {
-                        shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        AddExpr<out tk>                         (. op.Right = tk; .)
-                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
-.
-
-AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
-=                   MulExpr<out tk>
-                    {
-                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op).Tap(o => AddToken(o)); } .)
-                        MulExpr<out tk>                         (. op.Right = tk; .)
-                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
-.
-
-MulExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
-=                   ExponentExpr<out tk>
-                    {
-                        multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        ExponentExpr<out tk>                    (. op.Right = tk; .)
-                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
-.
-
-ExponentExpr<out IToken token>                                  (. IToken tk = null; OperatorToken op = null; .)
-=                   NotExpr<out tk>
-                    {
-                        exponentToken                           (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk).Tap(o => AddToken(o)); } .)
-                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
-                        NotExpr<out tk>                         (. op.Right = tk; .)
-                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
-.
-
-NotExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
-=                   [
-                        notToken                                (. op = OperatorToken.ParseNegate(t.val).Tap(o => AddToken(o)); .)
-                    ]
-                    Cast<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
-.
-
-Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
-=                   [ 
-                          unlimited_cast                        (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
-                        | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
-                        | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
-                        | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
-                        | timespan_cast                         (. op = CastOperatorToken.TimespanCast(); .)
-                        | time_cast                             (. op = CastOperatorToken.TimeCast(); .)
-                        | date_cast                             (. op = CastOperatorToken.DateCast(); .)
-                    ]
-                    //Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
-                    Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
-.
+//Expr<out IToken token>                                          
+//=                   BitExpr<out token>
+//.
+//
+//BitExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+//=                   ShiftExpr<out tk>
+//                    {
+//                        bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+//                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+//                        ShiftExpr<out tk>                       (. op.Right = tk; .)
+//                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+//.
+//
+//ShiftExpr<out IToken token>                                     (. IToken tk = null; OperatorToken op = null; .)
+//=                   AddExpr<out tk>
+//                    {
+//                        shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+//                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+//                        AddExpr<out tk>                         (. op.Right = tk; .)
+//                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+//.
+//
+//AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+//=                   MulExpr<out tk>
+//                    {
+//                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+//                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+//                        MulExpr<out tk>                         (. op.Right = tk; .)
+//                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+//.
+//
+//MulExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+//=                   ExponentExpr<out tk>
+//                    {
+//                        multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+//                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+//                        ExponentExpr<out tk>                    (. op.Right = tk; .)
+//                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+//.
+//
+//ExponentExpr<out IToken token>                                  (. IToken tk = null; OperatorToken op = null; .)
+//=                   NotExpr<out tk>
+//                    {
+//                        exponentToken                           (. if (op == null) { op = OperatorToken.Parse(t.val).Tap(o => o.Left = tk); } .)
+//                                                                (. else { op = OperatorToken.Parse(t.val).Tap(o => o.Left = op); } .)
+//                        NotExpr<out tk>                         (. op.Right = tk; .)
+//                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+//.
+//
+//NotExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+//=                   [
+//                        notToken                                (. op = OperatorToken.ParseNegate(t.val); .)
+//                    ]
+//                    Cast<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+//.
+//
+//Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
+//=                   [ 
+//                          unlimited_cast                        (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
+//                        | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
+//                        | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
+//                        | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
+//                        | timespan_cast                         (. op = CastOperatorToken.TimespanCast(); .)
+//                        | time_cast                             (. op = CastOperatorToken.TimeCast(); .)
+//                        | date_cast                             (. op = CastOperatorToken.DateCast(); .)
+//                    ]
+//                    //Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+//                    Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+//.
 
 //Func<out IToken token>                                          (. token = null; .)
 //=                   
@@ -219,7 +237,7 @@ Term<out IToken token>                                          (. token = null;
                     )
                     | IF(IsBracket()) 
                         Bracket<out token>
-                    | IF(IsTimespanNumber()) 
+                    | IF(IsTimespanNumber())
                         Timespan<out token>
                     | IF(IsDateTime())
                         DateTime<out token>
@@ -232,32 +250,32 @@ Term<out IToken token>                                          (. token = null;
 Bracket<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
 =
                     [ 
-                        subToken                                (. op = OperatorToken.ParseNegate(t.val).Tap(o => AddToken(o)); .)
+                        subToken                                (. op = OperatorToken.ParseNegate(t.val); .)
                     ]
-                    openBracket                                 (. AddToken(GroupingToken.Parse(t.val)); .)
-                    Expr<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
-                    closeBracket                                (. AddToken(GroupingToken.Parse(t.val)); .)
+                    openBracket                                 
+                    Expr<out tk>                                (. IToken grp = new GroupingToken(tk); .)
+                    closeBracket                                (. token = op == null ? grp : ((OperatorToken)op).Tap(o => o.Left = grp); .)
 .
 
 DateTime<out IToken token>                                      (. token = null; .)
-=                                                               (. DateToken dt = null; .)
+=                                                               (. OldDateToken dt = null; .)
                     (
-                        date                                    (. dt = DateToken.Parse(t.val); .)
+                        date                                    (. dt = OldDateToken.Parse(t.val); .)
                         |
-                        date_rev                                (. dt = DateToken.Parse(t.val, true); .)
+                        date_rev                                (. dt = OldDateToken.Parse(t.val, true); .)
                     )
-                    time                                        (. token = (dt + TimeToken.Parse(t.val)).Tap(o => AddToken(o)); .)
+                    time                                        (. token = (dt + OldTimeToken.Parse(t.val)); .)
 .
 
 Date<out IToken token>                                          (. token = null; .)
 =
-                    date                                        (. token = DateToken.Parse(t.val).Tap(o => AddToken(o)); .)
-                    | date_rev                                  (. token = DateToken.Parse(t.val, true).Tap(o => AddToken(o)); .)
+                    date                                        (. token = OldDateToken.Parse(t.val); .)
+                    | date_rev                                  (. token = OldDateToken.Parse(t.val, true); .)
 .
 
 Time<out IToken token>                                          (. token = null; .)
 =
-                    time                                        (. token = TimeToken.Parse(t.val).Tap(o => AddToken(o)); .)
+                    time                                        (. token = OldTimeToken.Parse(t.val); .)
 .
 
 Numeric<out IToken token>                                       (. token = null; bool isNeg = false; .)
@@ -282,17 +300,18 @@ Integer<out IToken token, ref bool isNeg>                       (. token = null;
 .
 
 Float<out IToken token, ref bool isNeg>
-=                   ( true_float | typed_float )                (. token = FloatToken.Parse(t.val, isNeg).Tap(o => AddToken(o)); .)
+=                   ( true_float | typed_float )                (. var fltVal = t.val; var rawToken = t.val; .)
                     [
-                        float_type
+                        float_type                              (. rawToken += t.val; .)
                     ]
+                                                                (. token = FloatToken.Parse(fltVal, isNeg, rawToken); .)
 .
 
 Now<out IToken token>
-=                   now                                         (. token = new DateToken().Tap(o => AddToken(o)); .)
+=                   now                                         (. token = new OldDateToken(); .)
 .
 
-Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
+Timespan<out IToken token>                                      (. OldTimespanToken tk = null; .)
 =
                     CompoundTimespanPortion<out tk>             (. token = tk; .)
 .
@@ -305,7 +324,9 @@ UnlimitedInteger<out IToken token, ref bool isNeg>
                         hex_unlimited_int                       (. intBase = IntegerBase.Hexadecimal; .)
                         |
                         bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
-                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg).Tap(o => AddToken(o)); .)
+                        |
+                        oct_unlimited_int                       (. intBase = IntegerBase.Octal; .)
+                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg); .)
 .
 
 LimitedInteger<out IToken token, ref bool isNeg>
@@ -316,16 +337,21 @@ LimitedInteger<out IToken token, ref bool isNeg>
                         hex_limited_int                         (. intBase = IntegerBase.Hexadecimal; .)
                         |
                         bin_limited_int                         (. intBase = IntegerBase.Binary; .)
-                    )                                           (. var intVal = t.val; var isSigned = true; var bitWidth = ""; .)
-                    (
-                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. bitWidth = t.val.Substring(1); .)
                         |
-                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; bitWidth = t.val.Substring(1); .)
-                    )                                           (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg).Tap(o => AddToken(o)); .)
+                        oct_limited_int                         (. intBase = IntegerBase.Octal; .)
+                    )                                           (. var intVal = t.val; var isSigned = true; var signAndBitWidth = ""; .)
+                    (
+                        ( i4 | i8 | i16 | i32 | i64 | i128 )    
+                        |
+                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; .)
+                    )                                           (. signAndBitWidth = t.val; .)
+                                                                (. var bitWidth = LimitedIntegerToken.ParseBitWidth(signAndBitWidth.Substring(1)); .)
+                                                                (. var rawToken = intVal + signAndBitWidth; .)
+                                                                (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken); .)
 .
 
-CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)
-=                                                               (. TimespanToken tk = null; .)
+CompoundTimespanPortion<out OldTimespanToken token>                (. token = new OldTimespanToken(); .)
+=                                                               (. OldTimespanToken tk = null; .)
                     (
                         IF(IsTimespanDays())
                         (
@@ -391,10 +417,9 @@ CompoundTimespanPortion<out TimespanToken token>                (. token = new T
                             TimespanSeconds<out tk>             (. token = token.AddCompoundPortions(tk); .)
                         )
                     )
-                                                                (. if (token != null) AddToken(token); .)
 .
 
-TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; .)
+TimespanSeconds<out OldTimespanToken token>                        (. var seconds = ""; .)
 =                   (
                         (
                             typed_ts_seconds                    (. seconds = t.val; .)
@@ -410,10 +435,10 @@ TimespanSeconds<out TimespanToken token>                        (. var seconds =
                             dec_unlimited_int                   (. seconds = t.val; .)
                             ts_seconds_type
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds))); .)
+                    )                                           (. token = OldTimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds))); .)
 .
 
-TimespanMinutes<out TimespanToken token>
+TimespanMinutes<out OldTimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var minutes = ""; .)
                     (
@@ -426,10 +451,10 @@ TimespanMinutes<out TimespanToken token>
                             dec_unlimited_int                   (. minutes = t.val; .)
                             ts_minutes_type
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes))); .)
+                    )                                           (. token = OldTimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes))); .)
 .
 
-TimespanHours<out TimespanToken token>
+TimespanHours<out OldTimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var hours = ""; .)
                     (
@@ -442,10 +467,10 @@ TimespanHours<out TimespanToken token>
                             dec_unlimited_int                   (. hours = t.val; .)
                             ts_hours_type
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours))); .)
+                    )                                           (. token = OldTimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours))); .)
 .
 
-TimespanDays<out TimespanToken token>
+TimespanDays<out OldTimespanToken token>
 =                                                               (. token = null; .)
                                                                 (. var days = ""; .)
                     (
@@ -458,7 +483,34 @@ TimespanDays<out TimespanToken token>
                             dec_unlimited_int                   (. days = t.val; .)
                             ts_days_type
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days))); .)
+                    )                                           (. token = OldTimespanToken.Parse(TimeSpan.FromDays(double.Parse(days))); .)
 .
 
 END HackerCalc.
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

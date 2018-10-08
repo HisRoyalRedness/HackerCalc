@@ -14,18 +14,18 @@ namespace HisRoyalRedness.com
     {
         static TestCommon()
         {
-            _integerBitWidths = Enum.GetValues(typeof(LimitedIntegerToken.IntegerBitWidth)).Cast<LimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
+            _integerBitWidths = Enum.GetValues(typeof(OldLimitedIntegerToken.IntegerBitWidth)).Cast<OldLimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
         }
 
         #region MakeToken
-        public static IEnumerable<ILiteralToken> MakeTokens(this IEnumerable<string> tokenStrings)
+        public static IEnumerable<IOldLiteralToken> MakeTokens(this IEnumerable<string> tokenStrings)
             => tokenStrings.Select(ts => MakeToken(ts));
 
         public static TToken MakeToken<TToken>(this string tokenString)
-            where TToken : class, ILiteralToken
+            where TToken : class, IOldLiteralToken
             => MakeToken(tokenString) as TToken;
 
-        public static ILiteralToken MakeToken(this string tokenString)
+        public static IOldLiteralToken MakeToken(this string tokenString)
         {
             if (string.IsNullOrWhiteSpace(tokenString))
                 return null;
@@ -42,11 +42,11 @@ namespace HisRoyalRedness.com
             {
                 case "date":
                 case "datetoken":
-                    return DateToken.Parse(tokenArg);
+                    return OldDateToken.Parse(tokenArg);
 
                 case "float":
                 case "floattoken":
-                    return FloatToken.Parse(tokenArg);
+                    return OldFloatToken.Parse(tokenArg);
 
                 case "limitedinteger":
                 case "limitedintegertoken":
@@ -63,8 +63,8 @@ namespace HisRoyalRedness.com
                         }
                         var num = portions.Groups[3].Value;
                         var isSigned = portions.Groups[4].Value.ToLower() != "u";
-                        var bitWidth = LimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                        return LimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase, bitWidth, isSigned);
+                        var bitWidth = OldLimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
+                        return OldLimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase, bitWidth, isSigned);
                     }
 
                 case "unlimitedinteger":
@@ -81,54 +81,54 @@ namespace HisRoyalRedness.com
                             default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
                         }
                         var num = portions.Groups[3].Value;
-                        return UnlimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase);
+                        return OldUnlimitedIntegerToken.Parse((isNeg ? $"-{num}" : num), numBase);
                     }
 
                 case "timespan":
                 case "timespantoken":
-                    return TimeToken.Parse(tokenArg).CastTo(TokenDataType.Timespan) as TimespanToken;
+                    return OldTimeToken.Parse(tokenArg).CastTo(TokenDataType.Timespan) as OldTimespanToken;
 
                 case "time":
                 case "timetoken":
-                    return TimeToken.Parse(tokenArg);
+                    return OldTimeToken.Parse(tokenArg);
 
                 default:
                     throw new NotSupportedException($"Unrecognised token type {tokenType}");
             }            
         }
 
-        public static ILiteralToken MakeToken(this TokenDataType dataType, string value = null)
+        public static IOldLiteralToken MakeToken(this TokenDataType dataType, string value = null)
         {
             switch(dataType)
             {
                 case TokenDataType.Date:
                     return string.IsNullOrEmpty(value)
-                        ? new DateToken()
+                        ? new OldDateToken()
                         : MakeToken($"date {value}");
 
                 case TokenDataType.Float:
                     return string.IsNullOrEmpty(value)
-                        ? new FloatToken(1.0)
+                        ? new OldFloatToken(1.0)
                         : MakeToken($"float {value}");
 
                 case TokenDataType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new LimitedIntegerToken(1, LimitedIntegerToken.IntegerBitWidth._32, true)
+                        ? new OldLimitedIntegerToken(1, OldLimitedIntegerToken.IntegerBitWidth._32, true)
                         : MakeToken($"integer {value}");
 
                 case TokenDataType.Time:
                     return string.IsNullOrEmpty(value)
-                        ? new TimeToken(TimeSpan.FromSeconds(1))
+                        ? new OldTimeToken(TimeSpan.FromSeconds(1))
                         : MakeToken($"time {value}");
 
                 case TokenDataType.Timespan:
                     return string.IsNullOrEmpty(value)
-                        ? new TimespanToken(TimeSpan.FromSeconds(1))
+                        ? new OldTimespanToken(TimeSpan.FromSeconds(1))
                         : MakeToken($"timespan {value}");
 
                 case TokenDataType.UnlimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new UnlimitedIntegerToken(1)
+                        ? new OldUnlimitedIntegerToken(1)
                         : MakeToken($"unlimitedinteger {value}");
 
                 case TokenDataType.RationalNumber:
@@ -139,7 +139,7 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public static IOperatorToken MakeBinaryExpression(this OperatorType opType, ILiteralToken left, ILiteralToken right)
+        public static IOperatorToken MakeBinaryExpression(this OperatorType opType, IOldLiteralToken left, IOldLiteralToken right)
             => new OperatorToken(opType).Tap(ot => ot.Left = left).Tap(ot => ot.Right = right);
         #endregion MakeToken
 
@@ -191,21 +191,21 @@ namespace HisRoyalRedness.com
         {
             switch (typeof(TToken).Name)
             {
-                case nameof(DateToken):
-                    LiteralTokenValueCheck(token as DateToken, DateTime.Parse(expectedValue));
-                    break;
+                //case nameof(DateToken):
+                //    LiteralTokenValueCheck(token as DateToken, DateTime.Parse(expectedValue));
+                //    break;
                 case nameof(FloatToken):
                     LiteralTokenValueCheck(token as FloatToken, float.Parse(expectedValue));
                     break;
                 case nameof(LimitedIntegerToken):
                     LiteralTokenValueCheck(token as LimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
-                case nameof(TimespanToken):
-                    LiteralTokenValueCheck(token as TimespanToken, TimeSpan.Parse(expectedValue));
-                    break;
-                case nameof(TimeToken):
-                    LiteralTokenValueCheck(token as TimeToken, TimeSpan.Parse(expectedValue));
-                    break;
+                //case nameof(TimespanToken):
+                //    LiteralTokenValueCheck(token as TimespanToken, TimeSpan.Parse(expectedValue));
+                //    break;
+                //case nameof(TimeToken):
+                //    LiteralTokenValueCheck(token as TimeToken, TimeSpan.Parse(expectedValue));
+                //    break;
                 case nameof(UnlimitedIntegerToken):
                     LiteralTokenValueCheck(token as UnlimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
@@ -219,21 +219,21 @@ namespace HisRoyalRedness.com
         {
             switch (typeof(TToken).Name)
             {
-                case nameof(DateToken):
-                    (token as DateToken).Should().BeTypedValue((expectedValue as DateTime?).Value);
-                    break;
+                //case nameof(DateToken):
+                //    (token as DateToken).Should().BeTypedValue((expectedValue as DateTime?).Value);
+                //    break;
                 case nameof(FloatToken):
                     (token as FloatToken).Should().BeTypedValue((expectedValue as float?).Value);
                     break;
                 case nameof(LimitedIntegerToken):
                     (token as LimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
                     break;
-                case nameof(TimespanToken):
-                    (token as TimespanToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
-                    break;
-                case nameof(TimeToken):
-                    (token as TimeToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
-                    break;
+                //case nameof(TimespanToken):
+                //    (token as TimespanToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
+                //    break;
+                //case nameof(TimeToken):
+                //    (token as TimeToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
+                //    break;
                 case nameof(UnlimitedIntegerToken):
                     (token as UnlimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
                     break;
@@ -254,12 +254,12 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(UnlimitedIntegerToken)}");
+            var leftToken = token.Left as OldUnlimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(OldUnlimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
-            var rightToken = token.Right as UnlimitedIntegerToken;
-            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            var rightToken = token.Right as OldUnlimitedIntegerToken;
+            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(OldUnlimitedIntegerToken)}");
             rightToken.TypedValue.Should().Be(2);
 
             token.Operator.Should().Be(expectedType);
@@ -275,8 +275,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            var leftToken = token.Left as OldUnlimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(OldUnlimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
@@ -327,9 +327,9 @@ namespace HisRoyalRedness.com
         public const string OPERATOR_TOKEN_PARSE = "Operator token parse";
         #endregion Test trait descriptions
 
-        public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths => _integerBitWidths;
+        public static IReadOnlyList<OldLimitedIntegerToken.IntegerBitWidth> IntegerBitWidths => _integerBitWidths;
 
-        readonly static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> _integerBitWidths;
+        readonly static IReadOnlyList<OldLimitedIntegerToken.IntegerBitWidth> _integerBitWidths;
         static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }

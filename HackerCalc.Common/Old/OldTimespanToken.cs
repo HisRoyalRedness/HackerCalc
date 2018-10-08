@@ -4,38 +4,38 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class TimespanToken : LiteralToken<TimeSpan, TimespanToken>
+    public class OldTimespanToken : OldLiteralToken<TimeSpan, OldTimespanToken>
     {
         #region Constructors
-        public TimespanToken(TimeSpan typedValue)
+        public OldTimespanToken(TimeSpan typedValue)
             : base(TokenDataType.Timespan, typedValue)
         { }
 
-        public TimespanToken()
+        public OldTimespanToken()
             : this(TimeSpan.Zero)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static TimespanToken Parse(TimeSpan timespan)
-            => new TimespanToken(timespan);
+        public static OldTimespanToken Parse(TimeSpan timespan)
+            => new OldTimespanToken(timespan);
 
-        public TimespanToken AddCompoundPortions(TimespanToken other)
-            => new TimespanToken(TypedValue + other.TypedValue);
+        public OldTimespanToken AddCompoundPortions(OldTimespanToken other)
+            => new OldTimespanToken(TypedValue + other.TypedValue);
         #endregion Parsing
 
         #region Operator overrides
-        public static TimespanToken operator +(TimespanToken a, TimespanToken b)
-            => new TimespanToken(a.TypedValue + b.TypedValue);
-        public static TimespanToken operator -(TimespanToken a, TimespanToken b)
-            => new TimespanToken(a.TypedValue - b.TypedValue);
-        public static TimespanToken operator *(TimespanToken a, FloatToken b)
-            => new TimespanToken(TimeSpan.FromTicks((long)(a.TypedValue.Ticks * b.TypedValue)));
-        public static TimespanToken operator *(FloatToken a, TimespanToken b) => b * a;
-        public static TimespanToken operator /(TimespanToken a, FloatToken b)
-            => new TimespanToken(TimeSpan.FromTicks((long)((double)a.TypedValue.Ticks / (double)b.TypedValue)));
-        public static FloatToken operator /(TimespanToken a, TimespanToken b)
-            => new FloatToken((double)a.TypedValue.Ticks / (double)b.TypedValue.Ticks);
+        public static OldTimespanToken operator +(OldTimespanToken a, OldTimespanToken b)
+            => new OldTimespanToken(a.TypedValue + b.TypedValue);
+        public static OldTimespanToken operator -(OldTimespanToken a, OldTimespanToken b)
+            => new OldTimespanToken(a.TypedValue - b.TypedValue);
+        public static OldTimespanToken operator *(OldTimespanToken a, OldFloatToken b)
+            => new OldTimespanToken(TimeSpan.FromTicks((long)(a.TypedValue.Ticks * b.TypedValue)));
+        public static OldTimespanToken operator *(OldFloatToken a, OldTimespanToken b) => b * a;
+        public static OldTimespanToken operator /(OldTimespanToken a, OldFloatToken b)
+            => new OldTimespanToken(TimeSpan.FromTicks((long)((double)a.TypedValue.Ticks / (double)b.TypedValue)));
+        public static OldFloatToken operator /(OldTimespanToken a, OldTimespanToken b)
+            => new OldFloatToken((double)a.TypedValue.Ticks / (double)b.TypedValue.Ticks);
         #endregion
 
         #region Casting
@@ -46,11 +46,11 @@ namespace HisRoyalRedness.com
 
             switch (typeof(TToken).Name)
             {
-                case nameof(DateToken):
-                    return new DateToken(DateTime.Now.Date + TypedValue) as TToken;
+                case nameof(OldDateToken):
+                    return new OldDateToken(DateTime.Now.Date + TypedValue) as TToken;
 
-                case nameof(TimeToken):
-                    return new TimeToken(TypedValue) as TToken;
+                case nameof(OldTimeToken):
+                    return new OldTimeToken(TypedValue) as TToken;
 
                 default:
                     return null;
@@ -59,11 +59,11 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as TimespanToken);
-        public override bool Equals(TimespanToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as OldTimespanToken);
+        public override bool Equals(OldTimespanToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(TimespanToken a, TimespanToken b)
+        public static bool operator ==(OldTimespanToken a, OldTimespanToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -71,11 +71,11 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(TimespanToken a, TimespanToken b) => !(a == b);
+        public static bool operator !=(OldTimespanToken a, OldTimespanToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(TimespanToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(OldTimespanToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
         #region ToString

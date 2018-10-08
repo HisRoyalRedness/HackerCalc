@@ -4,37 +4,37 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class TimeToken : LiteralToken<TimeSpan, TimeToken>
+    public class OldTimeToken : OldLiteralToken<TimeSpan, OldTimeToken>
     {
         #region Constructors
-        public TimeToken(TimeSpan typedValue)
+        public OldTimeToken(TimeSpan typedValue)
             : base(TokenDataType.Time, typedValue)
         {
             if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
                 throw new TimeOverflowException("Time must be within the range of a single day");
         }
 
-        public TimeToken()
+        public OldTimeToken()
             : this(TimeSpan.Zero)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static TimeToken Parse(string value)
+        public static OldTimeToken Parse(string value)
         {
             if (TimeSpan.TryParse(value, out TimeSpan time))
-                return new TimeToken(time);
+                return new OldTimeToken(time);
             else
                 throw new ParseException($"Invalid time format '{value}'");
         }
         #endregion Parsing
 
         #region Operator overloads
-        public static TimeToken operator +(TimeToken a, TimespanToken b)
-            => new TimeToken(a.TypedValue + b.TypedValue);
-        public static TimeToken operator +(TimespanToken a, TimeToken b) => b + a;
-        public static TimeToken operator -(TimeToken a, TimespanToken b)
-            => new TimeToken(a.TypedValue - b.TypedValue);
+        public static OldTimeToken operator +(OldTimeToken a, OldTimespanToken b)
+            => new OldTimeToken(a.TypedValue + b.TypedValue);
+        public static OldTimeToken operator +(OldTimespanToken a, OldTimeToken b) => b + a;
+        public static OldTimeToken operator -(OldTimeToken a, OldTimespanToken b)
+            => new OldTimeToken(a.TypedValue - b.TypedValue);
         #endregion Operator overloads
 
         #region Casting
@@ -45,11 +45,11 @@ namespace HisRoyalRedness.com
 
             switch (typeof(TToken).Name)
             {
-                case nameof(DateToken):
-                    return new DateToken(DateTime.Now.Date + TypedValue) as TToken;
+                case nameof(OldDateToken):
+                    return new OldDateToken(DateTime.Now.Date + TypedValue) as TToken;
 
-                case nameof(TimespanToken):
-                    return new TimespanToken(TypedValue) as TToken;
+                case nameof(OldTimespanToken):
+                    return new OldTimespanToken(TypedValue) as TToken;
 
                 default:
                     return null;
@@ -58,11 +58,11 @@ namespace HisRoyalRedness.com
         #endregion Casting
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as TimeToken);
-        public override bool Equals(TimeToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as OldTimeToken);
+        public override bool Equals(OldTimeToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(TimeToken a, TimeToken b)
+        public static bool operator ==(OldTimeToken a, OldTimeToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -70,11 +70,11 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(TimeToken a, TimeToken b) => !(a == b);
+        public static bool operator !=(OldTimeToken a, OldTimeToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(TimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(OldTimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
         #region Other number bases

@@ -1,69 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+
+/*
+    Base type for literal tokens
+
+        These are the tokens as parsed from the input stream.
+        They'll be passed on to the calculation engine, which
+        will probably transform them into calculation tokens
+        of some sort.
+
+    Keith Fletcher
+    Oct 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
 
 namespace HisRoyalRedness.com
 {
-    public enum TokenDataType
+    public enum LiteralTokenType
     {
-        [Description("Float")]
-        Float,
-        [Description("Unlimited Integer")]
-        UnlimitedInteger,
         [Description("Limited Integer")]
         LimitedInteger,
-        [Description("Rational Number")]
-        [IgnoreEnum]
-        RationalNumber,
-        [Description("Irrational Number")]
-        [IgnoreEnum]
-        IrrationalNumber, // Replace float?
-        [Description("Digital Integer")]
-        [IgnoreEnum]
-        DigitalInteger,
-        [Description("Timespan")]
-        Timespan,
+        [Description("Unlimited Integer")]
+        UnlimitedInteger,
+        [Description("Float")]
+        Float,
+        [Description("Date")]
+        Date,
         [Description("Time")]
         Time,
-        [Description("Date")]
-        Date
-    }
-
-    public enum IntegerBase
-    {
-        Binary,
-        Decimal,
-        Hexadecimal
-    }
-
-    public struct TypePair
-    {
-        public TypePair(TokenDataType left, TokenDataType right)
-        {
-            Left = left;
-            Right = right;
-        }
-
-        public TokenDataType Left { get; private set; }
-        public TokenDataType Right { get; private set; }
+        [Description("Timespan")]
+        Timespan,
     }
 
     public interface ILiteralToken : IToken
     {
         object ObjectValue { get; }
-        TokenDataType DataType { get; }
-        TToken CastTo<TToken>()
-            where TToken : class, ILiteralToken;
-
-        ILiteralToken NumericNegate();
-        ILiteralToken BitwiseNegate();
-        ILiteralToken CastTo(TokenDataType dataType);
-
-        string ToHex();
-        string ToDec();
-        string ToOct();
-        string ToBin();
+        LiteralTokenType LiteralType { get; }
     }
 
     public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable, IComparable<TTypedToken>
@@ -72,64 +50,25 @@ namespace HisRoyalRedness.com
         TBaseType TypedValue { get; }
     }
 
-    public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>, ILiteralTokenEval
+    public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
-        public LiteralToken(TokenDataType dataType, TBaseType typedValue)
-            : base()
+        public LiteralToken(LiteralTokenType literalTokenType, TBaseType typedValue, string rawToken)
+            : base(rawToken)
         {
-            DataType = dataType;
+            LiteralType = literalTokenType;
             TypedValue = typedValue;
         }
 
-        public TokenDataType DataType { get; private set; }
-        public bool IsFloat => DataType == TokenDataType.Float;
-        public bool IsLimitedInteger => DataType == TokenDataType.LimitedInteger;
-        public bool IsUnlimitedInteger => DataType == TokenDataType.UnlimitedInteger;
+        public LiteralTokenType LiteralType { get; private set; }
+        public bool IsFloat => LiteralType == LiteralTokenType.Float;
+        public bool IsLimitedInteger => LiteralType == LiteralTokenType.LimitedInteger;
+        public bool IsUnlimitedInteger => LiteralType == LiteralTokenType.UnlimitedInteger;
+        public bool IsDate => LiteralType == LiteralTokenType.Date;
+        public bool IsTime => LiteralType == LiteralTokenType.Time;
+        public bool IsTimespan => LiteralType == LiteralTokenType.Timespan;
         public TBaseType TypedValue { get; protected set; }
         public object ObjectValue => TypedValue;
-
-        public virtual ILiteralToken NumericNegate() { throw new InvalidOperationException($"Numeric negation is not supported by {typeof(TTypedToken).Name}."); }
-        public virtual ILiteralToken BitwiseNegate() { throw new InvalidOperationException($"Bitwise negation is not supported by {typeof(TTypedToken).Name}."); }
-
-        public abstract string ToHex();
-        public abstract string ToDec();
-        public abstract string ToOct();
-        public abstract string ToBin();
-
-        #region Casting
-        protected virtual TToken InternalCastTo<TToken>()
-            where TToken : class, ILiteralToken
-        {
-            return null;
-        }
-
-        public TToken CastTo<TToken>()
-            where TToken : class, ILiteralToken
-        {
-            var token = InternalCastTo<TToken>();
-            if (token == null)
-                throw new InvalidCastException($"Could not cast from a {GetType().Name} to {typeof(TToken).Name}.");
-
-            return token as TToken;
-        }
-
-        public ILiteralToken CastTo(TokenDataType dataType)
-        {
-            switch (dataType)
-            {
-                case TokenDataType.Date: return CastTo<DateToken>();
-                case TokenDataType.Float: return CastTo<FloatToken>();
-                case TokenDataType.Time: return CastTo<TimeToken>();
-                case TokenDataType.Timespan: return CastTo<TimespanToken>();
-                case TokenDataType.UnlimitedInteger: return CastTo<UnlimitedIntegerToken>();
-                case TokenDataType.LimitedInteger: return CastTo<LimitedIntegerToken>();
-                case TokenDataType.RationalNumber: return CastTo<UnlimitedIntegerToken>();
-                case TokenDataType.IrrationalNumber: return CastTo<UnlimitedIntegerToken>();
-                default: throw new InvalidCastException($"Could not cast from a {GetType().Name} to {dataType}.");
-            }
-        }
-        #endregion Casting
 
         #region Equality
         public abstract bool Equals(TTypedToken other);
@@ -141,19 +80,35 @@ namespace HisRoyalRedness.com
         int IComparable.CompareTo(object obj) => CompareTo(obj as TTypedToken);
         #endregion Comparison
 
-        #region ILiteralTokenEval implementation
-        bool ILiteralTokenEval.IsTermToken { get; set; } = false;
-        #endregion ILiteralTokenEval implementation
-
         #region ToString
         public override string ToString() => $"{TypedValue}";
         #endregion ToString
-
-        static Dictionary<TokenDataType, ILiteralToken> _typeMapping = new Dictionary<TokenDataType, ILiteralToken>();
     }
-
-    // Mark enum types that should be ignored when enumerating
-    public class IgnoreEnumAttribute : Attribute
-    { }
-
 }
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

@@ -13,12 +13,9 @@ namespace HisRoyalRedness.com
     public partial class Parser
     {
         public static IToken ParseExpression(string expression)
-            => ParseExpression(expression, null, null);
+            => ParseExpression(expression, null);
 
         public static IToken ParseExpression(string expression, List<Token> scannedTokens)
-            => ParseExpression(expression, scannedTokens, null);
-
-        public static IToken ParseExpression(string expression, List<Token> scannedTokens, List<IToken> parsedTokens)
         {
             IToken rootToken = null;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
@@ -27,7 +24,6 @@ namespace HisRoyalRedness.com
                 if (scannedTokens != null)
                     scanner.ScannedTokens = tkn => scannedTokens.Add(tkn);
                 var parser = new Parser(scanner);
-                parser._parsedTokens = parsedTokens;
                 if (parser.Parse())
                     rootToken = parser.RootToken;
             }
@@ -195,12 +191,14 @@ namespace HisRoyalRedness.com
 
         public bool IsBracket()
         {
+            // Check if it's a negated bracket
             if (la.kind == _subToken)
             {
                 var next = scanner.Peek().kind;
                 scanner.ResetPeek();
                 return next == _openBracket;
             }
+            // else just check for an opening bracket
             else
                 return la.kind == _openBracket;
         }
@@ -210,9 +208,7 @@ namespace HisRoyalRedness.com
         #endregion Resolvers
 
         void AddToken(IToken token)
-            => _parsedTokens?.Add(token);
-
-        List<IToken> _parsedTokens = null;
+        { }
 
         public IToken RootToken { get; private set; }
     }

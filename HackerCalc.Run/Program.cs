@@ -22,7 +22,10 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "d":
-                        Debug("1u8 + 1234");
+                        if (args.Length > 1)
+                            Debug(args[1]);
+                        else
+                            Debug("(-12.1234f)");
                         break;
                 }
             }
@@ -43,40 +46,40 @@ namespace HisRoyalRedness.com
             Console.WriteLine($"Input: {input}");
 
             var scannedTokens = new List<Token>();
-            var parsedTokens = new List<IToken>();
-            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input, scannedTokens, parsedTokens), "PARSE");
+            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input, scannedTokens), "PARSE");
             Console.WriteLine();
+            Console.WriteLine($"Value: {rootToken}, Type: {(rootToken as ILiteralToken)?.LiteralType}, Raw: {rootToken?.RawToken}");
 
-            Console.WriteLine("Expression");
-            Console.WriteLine("----------");
-            var expr = rootToken?.Print(TokenPrinter.FixType.Postfix);
-            Console.WriteLine($"Postfix: {expr}");
-            Console.WriteLine($"Infix:   {rootToken?.Print(TokenPrinter.FixType.Infix)}");
-            Console.WriteLine($"Prefix:  {rootToken?.Print(TokenPrinter.FixType.Prefix)}");
+            //Console.WriteLine("Expression");
+            //Console.WriteLine("----------");
+            //var expr = rootToken?.Print(TokenPrinter.FixType.Postfix);
+            //Console.WriteLine($"Postfix: {expr}");
+            //Console.WriteLine($"Infix:   {rootToken?.Print(TokenPrinter.FixType.Infix)}");
+            //Console.WriteLine($"Prefix:  {rootToken?.Print(TokenPrinter.FixType.Prefix)}");
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
-            Console.WriteLine("Evaluation");
-            Console.WriteLine("----------");
-            var evalToken = DoWithCatch<IToken>(() => rootToken?.Evaluate(), "EVALUATE");
-            if (evalToken != null)
-                Console.WriteLine(PrintToken(evalToken, true));
+            //Console.WriteLine("Evaluation");
+            //Console.WriteLine("----------");
+            //var evalToken = DoWithCatch<IToken>(() => rootToken?.Evaluate(), "EVALUATE");
+            //if (evalToken != null)
+            //    Console.WriteLine(PrintToken(evalToken, true));
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
-            Console.WriteLine("Scanned token");
-            Console.WriteLine("-------------");
-            foreach (var tkn in scannedTokens)
-                Console.WriteLine($"val: {tkn.val,-15}kind: {tkn.TokenKind.ToString().TrimStart('_')}");
+            //Console.WriteLine("Scanned token");
+            //Console.WriteLine("-------------");
+            //foreach (var tkn in scannedTokens)
+            //    Console.WriteLine($"val: {tkn.val,-15}kind: {tkn.TokenKind.ToString().TrimStart('_')}");
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
-            Console.WriteLine("Parsed tokens");
-            Console.WriteLine("-------------");
-            foreach (var tkn in parsedTokens)
-                Console.WriteLine(PrintToken(tkn, true));
+            //Console.WriteLine("Parsed tokens");
+            //Console.WriteLine("-------------");
+            //foreach (var tkn in parsedTokens)
+            //    Console.WriteLine(PrintToken(tkn, true));
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
         }
 
@@ -95,39 +98,38 @@ namespace HisRoyalRedness.com
 
         static string PrintToken(IToken token, bool includeType = true)
         {
-            var literalToken = token as ILiteralToken;
-            if (literalToken != null)
+            if (token is IOldLiteralToken literalToken)
             {
                 string val = "";
-                switch(literalToken.DataType)
+                switch (literalToken.DataType)
                 {
                     case TokenDataType.Float:
                         {
-                            var typedToken = literalToken as FloatToken;
+                            var typedToken = literalToken as OldFloatToken;
                             val = typedToken.TypedValue.ToString("0.000");
                         }
                         break;
                     case TokenDataType.Timespan:
                         {
-                            var typedToken = literalToken as TimespanToken;
+                            var typedToken = literalToken as OldTimespanToken;
                             val = typedToken.ToLongString();
                         }
                         break;
                     case TokenDataType.Time:
                         {
-                            var typedToken = literalToken as TimeToken;
+                            var typedToken = literalToken as OldTimeToken;
                             val = typedToken.TypedValue.ToString();
                         }
                         break;
                     case TokenDataType.Date:
                         {
-                            var typedToken = literalToken as DateToken;
+                            var typedToken = literalToken as OldDateToken;
                             val = typedToken.TypedValue.ToString("yyyy-MM-dd HH:mm:ss");
                         }
                         break;
                     case TokenDataType.LimitedInteger:
                         {
-                            var typedToken = literalToken as LimitedIntegerToken;
+                            var typedToken = literalToken as OldLimitedIntegerToken;
                             val = typedToken.TypedValue.ToString();
                             if (includeType)
                                 val += $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}";
@@ -135,7 +137,7 @@ namespace HisRoyalRedness.com
                         break;
                     case TokenDataType.UnlimitedInteger:
                         {
-                            var typedToken = literalToken as UnlimitedIntegerToken;
+                            var typedToken = literalToken as OldUnlimitedIntegerToken;
                             val = typedToken.TypedValue.ToString();
                         }
                         break;
@@ -148,16 +150,14 @@ namespace HisRoyalRedness.com
                     : val;
             }
 
-            var opToken = token as OperatorToken;
-            if (opToken != null)
+            if (token is OperatorToken opToken)
             {
                 return includeType
                     ? $"{opToken.Operator,-40}   {opToken.Operator.GetEnumDescription()}"
                     : opToken.Operator.GetEnumDescription();
             }
 
-            var grpToken = token as GroupingToken;
-            if (grpToken != null)
+            if (token is OldGroupingToken grpToken)
             {
                 return includeType
                     ? $"{grpToken.GroupingOperator,-40}   {grpToken.GroupingOperator.GetEnumDescription()}"

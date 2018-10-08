@@ -112,7 +112,20 @@ namespace HisRoyalRedness.com
 
     public class GroupingToken : TokenBase<GroupingToken>, IOperatorToken
     {
-        public GroupingToken(GroupingType op)
+        public GroupingToken(IToken childToken)
+            : base()
+        {
+            Left = childToken;
+        }
+
+        public bool IsUnary => true;
+        public IToken Left { get; private set; }
+        public IToken Right => null;
+    }
+
+    public class OldGroupingToken : TokenBase<OldGroupingToken>, IOperatorToken
+    {
+        public OldGroupingToken(GroupingType op)
             : base()
         {
             GroupingOperator = op;
@@ -124,12 +137,12 @@ namespace HisRoyalRedness.com
         public IToken Left => null;
         public IToken Right => null;
 
-        public static GroupingToken Parse(string value)
+        public static OldGroupingToken Parse(string value)
         {
             switch (value)
             {
-                case "(": return new GroupingToken(GroupingType.LeftBracket);
-                case ")": return new GroupingToken(GroupingType.RightBracket);
+                case "(": return new OldGroupingToken(GroupingType.LeftBracket);
+                case ")": return new OldGroupingToken(GroupingType.RightBracket);
                 default: throw new ParseException($"Unrecognised grouping operator {value}.");
             }
         }
@@ -148,10 +161,10 @@ namespace HisRoyalRedness.com
         public TokenDataType CastToType { get; private set; }
 
         public bool IsSigned { get; private set; }
-        public LimitedIntegerToken.IntegerBitWidth BitWidth { get; private set; }
+        public OldLimitedIntegerToken.IntegerBitWidth BitWidth { get; private set; }
 
         public static CastOperatorToken UnlimitedIntegerCast() => new CastOperatorToken(TokenDataType.UnlimitedInteger);
-        public static CastOperatorToken LimitedIntegerCast(LimitedIntegerToken.IntegerBitWidth bitWidth, bool isSigned = true) 
+        public static CastOperatorToken LimitedIntegerCast(OldLimitedIntegerToken.IntegerBitWidth bitWidth, bool isSigned = true) 
             => new CastOperatorToken(TokenDataType.LimitedInteger) { BitWidth = bitWidth, IsSigned = isSigned };
         public static CastOperatorToken FloatCast() => new CastOperatorToken(TokenDataType.Float);
         public static CastOperatorToken TimespanCast() => new CastOperatorToken(TokenDataType.Timespan);
