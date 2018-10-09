@@ -28,6 +28,11 @@ namespace HisRoyalRedness.com
             return sb.ToString();
         }
 
+        static bool IsLiteralToken<TToken>(TToken token) => IsTokenOfType<TToken, ILiteralToken>(token);
+        static bool IsFunctionToken<TToken>(TToken token) => IsTokenOfType<TToken, IFunctionToken>(token);
+        static bool IsOperatorToken<TToken>(TToken token) => IsTokenOfType<TToken, IOperatorToken>(token);
+        static bool IsTokenOfType<TToken, TTestType>(TToken token) => typeof(TTestType).IsAssignableFrom(token.GetType());
+
         void InternalVisitAndAggregate<TToken>(StringBuilder sb, TToken token)
         {
 #if INCOMPLETE_EQ
@@ -38,53 +43,120 @@ namespace HisRoyalRedness.com
             }
 #endif
 
-            switch (token.GetType().Name)
+            if (IsLiteralToken(token))
+                sb.Append($"{((ILiteralToken)token)} ");
+
+            else if (IsFunctionToken(token))
             {
-                case nameof(OperatorToken):
-                case nameof(CastOperatorToken):
-                    var opToken = token as OperatorToken;
-                    switch (_fixType)
-                    {
-                        case FixType.Prefix:
-                            sb.Append($"{opToken.Operator.GetEnumDescription()} ");
-                            InternalVisitAndAggregate(sb, opToken.Left);
-                            if (!opToken.IsUnary)
-                                InternalVisitAndAggregate(sb, opToken.Right);
-                            break;
+                var funcToken = token as IFunctionToken;
+                switch (_fixType)
+                {
+                    case FixType.Prefix:
+                        sb.Append($"{funcToken.Name}[{funcToken.Parameters.Count}] ");
+                        foreach (var p in funcToken.Parameters)
+                            InternalVisitAndAggregate(sb, p);
+                        break;
 
-                        case FixType.Infix:
-                            sb.Append("( ");
-                            if (opToken.IsUnary)
-                                sb.Append($"{opToken.Operator.GetEnumDescription()} ");
-                            InternalVisitAndAggregate(sb, opToken.Left);
-                            if (!opToken.IsUnary)
+                    case FixType.Infix:
+                        sb.Append($"{funcToken.Name}( ");
+                        var first = true;
+                        foreach (var p in funcToken.Parameters)
+                        {
+                            if (!first)
+                                sb.Append(", ");
+                            if (IsLiteralToken(p) || IsFunctionToken(p))
+                                InternalVisitAndAggregate(sb, p);
+                            else
                             {
-                                sb.Append($"{opToken.Operator.GetEnumDescription()} ");
-                                InternalVisitAndAggregate(sb, opToken.Right);
+                                sb.Append("( ");
+                                InternalVisitAndAggregate(sb, p);
+                                sb.Append(") ");
                             }
-                            sb.Append(") ");
-                            break;
+                            first = false;
+                        }
+                        sb.Append(") ");
+                        break;
 
-                        case FixType.Postfix:
-                            InternalVisitAndAggregate(sb, opToken.Left);
-                            if (!opToken.IsUnary)
-                                InternalVisitAndAggregate(sb, opToken.Right);
-                            sb.Append($"{opToken.Operator.GetEnumDescription()} ");
-                            break;
-                    }
-                    break;
+                    case FixType.Postfix:
+                        foreach (var p in funcToken.Parameters)
+                            InternalVisitAndAggregate(sb, p);
+                        sb.Append($"{funcToken.Name}[{funcToken.Parameters.Count}] ");
+                        break;
 
-                default:
-                    if (typeof(IOldLiteralToken).IsAssignableFrom(token.GetType()))
-                        sb.Append($"{((IOldLiteralToken)token).ObjectValue} ");
-
-                    else
-                        throw new UnrecognisedTokenException($"Unrecognised token type {token.GetType().Name}");
-                    break;
+                    default:
+                        throw new UnrecognisedTokenException($"Unrecognised fix type {_fixType}");
+                }
             }
+
+            else if (IsOperatorToken(token))
+            {
+                var opToken = token as IOperatorToken;
+                switch (opToken.Operator)
+                {
+                    case OperatorType.Grouping:
+                        switch (_fixType)
+                        {
+                            case FixType.Prefix:
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                break;
+
+                            case FixType.Infix:
+                                sb.Append("( ");
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                sb.Append(") ");
+                                break;
+
+                            case FixType.Postfix:
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                break;
+
+                            default:
+                                throw new UnrecognisedTokenException($"Unrecognised fix type {_fixType}");
+                        }
+                        break;
+
+                    default:
+                        switch (_fixType)
+                        {
+                            case FixType.Prefix:
+                                sb.Append($"{opToken.Operator.GetEnumDescription()} ");
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                if (!opToken.IsUnary)
+                                    InternalVisitAndAggregate(sb, opToken.Right);
+                                break;
+
+                            case FixType.Infix:
+                                if (opToken.IsUnary)
+                                    sb.Append($"{opToken.Operator.GetEnumDescription()} ");
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                if (!opToken.IsUnary)
+                                {
+                                    sb.Append($"{opToken.Operator.GetEnumDescription()} ");
+                                    InternalVisitAndAggregate(sb, opToken.Right);
+                                }
+                                break;
+
+                            case FixType.Postfix:
+                                InternalVisitAndAggregate(sb, opToken.Left);
+                                if (!opToken.IsUnary)
+                                    InternalVisitAndAggregate(sb, opToken.Right);
+                                sb.Append($"{opToken.Operator.GetEnumDescription()} ");
+                                break;
+
+                            default:
+                                throw new UnrecognisedTokenException($"Unrecognised fix type {_fixType}");
+                        }
+                        break;
+                        //default:
+                        //    throw new UnrecognisedTokenException($"Unrecognised operator token type {opToken.Operator}");
+                }
+            }
+
+            else
+                throw new UnrecognisedTokenException($"Unrecognised token type {token.GetType().Name}");
         }
 
-        FixType _fixType = FixType.Postfix;
+        readonly FixType _fixType = FixType.Postfix;
     }
 
     public static class TokenPrinterExtensions

@@ -64,11 +64,14 @@
   <ItemGroup>
     <Compile Include="Old\Basic parse testing\BasicOperatorParseTest.cs" />
     <Compile Include="Old\Basic parse testing\DateParseTest.cs" />
+    <Compile Include="Parse testing\DateParseTest.cs" />
     <Compile Include="Parse testing\FloatParseTest.cs" />
     <Compile Include="Parse testing\LimitedIntegerParseTest.cs" />
     <Compile Include="Old\Basic parse testing\NegativeParseTest.cs" />
     <Compile Include="Old\Basic parse testing\TimeParseTest.cs" />
     <Compile Include="Old\Basic parse testing\TimespanParseTest.cs" />
+    <Compile Include="Parse testing\TimeParseTest.cs" />
+    <Compile Include="Parse testing\TimespanTokenTest.cs" />
     <Compile Include="Parse testing\UnlimitedIntegerParseTest.cs" />
     <Compile Include="Old\EqualityTest.cs" />
     <Compile Include="FluentAssertionsExtensions.cs" />

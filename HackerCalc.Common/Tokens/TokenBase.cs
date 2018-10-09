@@ -23,9 +23,15 @@ namespace HisRoyalRedness.com
     public interface IToken
     {
         // Visitor pattern
-        TVisitRet Accept<TVisitRet>(ITokenVisitor<TVisitRet> visitor);
+        TVisitorReturnType Accept<TVisitorReturnType>(ITokenVisitor<TVisitorReturnType> visitor);
 
         string RawToken { get; }
+    }
+
+    public interface ITokenVisitor<TVisistorReturnType>
+    {
+        TVisistorReturnType Visit<TToken>(TToken token)
+            where TToken : IToken;
     }
 
     public abstract class TokenBase<TToken> : IToken
@@ -36,7 +42,7 @@ namespace HisRoyalRedness.com
             RawToken = rawToken;
         }
 
-        public virtual TVisitRet Accept<TVisitRet>(ITokenVisitor<TVisitRet> visitor)
+        public virtual TVisistorReturnType Accept<TVisistorReturnType>(ITokenVisitor<TVisistorReturnType> visitor)
             => visitor.Visit<TToken>(this as TToken);
 
         public string RawToken { get; private set; }

@@ -84,6 +84,10 @@ namespace HisRoyalRedness.com
         public override string ToString() => $"{TypedValue}";
         #endregion ToString
     }
+
+    // Mark enum types that should be ignored when enumerating
+    public class IgnoreEnumAttribute : Attribute
+    { }
 }
 
 /*

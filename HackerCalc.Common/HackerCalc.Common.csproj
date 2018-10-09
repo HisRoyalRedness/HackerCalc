@@ -51,22 +51,25 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token visitors\TokenEvaluator.cs" />
     <Compile Include="Token visitors\TokenPrinter.cs" />
+    <Compile Include="Tokens\FunctionToken.cs" />
+    <Compile Include="Tokens\Literal tokens\DateToken.cs" />
     <Compile Include="Tokens\Literal tokens\FloatToken.cs" />
     <Compile Include="Old\OldDateToken.cs" />
     <Compile Include="Old\OldFloatToken.cs" />
-    <Compile Include="Old\IntegerToken.cs" />
+    <Compile Include="Old\OldIntegerToken.cs" />
     <Compile Include="Tokens\Literal tokens\LimitedIntegerToken.cs" />
     <Compile Include="Old\OldLimitedIntegerToken.cs" />
     <Compile Include="Old\OldRationalToken.cs" />
     <Compile Include="Old\OldTimespanToken.cs" />
     <Compile Include="Old\OldTimeToken.cs" />
     <Compile Include="Old\OldUnlimitedIntegerToken.cs" />
+    <Compile Include="Tokens\Literal tokens\TimespanToken.cs" />
+    <Compile Include="Tokens\Literal tokens\TimeToken.cs" />
     <Compile Include="Tokens\Literal tokens\UnlimitedIntegerToken.cs" />
     <Compile Include="Tokens\LiteralToken.cs" />
     <Compile Include="Old\OldLiteralToken.cs" />
     <Compile Include="Tokens\OperatorToken.cs" />
     <Compile Include="Tokens\TokenBase.cs" />
-    <Compile Include="Tokens\Visitor Interfaces.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

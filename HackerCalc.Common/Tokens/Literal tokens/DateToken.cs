@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Text;
+using System.Linq;
 
 /*
-    FloatToken
+    DateToken
 
-        Numeric floating-point literals that are parsed from input.
+        Date literals that are parsed from input.
+        The time portion is optional.
 
     Keith Fletcher
     Oct 2018
@@ -17,28 +18,44 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class FloatToken : LiteralToken<double, FloatToken>
+    public class DateToken : LiteralToken<DateTime, DateToken>
     {
         #region Constructors
-        public FloatToken(double typedValue, string rawToken = null)
-            : base(LiteralTokenType.Float, typedValue, rawToken)
+        public DateToken(DateTime typedValue, string rawToken)
+            : base(LiteralTokenType.Date, typedValue, rawToken)
+        { }
+
+        public DateToken()
+            : this(DateTime.Now, "now")
         { }
         #endregion Constructors
 
         #region Parsing
-        public static FloatToken Parse(string value)
-            => FloatToken.Parse(value, false, value);
+        public static DateToken Parse(string value, bool dmy = false)
+        {
+            var portions = value.Split('-', '/');
+            if (portions.Length != 3)
+                throw new ParseException($"Invalid date format '{value}'");
+            if (dmy)
+                portions = portions.Reverse().ToArray();
 
-        public static FloatToken Parse(string value, bool isNeg, string rawToken)
-            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}");
+            if (portions[0].Length == 2)
+                portions[0] = "20" + portions[0];
+
+            var dateTimeStr = string.Join("-", portions);
+            if (DateTime.TryParse(dateTimeStr, out DateTime dateTime))
+                return new DateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local), value);
+            else
+                throw new ParseException($"Invalid date format '{dateTimeStr}'");
+        }
         #endregion Parsing
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as FloatToken);
-        public override bool Equals(FloatToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as DateToken);
+        public override bool Equals(DateToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(FloatToken a, FloatToken b)
+        public static bool operator ==(DateToken a, DateToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -46,16 +63,15 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(FloatToken a, FloatToken b) => !(a == b);
+        public static bool operator !=(DateToken a, DateToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(FloatToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(DateToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
 
-        #region ToString
-        public override string ToString() => $"{TypedValue:0.000}";
-        #endregion ToString
+        public static DateToken CreateDateTime(DateToken dateToken, TimeToken timeToken)
+            => new DateToken(dateToken.TypedValue + timeToken.TypedValue, $"{dateToken.RawToken} {timeToken.RawToken}");
     }
 }
 

@@ -32,8 +32,9 @@ Literals
  * **Dates**
    * Date only, or date and time
      * Support date formats 'yyyy-MM-dd', 'yy-MM-dd' or 'dd-MM-yyyy'
+     * Can use either '-' or '/' as a separator for date elements
      * Support time formats 'HH:mm' or 'HH:mm:ss'
-     * e.g. ``2018-02-05``, or ``2018-02-05 11:48``
+     * e.g. ``2018-02-05``, or ``2018/02/05 11:48``
  * **Times**
    * Time portion only
      * Support time formats 'HH:mm' or 'HH:mm:ss'
@@ -76,13 +77,14 @@ Todo
   * ~~LimitedInteger~~
   * ~~UnlimitedInteger~~
   * ~~Float~~
-  * Date
-  * Time
+  * ~~Date~~
+  * ~~Time~~
   * Timespan
 * Handle basic operators
 * Support for functions
 * Remove old code
 * Make sure all failed parsing raises a ParseException (rather than some other exception)
+* Perhaps support timezone offsets on date/times??
 
 * Put licence headers and footers on all source code
 

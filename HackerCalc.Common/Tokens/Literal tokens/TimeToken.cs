@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Text;
 
 /*
-    FloatToken
+    TimeToken
 
-        Numeric floating-point literals that are parsed from input.
+        Time literals that are parsed from input.
+        TimeToken represents a time of day, and thus is 
+        independant of time zone. DateToken with a time
+        portion attached should be used if you wish to 
+        express a time zone bound time.
 
     Keith Fletcher
     Oct 2018
@@ -17,28 +20,37 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public class FloatToken : LiteralToken<double, FloatToken>
+    public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
         #region Constructors
-        public FloatToken(double typedValue, string rawToken = null)
-            : base(LiteralTokenType.Float, typedValue, rawToken)
+        public TimeToken(TimeSpan typedValue, string rawToken)
+            : base(LiteralTokenType.Time, typedValue, rawToken)
+        {
+            if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
+                throw new TimeOverflowException("Time must be within the range of a single day");
+        }
+
+        public TimeToken()
+            : this(TimeSpan.Zero, null)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static FloatToken Parse(string value)
-            => FloatToken.Parse(value, false, value);
-
-        public static FloatToken Parse(string value, bool isNeg, string rawToken)
-            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}");
+        public static TimeToken Parse(string value)
+        {
+            if (TimeSpan.TryParse(value, out TimeSpan time))
+                return new TimeToken(time, value);
+            else
+                throw new ParseException($"Invalid time format '{value}'");
+        }
         #endregion Parsing
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as FloatToken);
-        public override bool Equals(FloatToken other) => other is null ? false : (TypedValue == other.TypedValue);
+        public override bool Equals(object obj) => Equals(obj as TimeToken);
+        public override bool Equals(TimeToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 
-        public static bool operator ==(FloatToken a, FloatToken b)
+        public static bool operator ==(TimeToken a, TimeToken b)
         {
             if (a is null && b is null)
                 return true;
@@ -46,16 +58,12 @@ namespace HisRoyalRedness.com
                 return false;
             return a.TypedValue == b.TypedValue;
         }
-        public static bool operator !=(FloatToken a, FloatToken b) => !(a == b);
+        public static bool operator !=(TimeToken a, TimeToken b) => !(a == b);
         #endregion Equality
 
         #region Comparison
-        public override int CompareTo(FloatToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
+        public override int CompareTo(TimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
-
-        #region ToString
-        public override string ToString() => $"{TypedValue:0.000}";
-        #endregion ToString
     }
 }
 

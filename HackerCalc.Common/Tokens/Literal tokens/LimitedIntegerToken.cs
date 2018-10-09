@@ -126,7 +126,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region ToString
-        public override string ToString() => TypedValue.ToString();
+        public override string ToString() => $"{TypedValue}{SignAndBitWidth}";
         #endregion ToString 
 
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
@@ -227,6 +227,15 @@ namespace HisRoyalRedness.com
         #endregion MinAndMax
 
         static readonly Dictionary<BitWidthAndSignPair, MinAndMax> _minAndMax = new Dictionary<BitWidthAndSignPair, MinAndMax>();
+    }
+
+    // Shared by LimitedIntegerToken and UnlimitedIntegerToken
+    public enum IntegerBase
+    {
+        Binary,
+        Octal,
+        Decimal,
+        Hexadecimal
     }
 }
 
