@@ -243,7 +243,7 @@ namespace HisRoyalRedness.com
         #endregion Literal token parsing
 
         #region Operator parsing
-        public static void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType)
+        public static void BinaryOperatorParsesCorrectly(string input, OperatorType expectedType, int leftValue = 1, int rightValue = 2)
         {
             var expr = Parser.ParseExpression(input);
             expr.Should().NotBeNull($"parsing '{input}' should succeed.");
@@ -255,11 +255,11 @@ namespace HisRoyalRedness.com
 
             var leftToken = token.Left as UnlimitedIntegerToken;
             leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(UnlimitedIntegerToken)}");
-            leftToken.TypedValue.Should().Be(1);
+            leftToken.TypedValue.Should().Be(leftValue);
 
             var rightToken = token.Right as UnlimitedIntegerToken;
             rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(UnlimitedIntegerToken)}");
-            rightToken.TypedValue.Should().Be(2);
+            rightToken.TypedValue.Should().Be(rightValue);
 
             token.Operator.Should().Be(expectedType);
         }

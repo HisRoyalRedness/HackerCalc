@@ -25,7 +25,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1]);
                         else
-                            Debug("1f");
+                            Debug("b1010i4");
                         break;
                 }
             }

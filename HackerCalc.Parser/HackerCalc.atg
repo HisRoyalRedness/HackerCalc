@@ -346,10 +346,10 @@ LimitedInteger<out IToken token, ref bool isNeg>
                         oct_limited_int                         (. intBase = IntegerBase.Octal; .)
                     )                                           (. var intVal = t.val; var isSigned = true; var signAndBitWidth = ""; .)
                     (
-                        ( i4 | i8 | i16 | i32 | i64 | i128 )    
+                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. signAndBitWidth = t.val; .)
                         |
-                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. isSigned = false; .)
-                    )                                           (. signAndBitWidth = t.val; .)
+                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. signAndBitWidth = t.val; isSigned = false; .)
+                    )
                                                                 (. var bitWidth = LimitedIntegerToken.ParseBitWidth(signAndBitWidth.Substring(1)); .)
                                                                 (. var rawToken = intVal + signAndBitWidth; .)
                                                                 (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken); .)

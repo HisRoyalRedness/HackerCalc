@@ -44,7 +44,13 @@ namespace HisRoyalRedness.com
 #endif
 
             if (IsLiteralToken(token))
-                sb.Append($"{((ILiteralToken)token)} ");
+            {
+                ILiteralToken litToken = token as ILiteralToken;
+                if (litToken.LiteralType == LiteralTokenType.Timespan)
+                    sb.Append($"'{litToken}' ");
+                else
+                    sb.Append($"{litToken} ");
+            }
 
             else if (IsFunctionToken(token))
             {
@@ -147,8 +153,6 @@ namespace HisRoyalRedness.com
                                 throw new UnrecognisedTokenException($"Unrecognised fix type {_fixType}");
                         }
                         break;
-                        //default:
-                        //    throw new UnrecognisedTokenException($"Unrecognised operator token type {opToken.Operator}");
                 }
             }
 
