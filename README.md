@@ -67,25 +67,33 @@ Change log
 | Date       | Description                                                                                                  |
 |------------|--------------------------------------------------------------------------------------------------------------|
 | 2018-10-08 | Refactor again! Decided to make a split between tokens that are parsed (i.e. the basic literals types and    |
-| ..         | operators, and the objects that are used for calculation, type casting etc.                                  |
-| ..         | This way we can develop and test the paring and calculation operators seperately.                            |
+| ..         | operators), and the objects that are used for calculation, type casting etc.                                 |
+| ..         | This way we can develop and test the parsing and calculation operators mostly independantly.                 |
+| 2018-10-10 | All literal and operator parsing completed. Added parsing support for functions.                             |
+| 2018-10-11 | Made a start on the calculation engine.                                                                      |
+| 2018-10-12 | Tweak the visitor pattern interface a little, and refactor TokenPrinter. Add printer tests                   |
 
 Todo
 ----
 
-* Get basic literal types parsed
-  * ~~LimitedInteger~~
-  * ~~UnlimitedInteger~~
-  * ~~Float~~
-  * ~~Date~~
-  * ~~Time~~
-  * Timespan
-* Handle basic operators
-* Support for functions
+* Parsing
+  * Get basic literal types parsed
+    * ~~LimitedInteger~~
+    * ~~UnlimitedInteger~~
+    * ~~Float~~
+    * ~~Date~~
+    * ~~Time~~
+    * ~~Timespan~~
+  * ~~Handle basic operators~~
+  * ~~Support for functions~~
+  * ~~Make sure all failed parsing raises a ParseException (rather than some other exception)~~
+  * Perhaps support timezone offsets on date/times??
+* Calculation
+  * Get the calculation engine design sorted
+  * Implement all data types
+  * Implement data mappers from literal tokens to data types
+  * Implement operations on all data types
 * Remove old code
-* Make sure all failed parsing raises a ParseException (rather than some other exception)
-* Perhaps support timezone offsets on date/times??
-
 * Put licence headers and footers on all source code
 
 

@@ -53,8 +53,8 @@ namespace HisRoyalRedness.com
     public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
     {
-        public LiteralToken(LiteralTokenType literalTokenType, TBaseType typedValue, string rawToken)
-            : base(rawToken)
+        protected LiteralToken(LiteralTokenType literalTokenType, TBaseType typedValue, string rawToken, SourcePosition position)
+            : base(rawToken, position)
         {
             LiteralType = literalTokenType;
             TypedValue = typedValue;
@@ -69,6 +69,7 @@ namespace HisRoyalRedness.com
         public bool IsTimespan => LiteralType == LiteralTokenType.Timespan;
         public TBaseType TypedValue { get; protected set; }
         public object ObjectValue => TypedValue;
+        public override TokenCategory Category => TokenCategory.LiteralToken;
 
         #region Equality
         public abstract bool Equals(TTypedToken other);
@@ -84,10 +85,6 @@ namespace HisRoyalRedness.com
         public override string ToString() => $"{TypedValue}";
         #endregion ToString
     }
-
-    // Mark enum types that should be ignored when enumerating
-    public class IgnoreEnumAttribute : Attribute
-    { }
 }
 
 /*

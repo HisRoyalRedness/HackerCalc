@@ -23,23 +23,28 @@ namespace HisRoyalRedness.com
     public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
         #region Constructors
-        public TimeToken(TimeSpan typedValue, string rawToken)
-            : base(LiteralTokenType.Time, typedValue, rawToken)
+        private TimeToken(TimeSpan typedValue, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.Time, typedValue, rawToken, position)
         {
             if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
-                throw new TimeOverflowException("Time must be within the range of a single day");
+                throw new ParseException("Time must be within the range of a single day");
         }
 
+        public TimeToken(TimeSpan typedValue)
+            : this(typedValue, null, SourcePosition.None)
+        { }
+
+
         public TimeToken()
-            : this(TimeSpan.Zero, null)
+            : this(TimeSpan.Zero)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static TimeToken Parse(string value)
+        public static TimeToken Parse(string value, SourcePosition position)
         {
             if (TimeSpan.TryParse(value, out TimeSpan time))
-                return new TimeToken(time, value);
+                return new TimeToken(time, value, position);
             else
                 throw new ParseException($"Invalid time format '{value}'");
         }

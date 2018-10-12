@@ -12,11 +12,6 @@ namespace HisRoyalRedness.com
 {
     public static class TestCommon
     {
-        static TestCommon()
-        {
-            _integerBitWidths = Enum.GetValues(typeof(LimitedIntegerToken.IntegerBitWidth)).Cast<LimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
-        }
-
         #region MakeToken
         public static IEnumerable<ILiteralToken> MakeLiteralTokens(this IEnumerable<string> tokenStrings)
             => tokenStrings.Select(ts => MakeLiteralToken(ts));
@@ -42,7 +37,7 @@ namespace HisRoyalRedness.com
             {
                 case "date":
                 case "datetoken":
-                    return DateToken.Parse(tokenArg);
+                    return DateToken.Parse(tokenArg, false, SourcePosition.None);
 
                 case "float":
                 case "floattoken":
@@ -65,7 +60,7 @@ namespace HisRoyalRedness.com
                         var num = portions.Groups[3].Value;
                         var isSigned = portions.Groups[4].Value.ToLower() != "u";
                         var bitWidth = LimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg);
+                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None);
                     }
 
                 case "unlimitedinteger":
@@ -83,16 +78,16 @@ namespace HisRoyalRedness.com
                             default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
                         }
                         var num = portions.Groups[3].Value;
-                        return UnlimitedIntegerToken.Parse(num, numBase, isNeg);
+                        return UnlimitedIntegerToken.Parse(num, numBase, isNeg, SourcePosition.None);
                     }
 
                 case "timespan":
                 case "timespantoken":
-                    return TimespanToken.Parse(TimeToken.Parse(tokenArg).TypedValue, tokenArg);
+                    return TimespanToken.Parse(TimeToken.Parse(tokenArg, SourcePosition.None).TypedValue, tokenArg, SourcePosition.None);
 
                 case "time":
                 case "timetoken":
-                    return TimeToken.Parse(tokenArg);
+                    return TimeToken.Parse(tokenArg, SourcePosition.None);
 
                 default:
                     throw new NotSupportedException($"Unrecognised token type {tokenType}");
@@ -115,17 +110,17 @@ namespace HisRoyalRedness.com
 
                 case LiteralTokenType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new LimitedIntegerToken(1, LimitedIntegerToken.IntegerBitWidth._32, true, false, value)
+                        ? new LimitedIntegerToken(1, LimitedIntegerToken.IntegerBitWidth._32, true)
                         : MakeLiteralToken($"integer {value}");
 
                 case LiteralTokenType.Time:
                     return string.IsNullOrEmpty(value)
-                        ? new TimeToken(TimeSpan.FromSeconds(1), value)
+                        ? new TimeToken(TimeSpan.FromSeconds(1))
                         : MakeLiteralToken($"time {value}");
 
                 case LiteralTokenType.Timespan:
                     return string.IsNullOrEmpty(value)
-                        ? new TimespanToken(TimeSpan.FromSeconds(1), value)
+                        ? new TimespanToken(TimeSpan.FromSeconds(1))
                         : MakeLiteralToken($"timespan {value}");
 
                 case LiteralTokenType.UnlimitedInteger:
@@ -284,32 +279,59 @@ namespace HisRoyalRedness.com
         }
         #endregion Operator parsing
 
-        #region Evaluation checking
-        public static void ExpressionEvaluatesTo<TToken>(string stringToParse, string expectedValue)
-            where TToken : class, ILiteralToken
+        public static void CompareParseTree(string input, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
         {
-            var expr = Parser.ParseExpression(stringToParse);
-            expr.Should().NotBeNull("the expression is expected to parse correctly");
-
-            var token = expr.Evaluate();
-
-
-            // If expectedValue is null, then we expect the evaluation to fail. 
-            // No need to check anything else after that
-            if (string.IsNullOrWhiteSpace(expectedValue))
+            IToken rawToken = null;
+            try
             {
-                token.Should().BeNull();
+                rawToken = Parser.ParseExpression(input);
+            }
+            catch (ParseException)
+            {
+                if (string.IsNullOrWhiteSpace(expectedParseString))
+                    return;
+            }
+
+            // If expectedTokenStr is null, then we expect the parse to fail. 
+            // No need to check anything else after that
+            if (string.IsNullOrWhiteSpace(expectedParseString))
+            {
+                rawToken.Should().BeNull();
                 return;
             }
 
-            token.Should().NotBeNull("the expression should evaluate correctly");
-            token.Should().BeOfType<TToken>();
+            rawToken.Should().NotBeNull("the token should parse correctly");
 
-            var typedToken = token as TToken;
-            typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
-            LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
+            var parseText = rawToken.Print(fixType).Trim();
+            parseText.Should().BeEquivalentTo(expectedParseString.Trim());
         }
-        #endregion Evaluation checking
+
+        //#region Evaluation checking
+        //public static void ExpressionEvaluatesTo<TToken>(string stringToParse, string expectedValue)
+        //    where TToken : class, ILiteralToken
+        //{
+        //    var expr = Parser.ParseExpression(stringToParse);
+        //    expr.Should().NotBeNull("the expression is expected to parse correctly");
+
+        //    var token = expr.Evaluate();
+
+
+        //    // If expectedValue is null, then we expect the evaluation to fail. 
+        //    // No need to check anything else after that
+        //    if (string.IsNullOrWhiteSpace(expectedValue))
+        //    {
+        //        token.Should().BeNull();
+        //        return;
+        //    }
+
+        //    token.Should().NotBeNull("the expression should evaluate correctly");
+        //    token.Should().BeOfType<TToken>();
+
+        //    var typedToken = token as TToken;
+        //    typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
+        //    LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
+        //}
+        //#endregion Evaluation checking
 
         public static object GetInstanceField(Type type, object instance, string fieldName)
         {
@@ -322,13 +344,17 @@ namespace HisRoyalRedness.com
         public const string INCOMPLETE = "Incomplete";
         public const string BASIC_PARSE = "Basic parse";
         public const string BASIC_OPERATION = "Basic operation";
+        public const string DATA_MAPPING = "Data mapping";
+        public const string VISITOR = "Visitors";
+        public const string TOKEN_PRINTER = "Token printer";
         public const string LITERAL_TOKEN_PARSE = "Literal token parse";
         public const string OPERATOR_TOKEN_PARSE = "Operator token parse";
+        public const string FUNCTION_TOKEN_PARSE = "Function token parse";
         #endregion Test trait descriptions
 
-        public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths => _integerBitWidths;
+        public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths { get; }
+            = Enum.GetValues(typeof(LimitedIntegerToken.IntegerBitWidth)).Cast<LimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
 
-        readonly static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> _integerBitWidths;
         static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }

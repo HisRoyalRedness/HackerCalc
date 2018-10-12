@@ -25,7 +25,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1]);
                         else
-                            Debug("b1010i4");
+                            Debug("1+2");
                         break;
                 }
             }
@@ -35,8 +35,8 @@ namespace HisRoyalRedness.com
         {
             Console.WriteLine("Enter an expression, or an empty line to quit");
             string input = null;
-            while(!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
-                Console.WriteLine($" = {PrintToken(Parser.ParseExpression(input)?.Evaluate(), true)}");
+            while (!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
+                Console.WriteLine($" = {(Parser.ParseExpression(input)?.Evaluate())}");
         }
 
         static void Debug(string input)
@@ -57,13 +57,12 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine();
 
-            //Console.WriteLine("Evaluation");
-            //Console.WriteLine("----------");
-            //var evalToken = DoWithCatch<IToken>(() => rootToken?.Evaluate(), "EVALUATE");
-            //if (evalToken != null)
-            //    Console.WriteLine(PrintToken(evalToken, true));
+            Console.WriteLine("Evaluation");
+            Console.WriteLine("----------");
+            var result = DoWithCatch<IDataType>(() => rootToken?.Evaluate(), "EVALUATE");
+            Console.WriteLine(result?.ToString(Verbosity.ValueAndType) ?? "<null>");
 
-            //Console.WriteLine();
+            Console.WriteLine();
 
             Console.WriteLine("Scanned token");
             Console.WriteLine("-------------");

@@ -26,6 +26,16 @@ namespace HisRoyalRedness.com
         TVisitorReturnType Accept<TVisitorReturnType>(ITokenVisitor<TVisitorReturnType> visitor);
 
         string RawToken { get; }
+        SourcePosition Position { get; }
+
+        TokenCategory Category { get; }
+    }
+
+    public enum TokenCategory
+    {
+        LiteralToken,
+        FunctionToken,
+        OperatorToken
     }
 
     public interface ITokenVisitor<TVisistorReturnType>
@@ -37,17 +47,33 @@ namespace HisRoyalRedness.com
     public abstract class TokenBase<TToken> : IToken
         where TToken : class, IToken
     {
-        protected TokenBase(string rawToken = null)
+        protected TokenBase(string rawToken, SourcePosition position)
         {
             RawToken = rawToken;
+            Position = position ?? SourcePosition.None;
         }
 
         public virtual TVisistorReturnType Accept<TVisistorReturnType>(ITokenVisitor<TVisistorReturnType> visitor)
             => visitor.Visit<TToken>(this as TToken);
 
+        public SourcePosition Position { get; private set; }
         public string RawToken { get; private set; }
-
+        public abstract TokenCategory Category { get; }
         public override string ToString() => $"{RawToken}";
+    }
+
+    public class SourcePosition
+    {
+        public SourcePosition(int line, int column)
+        {
+            Line = line;
+            Column = column;
+        }
+
+        public static SourcePosition None => new SourcePosition(0, 0);
+
+        public int Line { get; private set; }
+        public int Column { get; private set; }
     }
 }
 

@@ -26,8 +26,12 @@ namespace HisRoyalRedness.com
     public class LimitedIntegerToken : LiteralToken<BigInteger, LimitedIntegerToken>
     {
         #region Constructors
-        public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken)
-            : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken)
+        public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned)
+            : this(typedValue, bitWidth, isSigned, isSigned && typedValue < 0, null, SourcePosition.None)
+        { } 
+
+        private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)
         {
             if (isNeg)
                 typedValue *= -1;
@@ -55,21 +59,19 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken = null)
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position)
         {
+            BigInteger val;
             switch (numBase)
             {
-                case IntegerBase.Binary:
-                    return new LimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
-                case IntegerBase.Octal:
-                    return new LimitedIntegerToken(value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
-                case IntegerBase.Decimal:
-                    return new LimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
-                case IntegerBase.Hexadecimal:
-                    return new LimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}");
+                case IntegerBase.Binary: val = value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(); break;
+                case IntegerBase.Octal: val = value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(); break;
+                case IntegerBase.Decimal: val = BigInteger.Parse(value, NumberStyles.Integer); break;
+                case IntegerBase.Hexadecimal: val = BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber); break;
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
+            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position);
         }
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)

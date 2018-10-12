@@ -21,17 +21,17 @@ namespace HisRoyalRedness.com
     public class DateToken : LiteralToken<DateTime, DateToken>
     {
         #region Constructors
-        public DateToken(DateTime typedValue, string rawToken)
-            : base(LiteralTokenType.Date, typedValue, rawToken)
+        private DateToken(DateTime typedValue, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.Date, typedValue, rawToken, position)
         { }
 
         public DateToken()
-            : this(DateTime.Now, "now")
+            : this(DateTime.Now, "now", SourcePosition.None)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static DateToken Parse(string value, bool dmy = false)
+        public static DateToken Parse(string value, bool dmy, SourcePosition position)
         {
             var portions = value.Split('-', '/');
             if (portions.Length != 3)
@@ -44,7 +44,7 @@ namespace HisRoyalRedness.com
 
             var dateTimeStr = string.Join("-", portions);
             if (DateTime.TryParse(dateTimeStr, out DateTime dateTime))
-                return new DateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local), value);
+                return new DateToken(DateTime.SpecifyKind(dateTime, DateTimeKind.Local), value, SourcePosition.None);
             else
                 throw new ParseException($"Invalid date format '{dateTimeStr}'");
         }
@@ -71,7 +71,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         public static DateToken CreateDateTime(DateToken dateToken, TimeToken timeToken)
-            => new DateToken(dateToken.TypedValue + timeToken.TypedValue, $"{dateToken.RawToken} {timeToken.RawToken}");
+            => new DateToken(dateToken.TypedValue + timeToken.TypedValue, $"{dateToken.RawToken} {timeToken.RawToken}", dateToken.Position);
     }
 }
 

@@ -19,38 +19,55 @@ namespace HisRoyalRedness.com
 {
     public enum OperatorType
     {
+        [BinaryOperator]
         [Description("+")]
         Add,
+        [BinaryOperator]
         [Description("-")]
         Subtract,
+        [BinaryOperator]
         [Description("*")]
         Multiply,
+        [BinaryOperator]
         [Description("/")]
         Divide,
+        [BinaryOperator]
         [Description("**")]
         Power,
+        [BinaryOperator]
         [Description("//")]
         Root,
+        [BinaryOperator]
         [Description("%")]
         Modulo,
+        [UnaryOperator]
         [Description("~")]
         BitwiseNegate,          // i.e. 2's complement
+        [UnaryOperator]
         [Description("!-")]
         NumericNegate,          // i.e. value * -1
+        [BinaryOperator]
         [Description("<<")]
         LeftShift,
+        [BinaryOperator]
         [Description(">>")]
         RightShift,
+        [BinaryOperator]
         [Description("&")]
         And,
+        [BinaryOperator]
         [Description("|")]
         Or,
+        [UnaryOperator]
         [Description("!")]
         Not,
+        [BinaryOperator]
         [Description("^")]
         Xor,
 
+        [DontEnumerate]
         Cast,
+        [DontEnumerate]
         Grouping
     }
 
@@ -65,55 +82,61 @@ namespace HisRoyalRedness.com
     #region OperatorToken
     public class OperatorToken : TokenBase<OperatorToken>, IOperatorToken
     {
+        #region Constructors
         public OperatorToken(OperatorType op, bool isUnary = false)
-            : base()
+            : this(op, isUnary, SourcePosition.None)
+        { }
+
+        private OperatorToken(OperatorType op, bool isUnary, SourcePosition position)
+            : base(null, position)
         {
             Operator = op;
             IsUnary = isUnary;
         }
+        #endregion Constructors
+
+        #region Parsing
+        public static OperatorToken Parse(string value, SourcePosition position)
+        {
+            switch (value)
+            {
+                case "!": return new OperatorToken(OperatorType.Not, true, position);
+                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true, position);
+                case "*": return new OperatorToken(OperatorType.Multiply, false, position);
+                case "/": return new OperatorToken(OperatorType.Divide, false, position);
+                case "\\": return new OperatorToken(OperatorType.Divide, false, position);
+                case "**": return new OperatorToken(OperatorType.Power, false, position);
+                case "//": return new OperatorToken(OperatorType.Root, false, position);
+                case "\\\\": return new OperatorToken(OperatorType.Root, false, position);
+                case "%": return new OperatorToken(OperatorType.Modulo, false, position);
+                case "+": return new OperatorToken(OperatorType.Add, false, position);
+                case "-": return new OperatorToken(OperatorType.Subtract, false, position);
+                case "<<": return new OperatorToken(OperatorType.LeftShift, false, position);
+                case ">>": return new OperatorToken(OperatorType.RightShift, false, position);
+                case "&": return new OperatorToken(OperatorType.And, false, position);
+                case "|": return new OperatorToken(OperatorType.Or, false, position);
+                case "^": return new OperatorToken(OperatorType.Xor, false, position);
+                default: throw new ParseException($"Unrecognised operator {value}.");
+            }
+        }
+
+        public static OperatorToken ParseNegate(string value, SourcePosition position)
+        {
+            switch (value)
+            {
+                case "!": return new OperatorToken(OperatorType.Not, true, position);
+                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true, position);
+                case "-": return new OperatorToken(OperatorType.NumericNegate, true, position);
+                default: throw new ParseException($"Unrecognised operator {value}.");
+            }
+        }
+        #endregion Parsing
 
         public OperatorType Operator { get; private set; }
-
         public bool IsUnary { get; private set; }
-
         public IToken Left { get; set; }
         public IToken Right { get; set; }
-
-        public static OperatorToken ParseNegate(string value)
-        {
-            switch (value)
-            {
-                case "!": return new OperatorToken(OperatorType.Not, true);
-                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true);
-                case "-": return new OperatorToken(OperatorType.NumericNegate, true);
-                default: throw new ParseException($"Unrecognised operator {value}.");
-            }
-        }
-
-        public static OperatorToken Parse(string value)
-        {
-            switch (value)
-            {
-                case "!": return new OperatorToken(OperatorType.Not, true);
-                case "~": return new OperatorToken(OperatorType.BitwiseNegate, true);
-                case "*": return new OperatorToken(OperatorType.Multiply);
-                case "/": return new OperatorToken(OperatorType.Divide);
-                case "\\": return new OperatorToken(OperatorType.Divide);
-                case "**": return new OperatorToken(OperatorType.Power);
-                case "//": return new OperatorToken(OperatorType.Root);
-                case "\\\\": return new OperatorToken(OperatorType.Root);
-                case "%": return new OperatorToken(OperatorType.Modulo);
-                case "+": return new OperatorToken(OperatorType.Add);
-                case "-": return new OperatorToken(OperatorType.Subtract);
-                case "<<": return new OperatorToken(OperatorType.LeftShift);
-                case ">>": return new OperatorToken(OperatorType.RightShift);
-                case "&": return new OperatorToken(OperatorType.And);
-                case "|": return new OperatorToken(OperatorType.Or);
-                case "^": return new OperatorToken(OperatorType.Xor);
-                default: throw new ParseException($"Unrecognised operator {value}.");
-            }
-        }
-
+        public override TokenCategory Category => TokenCategory.OperatorToken;
         public override string ToString() => $"{Operator.GetEnumDescription()}";
     }
     #endregion OperatorToken
@@ -121,8 +144,8 @@ namespace HisRoyalRedness.com
     #region GroupingToken
     public class GroupingToken : TokenBase<GroupingToken>, IOperatorToken
     {
-        public GroupingToken(IToken childToken)
-            : base()
+        public GroupingToken(IToken childToken, SourcePosition position)
+            : base(null, position)
         {
             Left = childToken;
         }
@@ -131,6 +154,7 @@ namespace HisRoyalRedness.com
         public IToken Left { get; private set; }
         public IToken Right => null;
         public OperatorType Operator => OperatorType.Grouping;
+        public override TokenCategory Category => TokenCategory.OperatorToken;
     }
     #endregion GroupingToken
 

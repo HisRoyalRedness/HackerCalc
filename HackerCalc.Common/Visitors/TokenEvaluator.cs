@@ -917,13 +917,7 @@ namespace HisRoyalRedness.com
 //        public static IOldLiteralToken Evaluate(this IToken token, EvaluatorSettings settings = null)
 //            => token.Accept(new TokenEvaluator(settings ?? new EvaluatorSettings())) as IOldLiteralToken;
 //    }
-
-    public static class TokenEvaluatorExtensions
-    {
-        public static ILiteralToken Evaluate(this IToken token)
-            => null;
-    }
-
+//
 //    public class EvaluatorSettings
 //    {
 //        public bool ErrorOnOverflow { get; set; }

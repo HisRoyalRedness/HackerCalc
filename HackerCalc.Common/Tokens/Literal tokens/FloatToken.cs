@@ -20,17 +20,21 @@ namespace HisRoyalRedness.com
     public class FloatToken : LiteralToken<double, FloatToken>
     {
         #region Constructors
-        public FloatToken(double typedValue, string rawToken = null)
-            : base(LiteralTokenType.Float, typedValue, rawToken)
+        public FloatToken(double typedValue)
+            : this(typedValue, null, SourcePosition.None)
+        { }
+
+        private FloatToken(double typedValue, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.Float, typedValue, rawToken, position)
         { }
         #endregion Constructors
 
         #region Parsing
         public static FloatToken Parse(string value)
-            => FloatToken.Parse(value, false, value);
+            => FloatToken.Parse(value, false, value, SourcePosition.None);
 
-        public static FloatToken Parse(string value, bool isNeg, string rawToken)
-            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}");
+        public static FloatToken Parse(string value, bool isNeg, string rawToken, SourcePosition position)
+            => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}", position);
         #endregion Parsing
 
         #region Equality

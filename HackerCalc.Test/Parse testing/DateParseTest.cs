@@ -55,11 +55,25 @@ namespace HisRoyalRedness.com
         [DataRow("2018-21-01")]
         public void InvalidDatesAreNotParsed(string stringToParse)
         {
-            var rawToken = Parser.ParseExpression(stringToParse)?.Evaluate();
-            if (rawToken == null)
+            IToken rawToken = null;
+            try
+            {
+                rawToken = Parser.ParseExpression(stringToParse);
+            }
+            catch (ParseException)
+            {
+                // Could possibly fail to parse at all. This is OK for this test
                 return;
-            else
-                rawToken.Should().NotBeOfType<DateToken>();
+            }
+
+            
+            // If it does parse, it will be an expression, rather than a LiteralToken
+            Console.WriteLine();
+            //var rawToken = Parser.ParseExpression(stringToParse)?.Evaluate();
+            //if (rawToken == null)
+            //    return;
+            //else
+            //    rawToken.Should().NotBeOfType<DateToken>();
         }
     }
 }

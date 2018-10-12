@@ -17,7 +17,7 @@ namespace HisRoyalRedness.com
         [DataRow("1i4-2i4", "1i4 2i4 -")]
         [DataRow("1.0-2.0", "1.000 2.000 -")]
         public void ASingleMinusIsASimpleExpression(string stringToParse, string expectedParseString)
-            => TestParse(stringToParse, expectedParseString);
+            => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 
         // 1 - (-2)
         [DataTestMethod]
@@ -25,7 +25,7 @@ namespace HisRoyalRedness.com
         [DataRow("1i4--2i4", "1i4 -2i4 -")]
         [DataRow("1.0--2.0", "1.000 -2.000 -")]
         public void ADoubleMinusIsANegativeNumber(string stringToParse, string expectedParseString)
-            => TestParse(stringToParse, expectedParseString);
+            => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 
         // 1 - - (-2) ??
         [DataTestMethod]
@@ -33,7 +33,7 @@ namespace HisRoyalRedness.com
         [DataRow("1i4---2i4")]
         [DataRow("1.0---2.0")]
         public void ATripleMinusIsInvalid(string stringToParse)
-            => TestParse(stringToParse);
+            => TestCommon.CompareParseTree(stringToParse);
 
         [DataTestMethod]
         [DataRow("-1-2", "-1 2 -")]
@@ -49,7 +49,7 @@ namespace HisRoyalRedness.com
         [DataRow("-(-1i4-2i4)", "-1i4 2i4 - !-")]
         [DataRow("-(-1.0-2.0)", "-1.000 2.000 - !-")]
         public void AMinusCanLeadTheExpression(string stringToParse, string expectedParseString)
-            => TestParse(stringToParse, expectedParseString);
+            => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 
         [DataTestMethod]
         [DataRow("-1")]
@@ -88,34 +88,6 @@ namespace HisRoyalRedness.com
 
             grpToken.Left.Should().NotBeNull();
             grpToken.Left.Should().BeAssignableTo<ILiteralToken>();
-        }
-
-
-        void TestParse(string stringToParse, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
-        {
-            IToken rawToken = null;
-            try
-            {
-                rawToken = Parser.ParseExpression(stringToParse);
-            }
-            catch (ParseException)
-            {
-                if (string.IsNullOrWhiteSpace(expectedParseString))
-                    return;
-            }
-
-            // If expectedTokenStr is null, then we expect the parse to fail. 
-            // No need to check anything else after that
-            if (string.IsNullOrWhiteSpace(expectedParseString))
-            {
-                rawToken.Should().BeNull();
-                return;
-            }
-
-            rawToken.Should().NotBeNull("the token should parse correctly");
-
-            var parseText = rawToken.Print(fixType).Trim();
-            parseText.Should().BeEquivalentTo(expectedParseString.Trim());
         }
     }
 }

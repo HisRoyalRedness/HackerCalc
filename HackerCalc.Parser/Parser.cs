@@ -216,6 +216,8 @@ namespace HisRoyalRedness.com
         public bool IsPartialEquation() => Constants.IsPartialEquationAllowed && la.kind == 0;
         #endregion Resolvers
 
+        public static SourcePosition GetPos(Token token) => new SourcePosition(token.line, token.col);
+
         public IToken RootToken { get; private set; }
     }
 

@@ -92,8 +92,7 @@ namespace HisRoyalRedness.com
             ResetPeek();
             tokenChain.prev.next = null;
             tokenChain.prev = null;
-            if (ScannedTokens != null)
-                ScannedTokens(tokenChain);
+            ScannedTokens?.Invoke(tokenChain);
             return tokenChain;
         }
 

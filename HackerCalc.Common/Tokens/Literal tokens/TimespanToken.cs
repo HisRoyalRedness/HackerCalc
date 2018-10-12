@@ -21,21 +21,25 @@ namespace HisRoyalRedness.com
     public class TimespanToken : LiteralToken<TimeSpan, TimespanToken>
     {
         #region Constructors
-        public TimespanToken(TimeSpan typedValue, string rawToken)
-            : base(LiteralTokenType.Timespan, typedValue, rawToken)
+        private TimespanToken(TimeSpan typedValue, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.Timespan, typedValue, rawToken, position)
+        { }
+
+        public TimespanToken(TimeSpan typedValue)
+            : this(typedValue, null, SourcePosition.None)
         { }
 
         public TimespanToken()
-            : this(TimeSpan.Zero, null)
+            : this(TimeSpan.Zero)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static TimespanToken Parse(TimeSpan timespan, string rawToken)
-            => new TimespanToken(timespan, rawToken);
+        public static TimespanToken Parse(TimeSpan timespan, string rawToken, SourcePosition position)
+            => new TimespanToken(timespan, rawToken, position);
 
         public TimespanToken AddCompoundPortions(TimespanToken other)
-            => new TimespanToken(TypedValue + other.TypedValue, $"{RawToken}{(string.IsNullOrEmpty(RawToken) ? "" : ", ")}{other.RawToken}");
+            => new TimespanToken(TypedValue + other.TypedValue, $"{RawToken}{(string.IsNullOrEmpty(RawToken) ? "" : ", ")}{other.RawToken}", Position);
         #endregion Parsing
 
         #region Equality

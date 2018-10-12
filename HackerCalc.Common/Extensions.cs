@@ -18,6 +18,19 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
+    #region EnumExtensions
+    // Mark enum types that should be ignored when enumerating
+    public class DontEnumerateAttribute : Attribute
+    { }
+
+    // Signify that an operator is unary (i.e. requires a single operand)
+    public class UnaryOperatorAttribute : Attribute
+    { }
+
+    // Signify that an operator is binary (i.e. requires two operands)
+    public class BinaryOperatorAttribute : Attribute
+    { }
+
     public static class EnumExtensions
     {
         public static string GetEnumDescription(this Enum value)
@@ -26,12 +39,23 @@ namespace HisRoyalRedness.com
                 .Select(a => a.Description)
                 .FirstOrDefault() ?? value.ToString();
 
-        public static bool IsEnumIgnored(this Enum value)
+        public static bool IsEnumBlocked(this Enum value)
             => value.GetType().GetField(value.ToString())
-                .GetCustomAttributes<IgnoreEnumAttribute>(false)
+                .GetCustomAttributes<DontEnumerateAttribute>(false)
                 .Any();
 
-        public static IEnumerable<TEnum> GetEnumCollection<TEnum>()
+        public static bool IsUnaryOperator(this Enum value)
+            => value.GetType().GetField(value.ToString())
+                .GetCustomAttributes<UnaryOperatorAttribute>(false)
+                .Any();
+
+
+        public static bool IsBinaryOperator(this Enum value)
+            => value.GetType().GetField(value.ToString())
+                .GetCustomAttributes<BinaryOperatorAttribute>(false)
+                .Any();
+
+        public static IEnumerable<TEnum> GetEnumCollection<TEnum>(Predicate<TEnum> enumFilter = null)
             where TEnum : struct, IConvertible
         {
             if (!typeof(TEnum).IsEnum)
@@ -39,10 +63,12 @@ namespace HisRoyalRedness.com
             return Enum
                 .GetValues(typeof(TEnum))
                 .Cast<TEnum>()
-                .Where(e => !((e as Enum)?.IsEnumIgnored() ?? false));
+                .Where(e => !((e as Enum)?.IsEnumBlocked() ?? false) && (enumFilter == null || enumFilter(e)));
         }
     }
+    #endregion EnumExtensions
 
+    #region GeneralExtensions
     public static class GeneralExtensions
     {
         public static T Tap<T>(this T item, Action<T> action)
@@ -64,7 +90,9 @@ namespace HisRoyalRedness.com
             }
         }
     }
+    #endregion GeneralExtensions
 
+    #region EnumerableExtensions
     public static class EnumerableExtensions
     {
         public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> collection, int batchSize)
@@ -83,8 +111,9 @@ namespace HisRoyalRedness.com
                 yield return nextbatch.ToArray();
         }
     }
+    #endregion EnumerableExtensions
 
-
+    #region StringExtensions
     public static class StringExtensions
     {
         public static string BatchWithDelim(this string data, int batchSize, string delim = " ")
@@ -105,7 +134,9 @@ namespace HisRoyalRedness.com
             .Reverse()
             .ToArray());
     }
+    #endregion StringExtensions
 
+    #region BigIntegerExtensions
     public static class BigIntegerExtensions
     {
         public static BigInteger BigIntegerFromBinary(this string value)
@@ -181,6 +212,7 @@ namespace HisRoyalRedness.com
         static string AddSign(this string numString, bool addSign)
             => addSign ? $"-{numString}" : numString;
     }
+    #endregion BigIntegerExtensions
 }
 
 /*

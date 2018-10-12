@@ -25,30 +25,28 @@ namespace HisRoyalRedness.com
     {
         #region Constructors
         public UnlimitedIntegerToken(BigInteger typedValue)
-            : base(LiteralTokenType.UnlimitedInteger, typedValue, typedValue.ToString())
+            : this(typedValue, typedValue < 0, null, SourcePosition.None)
         { }
 
-        public UnlimitedIntegerToken(BigInteger typedValue, bool isNeg, string rawToken)
-            : base(LiteralTokenType.UnlimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken)
+        private UnlimitedIntegerToken(BigInteger typedValue, bool isNeg, string rawToken, SourcePosition position)
+            : base(LiteralTokenType.UnlimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg)
+        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg, SourcePosition position)
         {
+            BigInteger val;
             switch (numBase)
             {
-                case IntegerBase.Binary:
-                    return new UnlimitedIntegerToken(value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(), isNeg, $"{(isNeg ? "-" : "")}{value}");
-                case IntegerBase.Octal:
-                    return new UnlimitedIntegerToken(value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(), isNeg, $"{(isNeg ? "-" : "")}{value}");
-                case IntegerBase.Decimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value, NumberStyles.Integer), isNeg, $"{(isNeg ? "-" : "")}{value}");
-                case IntegerBase.Hexadecimal:
-                    return new UnlimitedIntegerToken(BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber), isNeg, $"{(isNeg ? "-" : "")}{value}");
+                case IntegerBase.Binary: val = value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(); break;
+                case IntegerBase.Octal: val = value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(); break;
+                case IntegerBase.Decimal: val = BigInteger.Parse(value, NumberStyles.Integer); break;
+                case IntegerBase.Hexadecimal: val = BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber); break;
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
+            return new UnlimitedIntegerToken(val, isNeg, $"{(isNeg ? "-" : "")}{value}", position);
         }
         #endregion Parsing
 
