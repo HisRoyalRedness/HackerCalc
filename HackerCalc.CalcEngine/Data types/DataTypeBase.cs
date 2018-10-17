@@ -7,12 +7,6 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
-    public enum Verbosity
-    {
-        ValueOnly,
-        ValueAndType
-    }
-
     public enum DataType
     {
         [Description("Limited Integer")]
@@ -31,20 +25,12 @@ namespace HisRoyalRedness.com
         MAX
     }
 
-    public interface IDataType
-    {
-        object ObjectValue { get; }
-        DataType DataType { get; }
-        string ToString(Verbosity verbosity);
-    }
+    public interface IDataType<TBaseType, TDataType> : IDataType<DataType>
+        where TDataType : class, IDataType<DataType>
+    { }
 
-    public interface IDataType<TBaseType> : IDataType
-    {
-        TBaseType Value { get; }
-    }
-
-    public abstract class DataTypeBase<TBaseType, TDataType> : IDataType<TBaseType>
-        where TDataType : class, IDataType
+    public abstract class DataTypeBase<TBaseType, TDataType> : IDataType<TBaseType, TDataType>
+        where TDataType : class, IDataType<DataType>
     {
         protected DataTypeBase(TBaseType value, DataType dataType)
         {
@@ -59,7 +45,7 @@ namespace HisRoyalRedness.com
         public override string ToString() => ToString(Verbosity.ValueOnly);
         public string ToString(Verbosity verbosity)
         {
-            switch(verbosity)
+            switch (verbosity)
             {
                 case Verbosity.ValueOnly: return $"{Value}";
                 case Verbosity.ValueAndType: return $"{Value}: {(GetType().Name)}";

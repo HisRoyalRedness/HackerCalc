@@ -133,6 +133,21 @@ namespace HisRoyalRedness.com
                         : new string(b)))
             .Reverse()
             .ToArray());
+
+        public static string JoinWith<T>(this IEnumerable<T> items, string joinWord = "and", string delim = ", ")
+            => JoinWith(items.Select(item => item?.ToString()), joinWord, delim);
+
+        public static string JoinWith(this IEnumerable<string> items, string joinWord = "and", string delim = ", ")
+        {
+            var itemList = items.Where(item => item != null).ToList();
+            switch(itemList.Count)
+            {
+                case 0: return "";
+                case 1: return itemList[0];
+                default:
+                    return $"{(string.Join(delim, itemList.Take(itemList.Count - 1).ToArray()))} {joinWord} {itemList[itemList.Count - 1]}";
+            }
+        }
     }
     #endregion StringExtensions
 

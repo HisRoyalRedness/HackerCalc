@@ -81,7 +81,7 @@ namespace HisRoyalRedness.com
             catch(Exception ex)
             {
                 Console.WriteLine($"{errorType.ToUpper()} ERROR: {ex.Message}");
-                return default(T);
+                return default;
             }
         }
 
@@ -159,5 +159,12 @@ namespace HisRoyalRedness.com
 
     }
 
-    
+    public static class TokenExtensions
+    {
+        public static IDataType Evaluate(this IToken token)
+            => _evaluator.Value.Evaluate(token);
+
+        static Lazy<IEvaluator> _evaluator = new Lazy<IEvaluator>(() => new Evaluator<DataType>(new CalcEngine()));
+    }
+
 }

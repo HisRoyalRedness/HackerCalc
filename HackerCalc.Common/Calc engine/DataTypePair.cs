@@ -8,20 +8,39 @@ using System.Threading.Tasks;
 namespace HisRoyalRedness.com
 {
     [DebuggerDisplay("{Left}, {Right}")]
-    public struct DataTypeValuePair
+    public struct DataTypePair<TDataTypeEnum> : IEquatable<DataTypePair<TDataTypeEnum>>
+        where TDataTypeEnum : Enum
     {
-        public DataTypeValuePair(IDataType left, IDataType right)
+        public DataTypePair(TDataTypeEnum left, TDataTypeEnum right)
+            : this(left, right, true)
+        { }
+
+        public DataTypePair(TDataTypeEnum left, TDataTypeEnum right, bool supported)
         {
-            Left = left ?? throw new ArgumentNullException(nameof(left));
-#if INCOMPLETE_EQ
-#else
-            Right = right ?? throw new ArgumentNullException(nameof(right));
-#endif
+            Left = left;
+            Right = right;
+            OperationSupported = supported;
         }
 
-        public IDataType Left { get; private set; }
-        public IDataType Right { get; private set; }
+        public TDataTypeEnum Left { get; private set; }
+        public TDataTypeEnum Right { get; private set; }
+        public bool OperationSupported { get; private set; }
 
+        public static DataTypePair<TDataTypeEnum> Unsupported { get; } = new DataTypePair<TDataTypeEnum>() { OperationSupported = false };
+
+        #region Equality
+        public override bool Equals(object obj)
+            => (obj is DataTypePair<TDataTypeEnum> other)
+                ? Equals(other)
+                : false;
+        public bool Equals(DataTypePair<TDataTypeEnum> other) => this == other;
+        public override int GetHashCode() => (Left.GetHashCode() ^ 1500450271) + Right.GetHashCode();
+
+        public static bool operator ==(DataTypePair<TDataTypeEnum> a, DataTypePair<TDataTypeEnum> b)
+            => a.Left.Equals(b.Left) && a.Right.Equals(b.Right);
+
+        public static bool operator !=(DataTypePair<TDataTypeEnum> a, DataTypePair<TDataTypeEnum> b) => !(a == b);
+        #endregion Equality
 
         //public OperandTypePair TypesFromMap(BinaryOperandTypeMap map)
         //{
@@ -41,39 +60,31 @@ namespace HisRoyalRedness.com
     }
 
     [DebuggerDisplay("{Left}, {Right}")]
-    public struct DataTypePair : IEquatable<DataTypePair>
+    public struct DataTypeValuePair<TDataTypeEnum> : IEquatable<DataTypeValuePair<TDataTypeEnum>>
+        where TDataTypeEnum : Enum
     {
-        public DataTypePair(DataType left, DataType right)
-            : this(left, right, true)
-        { }
-
-        public DataTypePair(DataType left, DataType right, bool supported)
+        public DataTypeValuePair(IDataType<TDataTypeEnum> left, IDataType<TDataTypeEnum> right)
         {
             Left = left;
             Right = right;
-            OperationSupported = supported;
         }
 
-        public DataType Left { get; private set; }
-        public DataType Right { get; private set; }
-        public bool OperationSupported { get; private set; }
-
-        public static DataTypePair Unsupported { get; } = new DataTypePair() { OperationSupported = false };
+        public IDataType<TDataTypeEnum> Left { get; private set; }
+        public IDataType<TDataTypeEnum> Right { get; private set; }
 
         #region Equality
         public override bool Equals(object obj)
-        {
-            var other = obj as DataTypePair?;
-            return other == null
-                ? false
-                : Equals(other.Value);
-        }
-        public bool Equals(DataTypePair other) => this == other;
-        public override int GetHashCode() => (((int)Left + 1) * (int)DataType.MAX + (int)Right).GetHashCode();
+            => (obj is DataTypeValuePair<TDataTypeEnum> other)
+                ? Equals(other)
+                : false;
+        public bool Equals(DataTypeValuePair<TDataTypeEnum> other) => this == other;
+        public override int GetHashCode() => (Left.GetHashCode() ^ 1500450271) + Right.GetHashCode();
 
-        public static bool operator ==(DataTypePair a, DataTypePair b)
-            => a.Left == b.Left && a.Right == b.Right;
-        public static bool operator !=(DataTypePair a, DataTypePair b) => !(a == b);
+        public static bool operator ==(DataTypeValuePair<TDataTypeEnum> a, DataTypeValuePair<TDataTypeEnum> b)
+            => a.Left.DataType.Equals(b.Left.DataType) && a.Right.DataType.Equals(b.Right.DataType) && 
+                a.Left.Equals(b.Left) && a.Right.Equals(b.Right);
+
+        public static bool operator !=(DataTypeValuePair<TDataTypeEnum> a, DataTypeValuePair<TDataTypeEnum> b) => !(a == b);
         #endregion Equality
 
 

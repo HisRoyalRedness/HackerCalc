@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>HisRoyalRedness.com.Program</StartupObject>
@@ -54,6 +56,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HackerCalc.CalcEngine\HackerCalc.CalcEngine.csproj">
+      <Project>{7881e80f-ef29-49de-91e8-2d46befa6d19}</Project>
+      <Name>HackerCalc.CalcEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj">
       <Project>{c07ad894-0d40-4c1f-b650-519f6f4ad85e}</Project>
       <Name>HackerCalc.Common</Name>
