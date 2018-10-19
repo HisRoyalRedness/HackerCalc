@@ -27,7 +27,8 @@ namespace HisRoyalRedness.com
 
     public interface IDataType<TBaseType, TDataType> : IDataType<DataType>
         where TDataType : class, IDataType<DataType>
-    { }
+    {
+    }
 
     public abstract class DataTypeBase<TBaseType, TDataType> : IDataType<TBaseType, TDataType>
         where TDataType : class, IDataType<DataType>
@@ -41,6 +42,9 @@ namespace HisRoyalRedness.com
         public TBaseType Value { get; private set; }
         public object ObjectValue => Value;
         public DataType DataType { get; private set; }
+
+        protected abstract TNewType InternalCastTo<TNewType>()
+            where TNewType : class, IDataType<DataType>;
 
         public override string ToString() => ToString(Verbosity.ValueOnly);
         public string ToString(Verbosity verbosity)

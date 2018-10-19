@@ -62,6 +62,7 @@ namespace HisRoyalRedness.com
                 var currentDataTypePair = GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
                 {
+                    //currentValuePair = GetDataTypePair(operands[0].c)
                     // DO cast
                 }
                 return opFunc(currentValuePair);
