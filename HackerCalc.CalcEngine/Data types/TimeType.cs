@@ -11,5 +11,7 @@ namespace HisRoyalRedness.com
         public TimeType(TimeSpan value)
             : base(value, DataType.Timespan)
         { }
+
+        protected override TNewType InternalCastTo<TNewType>() => null;
     }
 }

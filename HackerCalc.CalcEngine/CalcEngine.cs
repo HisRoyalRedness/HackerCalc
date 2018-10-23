@@ -23,15 +23,15 @@ namespace HisRoyalRedness.com
             // Unary
             if (operands.Length == 1)
             {
-                if (!opType.IsBinaryOperator())
-                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a unary operator and expects two operands.");
+                if (!opType.IsUnaryOperator())
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a unary operator, and a single operand was provided.");
 
             }
             // Binary
             else if (operands.Length == 2)
             {
                 if(!opType.IsBinaryOperator())
-                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a binary operator and expects a single operand.");
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a binary operator, and two operands were provided.");
                 
                 Func<DataTypeValuePair<DataType>, IDataType<DataType>> opFunc = null;
                 Func<DataTypeValuePair<DataType>, string> errorFunc = null;
@@ -61,10 +61,7 @@ namespace HisRoyalRedness.com
 
                 var currentDataTypePair = GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
-                {
-                    //currentValuePair = GetDataTypePair(operands[0].c)
-                    // DO cast
-                }
+                    currentValuePair = GetDataTypeValuePair(operands[0].CastTo(targetDataTypePair.Left), operands[1].CastTo(targetDataTypePair.Right));
                 return opFunc(currentValuePair);
             }
             else
@@ -88,10 +85,10 @@ namespace HisRoyalRedness.com
                 //    if (pair.Right.DataType == TokenDataType.Timespan)
                 //        return ((OldDateToken)pair.Left) + ((OldTimespanToken)pair.Right);
                 //    break;
-                //case TokenDataType.Float:
-                //    if (pair.Right.DataType == TokenDataType.Float)
-                //        return ((OldFloatToken)pair.Left) + ((OldFloatToken)pair.Right);
-                //    break;
+                case DataType.Float:
+                    if (pair.Right.DataType == DataType.Float)
+                        return ((FloatType)pair.Left) + ((FloatType)pair.Right);
+                    break;
                 //case TokenDataType.LimitedInteger:
                 //    if (pair.Right.DataType == TokenDataType.LimitedInteger)
                 //        return ((OldLimitedIntegerToken)pair.Left) + ((OldLimitedIntegerToken)pair.Right);

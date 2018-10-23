@@ -13,6 +13,16 @@ namespace HisRoyalRedness.com
             : base(value, DataType.UnlimitedInteger)
         { }
 
+        protected override TNewType InternalCastTo<TNewType>()
+        {
+            switch(typeof(TNewType).Name)
+            {
+                case nameof(FloatType): return new FloatType((float)Value) as TNewType;
+                default:
+                    return null;
+            }
+        }
+
         #region Operator overloads
         public static UnlimitedIntegerType operator +(UnlimitedIntegerType a, UnlimitedIntegerType b)
             => new UnlimitedIntegerType(a.Value + b.Value);

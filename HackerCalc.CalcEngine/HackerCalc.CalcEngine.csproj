@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="CalcEngine.cs" />
     <Compile Include="Data types\DataTypeBase.cs" />
-    <Compile Include="Data types\DataTypeMapper.cs" />
     <Compile Include="Data types\DateType.cs" />
     <Compile Include="Data types\FloatType.cs" />
     <Compile Include="Data types\LimitedIntegerType.cs" />

@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data mapping\AllOperatorsMappedTest.cs" />
+    <Compile Include="Data mapping\LiteralTokenMapTest.cs" />
     <Compile Include="Parse testing\BasicOperatorParseTest.cs" />
     <Compile Include="Parse testing\DateParseTest.cs" />
     <Compile Include="Parse testing\FloatParseTest.cs" />
@@ -82,13 +83,20 @@
     <Compile Include="Old\Operation testing\PrecendenceParseTest.cs" />
     <Compile Include="Old\Operation testing\TokenEvaluatorTypeMappingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test tests\TestCommonTest_MakeDataType.cs" />
+    <Compile Include="Test tests\TestCommonTest_MakeLiteralToken.cs" />
     <Compile Include="TestCommon.cs" />
+    <Compile Include="Type casting\TypeCastTest.cs" />
     <Compile Include="Visitors\TokenPrinterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HackerCalc.CalcEngine\HackerCalc.CalcEngine.csproj">
+      <Project>{7881e80f-ef29-49de-91e8-2d46befa6d19}</Project>
+      <Name>HackerCalc.CalcEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj">
       <Project>{c07ad894-0d40-4c1f-b650-519f6f4ad85e}</Project>
       <Name>HackerCalc.Common</Name>

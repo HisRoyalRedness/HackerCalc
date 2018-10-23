@@ -23,6 +23,9 @@ namespace HisRoyalRedness.com
         public static DTP GetOperandDataTypes(OperatorType opType, DTVP valuePair)
             => _operandTypeCastMap[opType][new DataTypePair<DataType>(valuePair.Left.DataType, valuePair.Right.DataType)];
 
+        // For unit tests
+        public static Dictionary<OperatorType, Dictionary<DTP, DTP>> OperandTypeCastMap => _operandTypeCastMap;
+
         #region Map - Convert literal token to data type
         public static IDataType<DataType> Map(ILiteralToken token)
         {
@@ -35,7 +38,7 @@ namespace HisRoyalRedness.com
                 case LiteralTokenType.Float:
                     return ConvertToTypedDataType<double, FloatToken, FloatType>(token, typedToken => new FloatType(typedToken.TypedValue));
                 case LiteralTokenType.LimitedInteger:
-                    return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue));
+                    return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue, ((LimitedIntegerToken)token).SignAndBitWidth));
                 case LiteralTokenType.Time:
                     return ConvertToTypedDataType<TimeSpan, TimeToken, TimeType>(token, typedToken => new TimeType(typedToken.TypedValue));
                 case LiteralTokenType.Timespan:

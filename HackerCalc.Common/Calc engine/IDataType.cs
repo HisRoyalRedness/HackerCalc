@@ -22,5 +22,8 @@ namespace HisRoyalRedness.com
     public interface IDataType<TDataTypeEnum> : IDataType
     {
         TDataTypeEnum DataType { get; }
+        TNewType CastTo<TNewType>()
+            where TNewType : class, IDataType<TDataTypeEnum>;
+        IDataType<TDataTypeEnum> CastTo(TDataTypeEnum dataType);
     }
 }

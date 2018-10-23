@@ -8,17 +8,33 @@ using FluentAssertions;
 namespace HisRoyalRedness.com
 {
     [TestCategory(TestCommon.DATA_MAPPING)]
-    [TestCategory(TestCommon.INCOMPLETE)]    
     [TestClass]
     public class AllOperatorsMappedTest
     {
         [TestMethod]
         public void AllBinaryOperatorsMapped()
         {
-            var dataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsBinaryOperator()).ToList();
-            Console.WriteLine();
+            var dataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsBinaryOperator())
+                .OrderBy(e => e)
+                .ToArray();
+
+            DataMapper.OperandTypeCastMap
+                .Select(map => map.Key)
+                .OrderBy(e => e)
+                .ToArray()
+                .Should().BeEquivalentTo(dataTypes);
         }
 
-        
+        [TestMethod]
+        public void AllUnaryOperatorsMapped()
+        {
+            Assert.Fail("Not implemented");
+        }
+
+        //[TestMethod]
+        //public void LiteralTokensAreConvertedToDataTypes()
+        //{
+        //    TestCommon.MakeLiteralToken(LiteralTokenType.Date)
+        //}
     }
 }

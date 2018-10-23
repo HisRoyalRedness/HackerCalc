@@ -110,6 +110,14 @@ namespace HisRoyalRedness.com
             if (nextbatch.Count > 0)
                 yield return nextbatch.ToArray();
         }
+
+        public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+            foreach (var item in items)
+                action?.Invoke(item);
+        }
     }
     #endregion EnumerableExtensions
 

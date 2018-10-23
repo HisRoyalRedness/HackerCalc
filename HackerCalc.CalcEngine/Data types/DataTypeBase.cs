@@ -21,13 +21,14 @@ namespace HisRoyalRedness.com
         Time,
         [Description("Timespan")]
         Timespan,
-
-        MAX
     }
 
     public interface IDataType<TBaseType, TDataType> : IDataType<DataType>
         where TDataType : class, IDataType<DataType>
     {
+        //TNewType CastTo<TNewType>()
+        //    where TNewType : class, IDataType<DataType>;
+        //IDataType<DataType> CastTo(DataType dataType);
     }
 
     public abstract class DataTypeBase<TBaseType, TDataType> : IDataType<TBaseType, TDataType>
@@ -43,8 +44,34 @@ namespace HisRoyalRedness.com
         public object ObjectValue => Value;
         public DataType DataType { get; private set; }
 
+        #region Type casting
+        public TNewType CastTo<TNewType>()
+            where TNewType : class, IDataType<DataType>
+        {
+            if (typeof(TNewType) == typeof(TDataType))
+                return this as TNewType;
+            return InternalCastTo<TNewType>()
+            ?? throw new TypeConversionException($"Can't convert an object from type {typeof(TDataType).Name} to {typeof(TNewType).Name}.");
+        }
+
+        public IDataType<DataType> CastTo(DataType dataType)
+        {
+            switch(dataType)
+            {
+                case DataType.Date: return CastTo<DateType>();
+                case DataType.Float: return CastTo<FloatType>();
+                case DataType.Time: return CastTo<TimeType>();
+                case DataType.Timespan: return CastTo<TimespanType>();
+                case DataType.LimitedInteger: return CastTo<LimitedIntegerType>();
+                case DataType.UnlimitedInteger: return CastTo<UnlimitedIntegerType>();
+                default:
+                    throw new TypeConversionException($"Unhandled data type {dataType}.");
+            }
+        }
+
         protected abstract TNewType InternalCastTo<TNewType>()
             where TNewType : class, IDataType<DataType>;
+        #endregion Type casting
 
         public override string ToString() => ToString(Verbosity.ValueOnly);
         public string ToString(Verbosity verbosity)

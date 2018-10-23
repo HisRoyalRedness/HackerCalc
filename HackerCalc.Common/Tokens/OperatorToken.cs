@@ -68,6 +68,7 @@ namespace HisRoyalRedness.com
         [DontEnumerate]
         Cast,
         [DontEnumerate]
+        [UnaryOperator]
         Grouping
     }
 

@@ -12,7 +12,7 @@ namespace HisRoyalRedness.com
 {
     public static class TestCommon
     {
-        #region MakeToken
+        #region MakeLiteralToken
         public static IEnumerable<ILiteralToken> MakeLiteralTokens(this IEnumerable<string> tokenStrings)
             => tokenStrings.Select(ts => MakeLiteralToken(ts));
 
@@ -90,7 +90,7 @@ namespace HisRoyalRedness.com
                     return TimeToken.Parse(tokenArg, SourcePosition.None);
 
                 default:
-                    throw new NotSupportedException($"Unrecognised token type {tokenType}");
+                    throw new TestOperationException($"Unrecognised token type {tokenType}");
             }            
         }
 
@@ -110,8 +110,8 @@ namespace HisRoyalRedness.com
 
                 case LiteralTokenType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new LimitedIntegerToken(1, LimitedIntegerToken.IntegerBitWidth._32, true)
-                        : MakeLiteralToken($"integer {value}");
+                        ? new LimitedIntegerToken(1, IntegerBitWidth._32, true)
+                        : MakeLiteralToken($"limitedinteger {value}");
 
                 case LiteralTokenType.Time:
                     return string.IsNullOrEmpty(value)
@@ -129,13 +129,10 @@ namespace HisRoyalRedness.com
                         : MakeLiteralToken($"unlimitedinteger {value}");
 
                 default:
-                    throw new NotSupportedException($"Unsupported literal token type {tokenType}");
+                    throw new TestOperationException($"Unsupported literal token type {tokenType}");
             }
         }
-
-        public static IOperatorToken MakeBinaryExpression(this OperatorType opType, ILiteralToken left, ILiteralToken right)
-            => new OperatorToken(opType).Tap(ot => ot.Left = left).Tap(ot => ot.Right = right);
-        #endregion MakeToken
+        #endregion MakeLiteralToken
 
         #region Literal token parsing
         public static void LiteralTokensAreParsedCorrectly<TToken>(string stringToParse, string expectedValue)
@@ -204,7 +201,7 @@ namespace HisRoyalRedness.com
                     LiteralTokenValueCheck(token as UnlimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
                 default:
-                    throw new NotSupportedException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
+                    throw new TestOperationException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
             }
         }
 
@@ -232,7 +229,7 @@ namespace HisRoyalRedness.com
                     (token as UnlimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
                     break;
                 default:
-                    throw new NotSupportedException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
+                    throw new TestOperationException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
             }
         }
         #endregion Literal token parsing
@@ -279,6 +276,25 @@ namespace HisRoyalRedness.com
         }
         #endregion Operator parsing
 
+        #region MakeDataType
+        public static IDataType<DataType> MakeDataType(DataType dataType, string tokenString = null)
+        {
+            ILiteralToken token;
+            switch (dataType)
+            {
+                case DataType.Date: token = MakeLiteralToken(LiteralTokenType.Date, tokenString); break;
+                case DataType.Float: token = MakeLiteralToken(LiteralTokenType.Float, tokenString); break;
+                case DataType.LimitedInteger: token = MakeLiteralToken(LiteralTokenType.LimitedInteger, tokenString); break;
+                case DataType.Time: token = MakeLiteralToken(LiteralTokenType.Time, tokenString); break;
+                case DataType.Timespan: token = MakeLiteralToken(LiteralTokenType.Timespan, tokenString); break;
+                case DataType.UnlimitedInteger: token = MakeLiteralToken(LiteralTokenType.UnlimitedInteger, tokenString); break;
+                default:
+                    throw new TestOperationException($"Unsupported data type '{dataType}'.");
+            }
+            return new CalcEngine().ConvertToTypedDataType(token);
+        }
+        #endregion MakeDataType
+
         public static void CompareParseTree(string input, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
         {
             IToken rawToken = null;
@@ -306,33 +322,6 @@ namespace HisRoyalRedness.com
             parseText.Should().BeEquivalentTo(expectedParseString.Trim());
         }
 
-        //#region Evaluation checking
-        //public static void ExpressionEvaluatesTo<TToken>(string stringToParse, string expectedValue)
-        //    where TToken : class, ILiteralToken
-        //{
-        //    var expr = Parser.ParseExpression(stringToParse);
-        //    expr.Should().NotBeNull("the expression is expected to parse correctly");
-
-        //    var token = expr.Evaluate();
-
-
-        //    // If expectedValue is null, then we expect the evaluation to fail. 
-        //    // No need to check anything else after that
-        //    if (string.IsNullOrWhiteSpace(expectedValue))
-        //    {
-        //        token.Should().BeNull();
-        //        return;
-        //    }
-
-        //    token.Should().NotBeNull("the expression should evaluate correctly");
-        //    token.Should().BeOfType<TToken>();
-
-        //    var typedToken = token as TToken;
-        //    typedToken.Should().NotBeNull($"the token should cast to {typeof(TToken).Name}");
-        //    LiteralTokenValueParseAndCheck<TToken>(typedToken, expectedValue);
-        //}
-        //#endregion Evaluation checking
-
         public static object GetInstanceField(Type type, object instance, string fieldName)
         {
             var bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
@@ -345,6 +334,9 @@ namespace HisRoyalRedness.com
         public const string BASIC_PARSE = "Basic parse";
         public const string BASIC_OPERATION = "Basic operation";
         public const string DATA_MAPPING = "Data mapping";
+        public const string CALC_ENGINE = "CalcEngine";
+        public const string TYPE_CASTING = "Type casting";
+        public const string TEST_TEST = "Test tests";
         public const string VISITOR = "Visitors";
         public const string TOKEN_PRINTER = "Token printer";
         public const string LITERAL_TOKEN_PARSE = "Literal token parse";
@@ -352,10 +344,23 @@ namespace HisRoyalRedness.com
         public const string FUNCTION_TOKEN_PARSE = "Function token parse";
         #endregion Test trait descriptions
 
-        public static IReadOnlyList<LimitedIntegerToken.IntegerBitWidth> IntegerBitWidths { get; }
-            = Enum.GetValues(typeof(LimitedIntegerToken.IntegerBitWidth)).Cast<LimitedIntegerToken.IntegerBitWidth>().ToList().AsReadOnly();
+        public static IReadOnlyList<IntegerBitWidth> IntegerBitWidths { get; }
+            = Enum.GetValues(typeof(IntegerBitWidth)).Cast<IntegerBitWidth>().ToList().AsReadOnly();
 
         static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     }
+
+    #region Test exceptions
+    public class TestOperationException : ApplicationException
+    {
+        public TestOperationException(string message)
+            : base(message)
+        { }
+
+        public TestOperationException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
+    }
+    #endregion Test exceptions
 }

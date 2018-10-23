@@ -77,7 +77,7 @@ Todo
 ----
 
 * Parsing
-  * Get basic literal types parsed
+  * ~~Get basic literal types parsed~~
     * ~~LimitedInteger~~
     * ~~UnlimitedInteger~~
     * ~~Float~~
@@ -91,8 +91,18 @@ Todo
 * Calculation
   * Get the calculation engine design sorted
   * Implement all data types
+   * ~~LimitedIntegerType~~
+     * ~~Sign and bitwidth~~
+   * ~~UnlimitedIntegerType~~
+   * ~~DateType~~
+   * ~~FloatType~~
+   * ~~TimeType~~
+   * ~~TimespanType~~
   * Implement data mappers from literal tokens to data types
+   * Make sure limited integers map signs and bitwidths
+   * Add unit tests
   * Implement operations on all data types
+  * Implement casting to/from data types
 * Remove old code
 * Put licence headers and footers on all source code
 
