@@ -12,6 +12,8 @@ namespace HisRoyalRedness.com
             : base(value, DataType.Timespan)
         { }
 
+        #region Type casting
         protected override TNewType InternalCastTo<TNewType>() => null;
+        #endregion Type casting
     }
 }

@@ -28,7 +28,7 @@ namespace HisRoyalRedness.com
         #region Constructors
         public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned)
             : this(typedValue, bitWidth, isSigned, isSigned && typedValue < 0, null, SourcePosition.None)
-        { } 
+        { }
 
         private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position)
             : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)

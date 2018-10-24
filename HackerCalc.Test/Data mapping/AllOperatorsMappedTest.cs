@@ -30,11 +30,5 @@ namespace HisRoyalRedness.com
         {
             Assert.Fail("Not implemented");
         }
-
-        //[TestMethod]
-        //public void LiteralTokensAreConvertedToDataTypes()
-        //{
-        //    TestCommon.MakeLiteralToken(LiteralTokenType.Date)
-        //}
     }
 }

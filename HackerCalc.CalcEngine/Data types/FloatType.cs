@@ -12,7 +12,17 @@ namespace HisRoyalRedness.com
             : base(value, DataType.Float)
         { }
 
-        protected override TNewType InternalCastTo<TNewType>() => null;
+        #region Type casting
+        protected override TNewType InternalCastTo<TNewType>()
+        {
+            switch(typeof(TNewType).Name)
+            {
+                case nameof(TimespanType):
+                    return new TimespanType(TimeSpan.FromSeconds(Value)) as TNewType;
+            }
+            return null;
+        }
+        #endregion Type casting
 
         #region Operator overloads
         public static FloatType operator +(FloatType a, FloatType b)

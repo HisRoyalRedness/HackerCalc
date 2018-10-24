@@ -13,15 +13,21 @@ namespace HisRoyalRedness.com
             : base(value, DataType.UnlimitedInteger)
         { }
 
+        #region Type casting
         protected override TNewType InternalCastTo<TNewType>()
         {
-            switch(typeof(TNewType).Name)
+            switch (typeof(TNewType).Name)
             {
-                case nameof(FloatType): return new FloatType((float)Value) as TNewType;
-                default:
-                    return null;
+                case nameof(TimespanType):
+                    return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
+                case nameof(FloatToken):
+                    return new FloatToken((double)Value) as TNewType;
+                case nameof(LimitedIntegerType):
+                    return LimitedIntegerType.CreateLimitedIntegerType(Value) as TNewType;
             }
+            return null;
         }
+        #endregion Type casting
 
         #region Operator overloads
         public static UnlimitedIntegerType operator +(UnlimitedIntegerType a, UnlimitedIntegerType b)

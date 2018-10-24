@@ -86,6 +86,7 @@
     <Compile Include="Test tests\TestCommonTest_MakeDataType.cs" />
     <Compile Include="Test tests\TestCommonTest_MakeLiteralToken.cs" />
     <Compile Include="TestCommon.cs" />
+    <Compile Include="Type casting\LimitedIntegerTypeRangeTest.cs" />
     <Compile Include="Type casting\TypeCastTest.cs" />
     <Compile Include="Visitors\TokenPrinterTest.cs" />
   </ItemGroup>

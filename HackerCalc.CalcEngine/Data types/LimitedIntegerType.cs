@@ -16,6 +16,19 @@ namespace HisRoyalRedness.com
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
         }
 
+        public static LimitedIntegerType CreateLimitedIntegerType(BigInteger value)
+        {
+            var isSigned = value < 0;
+            var bitWidth = EnumExtensions
+                .GetEnumCollection<IntegerBitWidth>()
+                .FirstOrDefault(bw => isSigned 
+                    ? MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].Min <= value
+                    : MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].Max >= value);
+            if (bitWidth == 0)
+                throw new TypeConversionException($"{value} is out of range of a {nameof(LimitedIntegerType)}.");
+            return new LimitedIntegerType(value, new BitWidthAndSignPair(bitWidth, isSigned));
+        }
+
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;
         public IntegerBitWidth BitWidth => SignAndBitWidth.BitWidth;
@@ -24,7 +37,20 @@ namespace HisRoyalRedness.com
         public BigInteger Max => _minAndMax.Max;
         public BigInteger Mask => _minAndMax.Mask;
 
+        #region Type casting
+        protected override TNewType InternalCastTo<TNewType>()
+        {
+            switch (typeof(TNewType).Name)
+            {
+                case nameof(TimespanType):
+                    return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
+                case nameof(FloatToken):
+                    return new FloatToken((double)Value) as TNewType;
+            }
+            return null;
+        }
+        #endregion Type casting
+
         readonly MinAndMax _minAndMax;
-        protected override TNewType InternalCastTo<TNewType>() => null;
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Numerics;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace HisRoyalRedness.com
 {
@@ -27,8 +28,14 @@ namespace HisRoyalRedness.com
                         else
                             Debug("1+2.0");
                         break;
+
+                    case "cast":
+                        DataMapper.PrintAllTypeCasts();
+                        break;
                 }
             }
+            else
+                ShowUsage();
         }
 
         static void Interative()
@@ -156,7 +163,11 @@ namespace HisRoyalRedness.com
             return null;
         }
 
-
+        static void ShowUsage()
+        {
+            var exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
+            Console.WriteLine($"Usage: {exeName}  [ i | d [ <expr> ] | cast ]");
+        }
     }
 
     public static class TokenExtensions

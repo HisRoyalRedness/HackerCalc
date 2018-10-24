@@ -12,26 +12,32 @@ namespace HisRoyalRedness.com
     [TestClass]
     public class LiteralTokenMapTest
     {
-        [TestMethod]
+        [TestCategory(nameof(DateType))]
+        [TestMethod]        
         public void ConvertDateTokenToDateType() 
             => ConvertToDataType<DateType>(LiteralTokenType.Date);
 
+        [TestCategory(nameof(FloatType))]
         [TestMethod]
         public void ConvertFloatTokenToFloatType() 
             => ConvertToDataType<FloatType>(LiteralTokenType.Float);
 
+        [TestCategory(nameof(LimitedIntegerType))]
         [TestMethod]
         public void ConvertLimitedIntegerTokenToLimitedIntegerType() 
             => ConvertToDataType<LimitedIntegerType>(LiteralTokenType.LimitedInteger);
 
+        [TestCategory(nameof(TimeType))]
         [TestMethod]
         public void ConvertTimeTokenToTimeType()
             => ConvertToDataType<TimeType>(LiteralTokenType.Time);
 
+        [TestCategory(nameof(TimespanType))]
         [TestMethod]
         public void ConvertTimespanTokenToTimespanType()
             => ConvertToDataType<TimespanType>(LiteralTokenType.Timespan);
 
+        [TestCategory(nameof(UnlimitedIntegerType))]
         [TestMethod]
         public void ConvertUnlimitedIntegerTokenToUnlimitedIntegerType()
             => ConvertToDataType<UnlimitedIntegerType>(LiteralTokenType.UnlimitedInteger);

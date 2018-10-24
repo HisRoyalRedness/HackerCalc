@@ -103,6 +103,7 @@ Todo
    * Add unit tests
   * Implement operations on all data types
   * Implement casting to/from data types
+   * Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType
 * Remove old code
 * Put licence headers and footers on all source code
 

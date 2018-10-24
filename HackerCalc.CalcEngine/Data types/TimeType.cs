@@ -12,6 +12,17 @@ namespace HisRoyalRedness.com
             : base(value, DataType.Timespan)
         { }
 
-        protected override TNewType InternalCastTo<TNewType>() => null;
+        #region Type casting
+        protected override TNewType InternalCastTo<TNewType>()
+        {
+            switch (typeof(TNewType).Name)
+            {
+                case nameof(TimespanType):
+                    return new TimespanType(Value) as TNewType;
+            }
+            return null;
+        }
+        #endregion Type casting
+
     }
 }
