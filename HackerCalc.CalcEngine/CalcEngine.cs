@@ -79,20 +79,27 @@ namespace HisRoyalRedness.com
         #region Add
         static IDataType<DataType> Add(DataTypeValuePair<DataType> pair)
         {
+            //Add (+)             LimitedInteger      LimitedInteger
+            //                    Date                Timespan
+            //                    Timespan            Date, Time, Timespan
+            //                    Float               Float
+            //                    Time                Timespan
+            //                    UnlimitedInteger    UnlimitedInteger
+
             switch (pair.Left.DataType)
             {
-                //case TokenDataType.Date:
-                //    if (pair.Right.DataType == TokenDataType.Timespan)
-                //        return ((OldDateToken)pair.Left) + ((OldTimespanToken)pair.Right);
-                //    break;
+                case DataType.LimitedInteger:
+                    if (pair.Right.DataType == DataType.LimitedInteger)
+                        return ((LimitedIntegerType)pair.Left) + ((LimitedIntegerType)pair.Right);
+                    break;
+                case DataType.Date:
+                    if (pair.Right.DataType == DataType.Timespan)
+                        return new DateType(((DateType)pair.Left).Value + ((TimespanType)pair.Right).Value);
+                    break;
                 case DataType.Float:
                     if (pair.Right.DataType == DataType.Float)
                         return ((FloatType)pair.Left) + ((FloatType)pair.Right);
                     break;
-                //case TokenDataType.LimitedInteger:
-                //    if (pair.Right.DataType == TokenDataType.LimitedInteger)
-                //        return ((OldLimitedIntegerToken)pair.Left) + ((OldLimitedIntegerToken)pair.Right);
-                //    break;
                 //case TokenDataType.Time:
                 //    if (pair.Right.DataType == TokenDataType.Timespan)
                 //        return ((OldTimeToken)pair.Left) + ((OldTimespanToken)pair.Right);

@@ -25,11 +25,7 @@ namespace HisRoyalRedness.com
 
     public interface IDataType<TBaseType, TDataType> : IDataType<DataType>
         where TDataType : class, IDataType<DataType>
-    {
-        //TNewType CastTo<TNewType>()
-        //    where TNewType : class, IDataType<DataType>;
-        //IDataType<DataType> CastTo(DataType dataType);
-    }
+    { }
 
     public abstract class DataTypeBase<TBaseType, TDataType> : IDataType<TBaseType, TDataType>
         where TDataType : class, IDataType<DataType>
@@ -72,6 +68,18 @@ namespace HisRoyalRedness.com
         protected abstract TNewType InternalCastTo<TNewType>()
             where TNewType : class, IDataType<DataType>;
         #endregion Type casting
+
+        #region IComparable implementation
+        public int CompareTo(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CompareTo(IDataType<DataType> other)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion IComparable implementation
 
         public override string ToString() => ToString(Verbosity.ValueOnly);
         public string ToString(Verbosity verbosity)

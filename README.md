@@ -61,18 +61,6 @@ Listed in order of precedence
  * [Supported operations](http://en.cppreference.com/w/cpp/language/operator_arithmetic)
  * [Order of operations](http://en.cppreference.com/w/cpp/language/operator_precedence)
 
-Change log
-----------
-
-| Date       | Description                                                                                                  |
-|------------|--------------------------------------------------------------------------------------------------------------|
-| 2018-10-08 | Refactor again! Decided to make a split between tokens that are parsed (i.e. the basic literals types and    |
-| ..         | operators), and the objects that are used for calculation, type casting etc.                                 |
-| ..         | This way we can develop and test the parsing and calculation operators mostly independantly.                 |
-| 2018-10-10 | All literal and operator parsing completed. Added parsing support for functions.                             |
-| 2018-10-11 | Made a start on the calculation engine.                                                                      |
-| 2018-10-12 | Tweak the visitor pattern interface a little, and refactor TokenPrinter. Add printer tests                   |
-
 Todo
 ----
 
@@ -98,12 +86,17 @@ Todo
    * ~~FloatType~~
    * ~~TimeType~~
    * ~~TimespanType~~
-  * Implement data mappers from literal tokens to data types
-   * Make sure limited integers map signs and bitwidths
-   * Add unit tests
   * Implement operations on all data types
-  * Implement casting to/from data types
-   * Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType
+   * LimitedIntegerType
+     * Sign and bitwidth
+   * UnlimitedIntegerType
+   * ~~DateType~~
+   * ~~FloatType~~
+   * ~~TimeType~~
+   * ~~TimespanType~~
+  * Implement IComparable and IEquatable on data types
+  * ~~Implement casting to/from data types~~
+   * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
 * Remove old code
 * Put licence headers and footers on all source code
 

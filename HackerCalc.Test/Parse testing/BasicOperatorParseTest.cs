@@ -116,11 +116,13 @@ namespace HisRoyalRedness.com
         public void RootParsesCorrectly(string input)
             => TestCommon.BinaryOperatorParsesCorrectly(input, OperatorType.Root);
 
+#if SUPPORT_NOT
         [DataTestMethod]
         [DataRow("!1")]
         [DataRow("! 1")]
         public void LogicalNotParsesCorrectly(string input)
             => TestCommon.UnaryOperatorParsesCorrectly(input, OperatorType.Not);
+#endif
 
         [DataTestMethod]
         [DataRow("~1")]

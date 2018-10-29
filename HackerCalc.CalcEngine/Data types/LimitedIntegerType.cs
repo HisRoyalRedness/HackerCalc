@@ -44,12 +44,18 @@ namespace HisRoyalRedness.com
             {
                 case nameof(TimespanType):
                     return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
-                case nameof(FloatToken):
-                    return new FloatToken((double)Value) as TNewType;
+                case nameof(FloatType):
+                    return new FloatType((double)Value) as TNewType;
+                case nameof(UnlimitedIntegerType):
+                    return new UnlimitedIntegerType(Value) as TNewType;
             }
             return null;
         }
         #endregion Type casting
+
+        //LimitedInteger      LimitedInteger      +, -, *, /, **, //, %, <<, >>, &, |, ^, ~, !-
+        //                    Float               **, //
+        //                    UnlimitedInteger    %, &, |, ^
 
         readonly MinAndMax _minAndMax;
     }

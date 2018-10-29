@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace HisRoyalRedness.com
 {
     [DebuggerDisplay("{Left}, {Right}")]
-    public struct DataTypePair<TDataTypeEnum> : IEquatable<DataTypePair<TDataTypeEnum>>
+    public struct DataTypePair<TDataTypeEnum> : IEquatable<DataTypePair<TDataTypeEnum>>, IComparable<DataTypePair<TDataTypeEnum>>, IComparable
         where TDataTypeEnum : Enum
     {
         public DataTypePair(TDataTypeEnum left, TDataTypeEnum right)
@@ -42,25 +42,23 @@ namespace HisRoyalRedness.com
         public static bool operator !=(DataTypePair<TDataTypeEnum> a, DataTypePair<TDataTypeEnum> b) => !(a == b);
         #endregion Equality
 
-        //public OperandTypePair TypesFromMap(BinaryOperandTypeMap map)
-        //{
-        //    var key = new OperandTypePair(Left.DataType, Right.DataType);
-        //    return map.ContainsKey(key)
-        //        ? map[key]
-        //        : OperandTypePair.Unsupported;
-        //}
+        #region IComparable implementation
+        public int CompareTo(DataTypePair<TDataTypeEnum> other)
+        {
+            if (other == null)
+                return 1;
+            var leftCmp = Left.CompareTo(other.Left);
+            return leftCmp == 0
+                ? Right.CompareTo(other.Right)
+                : leftCmp;
+        }
 
-        //public IDataType CastFromMap(BinaryOperandTypeMap map, EvaluatorSettings settings)
-        //{
-        //    var newPairType = TypesFromMap(map);
-        //    if (!newPairType.OperationSupported)
-        //        return null;
-        //    return new IDataType(Left.CastTo(newPairType.Left), Right.CastTo(newPairType.Right));
-        //}
+        public int CompareTo(object obj) => CompareTo(obj as IComparable<DataTypePair<TDataTypeEnum>>);
+        #endregion IComparable implementation
     }
 
     [DebuggerDisplay("{Left}, {Right}")]
-    public struct DataTypeValuePair<TDataTypeEnum> : IEquatable<DataTypeValuePair<TDataTypeEnum>>
+    public struct DataTypeValuePair<TDataTypeEnum> : IEquatable<DataTypeValuePair<TDataTypeEnum>>, IComparable<DataTypeValuePair<TDataTypeEnum>>, IComparable
         where TDataTypeEnum : Enum
     {
         public DataTypeValuePair(IDataType<TDataTypeEnum> left, IDataType<TDataTypeEnum> right)
@@ -87,21 +85,24 @@ namespace HisRoyalRedness.com
         public static bool operator !=(DataTypeValuePair<TDataTypeEnum> a, DataTypeValuePair<TDataTypeEnum> b) => !(a == b);
         #endregion Equality
 
+        #region IComparable implementation
+        public int CompareTo(DataTypeValuePair<TDataTypeEnum> other)
+        {
+            if (other == null)
+                return 1;
+            var leftTypeCmp = Left.DataType.CompareTo(other.Left.DataType);
+            if (leftTypeCmp != 0)
+                return leftTypeCmp;
+            var rightTypeCmp = Right.DataType.CompareTo(other.Right.DataType);
+            if (rightTypeCmp != 0)
+                return rightTypeCmp;
+            var leftValueCmp = Left.CompareTo(other.Left);
+            if (leftValueCmp != 0)
+                return leftValueCmp;
+            return Right.CompareTo(other.Right);
+        }
 
-        //public OperandTypePair TypesFromMap(BinaryOperandTypeMap map)
-        //{
-        //    var key = new OperandTypePair(Left.DataType, Right.DataType);
-        //    return map.ContainsKey(key)
-        //        ? map[key]
-        //        : OperandTypePair.Unsupported;
-        //}
-
-        //public IDataType CastFromMap(BinaryOperandTypeMap map, EvaluatorSettings settings)
-        //{
-        //    var newPairType = TypesFromMap(map);
-        //    if (!newPairType.OperationSupported)
-        //        return null;
-        //    return new IDataType(Left.CastTo(newPairType.Left), Right.CastTo(newPairType.Right));
-        //}
+        public int CompareTo(object obj) => CompareTo(obj as IComparable<DataTypePair<TDataTypeEnum>>);
+        #endregion IComparable implementation
     }
 }

@@ -88,7 +88,9 @@ namespace HisRoyalRedness.com
         [DataRow("~1", "~ 1")]
         [DataRow("-1", "-1")] // minus 1
         [DataRow("-(1)", "!- 1")] // negated 1
+#if SUPPORT_NOT
         [DataRow("!1", "! 1")]
+#endif
         public void TestUnaryOperatorPrefixPrinting(string input, string output)
             => TestTokenPrinter(input, TokenPrinter.FixType.Prefix, output);
 
@@ -112,7 +114,9 @@ namespace HisRoyalRedness.com
         [DataRow("~1", "~ 1")]
         [DataRow("-1", "-1")] // minus 1
         [DataRow("-(1)", "!- ( 1 )")] // negated 1
+#if SUPPORT_NOT
         [DataRow("!1", "! 1")]
+#endif
         public void TestUnaryOperatorInfixPrinting(string input, string output)
             => TestTokenPrinter(input, TokenPrinter.FixType.Infix, output);
 
@@ -136,7 +140,9 @@ namespace HisRoyalRedness.com
         [DataRow("~1", "1 ~")]
         [DataRow("-1", "-1")] // minus 1
         [DataRow("-(1)", "1 !-")] // negated 1
+#if SUPPORT_NOT
         [DataRow("!1", "1 !")]
+#endif
         public void TestUnaryOperatorPostfixPrinting(string input, string output)
             => TestTokenPrinter(input, TokenPrinter.FixType.Postfix, output);
 

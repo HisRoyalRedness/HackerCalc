@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,67 @@ namespace HisRoyalRedness.com
         Octal,
         Decimal,
         Hexadecimal
+    }
+
+    public enum OperatorType
+    {
+        // Binary operators
+        [BinaryOperator]
+        [Description("+")]
+        Add,
+        [BinaryOperator]
+        [Description("-")]
+        Subtract,
+        [BinaryOperator]
+        [Description("*")]
+        Multiply,
+        [BinaryOperator]
+        [Description("/")]
+        Divide,
+        [BinaryOperator]
+        [Description("**")]
+        Power,
+        [BinaryOperator]
+        [Description("//")]
+        Root,
+        [BinaryOperator]
+        [Description("%")]
+        Modulo,
+        [BinaryOperator]
+        [Description("<<")]
+        LeftShift,
+        [BinaryOperator]
+        [Description(">>")]
+        RightShift,
+        [BinaryOperator]
+        [Description("&")]
+        And,
+        [BinaryOperator]
+        [Description("|")]
+        Or,
+        [BinaryOperator]
+        [Description("^")]
+        Xor,
+
+        // Unary operators
+        [UnaryOperator]
+        [Description("~")]
+        BitwiseNegate,          // i.e. 2's complement
+        [UnaryOperator]
+        [Description("!-")]
+        NumericNegate,          // i.e. value * -1
+#if SUPPORT_NOT
+        [UnaryOperator]
+        [Description("!")]
+        Not,
+#endif
+
+        // Operators that aren't really operators
+        [DontEnumerate]
+        Cast,
+        [DontEnumerate]
+        [UnaryOperator]
+        Grouping
     }
 }
 

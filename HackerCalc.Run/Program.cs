@@ -32,6 +32,19 @@ namespace HisRoyalRedness.com
                     case "cast":
                         DataMapper.PrintAllTypeCasts();
                         break;
+
+                    case "minmax":
+                        PrintMinMax();
+                        break;
+
+                    case "opstype":
+                        OperationsByType();
+                        break;
+
+                    case "opsops":
+                        OperationsByOperator();
+                        break;
+
                 }
             }
             else
@@ -166,7 +179,111 @@ namespace HisRoyalRedness.com
         static void ShowUsage()
         {
             var exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            Console.WriteLine($"Usage: {exeName}  [ i | d [ <expr> ] | cast ]");
+            Console.WriteLine($"Usage: {exeName}  [ i | d [ <expr> ] | cast | minmax | opstype | opsops ]");
+        }
+
+        static void PrintMinMax()
+        {
+            const int colWidth = -42;
+
+            foreach (var isSigned in new[] { false, true })
+            {
+                Console.WriteLine();
+                Console.WriteLine(isSigned ? "Signed" : "Unsigned");
+                Console.WriteLine($"{"Bits",-6}{"Min",colWidth}{"Max",colWidth}{"Mask",colWidth}");
+                foreach (var bitWidth in EnumExtensions.GetEnumCollection<IntegerBitWidth>())
+                {
+                    var signAndBitwidth = new BitWidthAndSignPair(bitWidth, isSigned);
+                    var minMax = MinAndMaxMap.Instance[signAndBitwidth];
+                    var min = minMax.Min.ToString();
+                    var max = minMax.Max.ToString();
+                    var mask = minMax.Mask.ToString();
+                    Console.WriteLine($"{(int)bitWidth,-6}{min,colWidth}{max,colWidth}{max,colWidth}");
+                }
+            }
+        }
+
+        static void OperationsByType()
+        {
+            var dict = new Dictionary<DataType, Dictionary<DataType, List<OperatorType>>>();
+            foreach(var entry in EnumExtensions.GetEnumCollection<OperatorType>()
+                .SelectMany(opType => DataMapper.OperandTypeCastMap[opType].Select(kv =>
+                    new Tuple<OperatorType, DataType, DataType>(opType, kv.Value.Left, kv.Value.Right))))
+            {
+                if (!dict.ContainsKey(entry.Item2))
+                    dict.Add(entry.Item2, new Dictionary<DataType, List<OperatorType>>());
+                var subDict = dict[entry.Item2];
+                if (!subDict.ContainsKey(entry.Item3))
+                    subDict.Add(entry.Item3, new List<OperatorType>());
+                if (!subDict[entry.Item3].Contains(entry.Item1))
+                    subDict[entry.Item3].Add(entry.Item1);
+            }
+            
+            foreach(var leftType in dict.Keys)
+            {
+                var firstCol = $"{leftType, -20}";
+                foreach(var rightType in dict[leftType].Keys)
+                {
+                    var scndCol = $"{rightType, -20}";
+                    var csv = string.Join(", ", dict[leftType][rightType].Select(op => op.GetEnumDescription()));
+
+                    Console.WriteLine($"{firstCol}{scndCol}{csv}");
+                    firstCol = $"{"",-20}";
+                    scndCol = $"{"",-20}";
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void OperationsByOperator()
+        {
+            var dict = new Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>();
+            foreach (var entry in EnumExtensions.GetEnumCollection<OperatorType>()
+                .SelectMany(opType => DataMapper.OperandTypeCastMap[opType].Select(kv =>
+                    new Tuple<OperatorType, DataType, DataType>(opType, kv.Value.Left, kv.Value.Right))))
+            {
+                if (!dict.ContainsKey(entry.Item1))
+                    dict.Add(entry.Item1, new Dictionary<DataType, List<DataType>>());
+                var subDict = dict[entry.Item1];
+                if (!subDict.ContainsKey(entry.Item2))
+                    subDict.Add(entry.Item2, new List<DataType>());
+                if (!subDict[entry.Item2].Contains(entry.Item3))
+                    subDict[entry.Item2].Add(entry.Item3);
+            }
+
+            foreach (var opType in dict.Keys)
+            {
+                var opStr = $"{opType} ({opType.GetEnumDescription()})";
+                var firstCol = $"{opStr,-20}";
+                foreach (var rightType in dict[opType].Keys)
+                {
+                    var scndCol = $"{rightType,-20}";
+                    var csv = string.Join(", ", dict[opType][rightType].Select(op => op.ToString()));
+
+                    Console.WriteLine($"{firstCol}{scndCol}{csv}");
+                    firstCol = $"{"",-20}";
+                    scndCol = $"{"",-20}";
+                }
+                Console.WriteLine();
+            }
+        }
+
+        internal class SortByTypeComparer : IComparer<Tuple<OperatorType, DataType, DataType>>
+        {
+            public int Compare(Tuple<OperatorType, DataType, DataType> x, Tuple<OperatorType, DataType, DataType> y)
+            {
+                var leftCmp = x.Item2.CompareTo(y.Item2);
+                if (leftCmp != 0)
+                    return leftCmp;
+                var rightCmp = x.Item3.CompareTo(y.Item3);
+                if (rightCmp != 0)
+                    return rightCmp;
+                return x.Item1.CompareTo(y.Item1);
+            }
+
+            public static SortByTypeComparer Instance => _instance.Value;
+
+            static readonly Lazy<SortByTypeComparer> _instance = new Lazy<SortByTypeComparer>(() => new SortByTypeComparer());
         }
     }
 

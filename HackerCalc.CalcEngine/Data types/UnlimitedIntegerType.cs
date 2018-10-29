@@ -20,8 +20,8 @@ namespace HisRoyalRedness.com
             {
                 case nameof(TimespanType):
                     return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
-                case nameof(FloatToken):
-                    return new FloatToken((double)Value) as TNewType;
+                case nameof(FloatType):
+                    return new FloatType((double)Value) as TNewType;
                 case nameof(LimitedIntegerType):
                     return LimitedIntegerType.CreateLimitedIntegerType(Value) as TNewType;
             }
@@ -39,5 +39,9 @@ namespace HisRoyalRedness.com
         public static UnlimitedIntegerType operator /(UnlimitedIntegerType a, UnlimitedIntegerType b)
             => new UnlimitedIntegerType(a.Value / b.Value);
         #endregion Operator overloads
+
+        //UnlimitedInteger    UnlimitedInteger    +, -, *, /, %, &, |, ^, ~, !-
+        //            Float               **, //
+        //            LimitedInteger      **, //, %, <<, >>, &, |, ^
     }
 }

@@ -17,61 +17,6 @@ using System.Text;
 
 namespace HisRoyalRedness.com
 {
-    public enum OperatorType
-    {
-        [BinaryOperator]
-        [Description("+")]
-        Add,
-        [BinaryOperator]
-        [Description("-")]
-        Subtract,
-        [BinaryOperator]
-        [Description("*")]
-        Multiply,
-        [BinaryOperator]
-        [Description("/")]
-        Divide,
-        [BinaryOperator]
-        [Description("**")]
-        Power,
-        [BinaryOperator]
-        [Description("//")]
-        Root,
-        [BinaryOperator]
-        [Description("%")]
-        Modulo,
-        [UnaryOperator]
-        [Description("~")]
-        BitwiseNegate,          // i.e. 2's complement
-        [UnaryOperator]
-        [Description("!-")]
-        NumericNegate,          // i.e. value * -1
-        [BinaryOperator]
-        [Description("<<")]
-        LeftShift,
-        [BinaryOperator]
-        [Description(">>")]
-        RightShift,
-        [BinaryOperator]
-        [Description("&")]
-        And,
-        [BinaryOperator]
-        [Description("|")]
-        Or,
-        [UnaryOperator]
-        [Description("!")]
-        Not,
-        [BinaryOperator]
-        [Description("^")]
-        Xor,
-
-        [DontEnumerate]
-        Cast,
-        [DontEnumerate]
-        [UnaryOperator]
-        Grouping
-    }
-
     public interface IOperatorToken : IToken
     {
         bool IsUnary { get; }
@@ -80,10 +25,10 @@ namespace HisRoyalRedness.com
         OperatorType Operator { get; }
     }
 
-    #region OperatorToken
+#region OperatorToken
     public class OperatorToken : TokenBase<OperatorToken>, IOperatorToken
     {
-        #region Constructors
+#region Constructors
         public OperatorToken(OperatorType op, bool isUnary = false)
             : this(op, isUnary, SourcePosition.None)
         { }
@@ -94,14 +39,16 @@ namespace HisRoyalRedness.com
             Operator = op;
             IsUnary = isUnary;
         }
-        #endregion Constructors
+#endregion Constructors
 
-        #region Parsing
+#region Parsing
         public static OperatorToken Parse(string value, SourcePosition position)
         {
             switch (value)
             {
+#if SUPPORT_NOT
                 case "!": return new OperatorToken(OperatorType.Not, true, position);
+#endif
                 case "~": return new OperatorToken(OperatorType.BitwiseNegate, true, position);
                 case "*": return new OperatorToken(OperatorType.Multiply, false, position);
                 case "/": return new OperatorToken(OperatorType.Divide, false, position);
@@ -125,13 +72,15 @@ namespace HisRoyalRedness.com
         {
             switch (value)
             {
+#if SUPPORT_NOT
                 case "!": return new OperatorToken(OperatorType.Not, true, position);
+#endif
                 case "~": return new OperatorToken(OperatorType.BitwiseNegate, true, position);
                 case "-": return new OperatorToken(OperatorType.NumericNegate, true, position);
                 default: throw new ParseException($"Unrecognised operator {value}.");
             }
         }
-        #endregion Parsing
+#endregion Parsing
 
         public OperatorType Operator { get; private set; }
         public bool IsUnary { get; private set; }
@@ -140,9 +89,9 @@ namespace HisRoyalRedness.com
         public override TokenCategory Category => TokenCategory.OperatorToken;
         public override string ToString() => $"{Operator.GetEnumDescription()}";
     }
-    #endregion OperatorToken
+#endregion OperatorToken
 
-    #region GroupingToken
+#region GroupingToken
     public class GroupingToken : TokenBase<GroupingToken>, IOperatorToken
     {
         public GroupingToken(IToken childToken, SourcePosition position)
@@ -157,7 +106,7 @@ namespace HisRoyalRedness.com
         public OperatorType Operator => OperatorType.Grouping;
         public override TokenCategory Category => TokenCategory.OperatorToken;
     }
-    #endregion GroupingToken
+#endregion GroupingToken
 
     //public class CastOperatorToken : OperatorToken
     //{

@@ -121,7 +121,8 @@ TOKENS
                             ( underscore | ( letter ( letter | underscore ) ) { letter | digit | underscore } ) 
                           ) CONTEXT ( openBrac ).
 
-    notToken            = logNotOp | bitNotOp. // '-' if also considered a notToken, but we need a bit of complexity in the scanner to differentiate it from subOp (minus)
+    /* lets not support '!' for now... */
+    notToken            = /*logNotOp |*/ bitNotOp. // '-' if also considered a notToken, but we need a bit of complexity in the scanner to differentiate it from subOp (minus)
     multToken           = multOp | divideOp | moduloOp.
     exponentToken       = multOp multOp | divideOp divideOp.
     addToken            = addOp.

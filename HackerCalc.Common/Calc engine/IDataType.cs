@@ -13,13 +13,13 @@ namespace HisRoyalRedness.com
         ValueAndType
     }
 
-    public interface IDataType
+    public interface IDataType : IComparable
     {
         object ObjectValue { get; }
         string ToString(Verbosity verbosity);
     }
 
-    public interface IDataType<TDataTypeEnum> : IDataType
+    public interface IDataType<TDataTypeEnum> : IDataType, IComparable<IDataType<TDataTypeEnum>>
     {
         TDataTypeEnum DataType { get; }
         TNewType CastTo<TNewType>()

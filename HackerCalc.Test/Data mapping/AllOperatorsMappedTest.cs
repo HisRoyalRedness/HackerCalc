@@ -14,21 +14,52 @@ namespace HisRoyalRedness.com
         [TestMethod]
         public void AllBinaryOperatorsMapped()
         {
-            var dataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsBinaryOperator())
+            var binaryDataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsBinaryOperator())
                 .OrderBy(e => e)
                 .ToArray();
 
-            DataMapper.OperandTypeCastMap
+            var allMappings = DataMapper.OperandTypeCastMap
                 .Select(map => map.Key)
                 .OrderBy(e => e)
-                .ToArray()
-                .Should().BeEquivalentTo(dataTypes);
+                .ToArray();
+
+            binaryDataTypes.Should().BeSubsetOf(allMappings);
         }
 
         [TestMethod]
         public void AllUnaryOperatorsMapped()
         {
-            Assert.Fail("Not implemented");
+            var unaryDataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsUnaryOperator())
+                .OrderBy(e => e)
+                .ToArray();
+
+            var allMappings = DataMapper.OperandTypeCastMap
+                .Select(map => map.Key)
+                .OrderBy(e => e)
+                .ToArray();
+
+            unaryDataTypes.Should().BeSubsetOf(allMappings);
+        }
+
+        [TestMethod]
+        public void AllUnaryOperatorsMappingsShouldHaveTheSameTypeLeftAndRight()
+        {
+            var unaryDataTypes = EnumExtensions.GetEnumCollection<OperatorType>(e => e.IsUnaryOperator()).ToHashSet();
+
+            var unaryMappings = DataMapper.OperandTypeCastMap
+                .Where(map => unaryDataTypes.Contains(map.Key))
+                .OrderBy(map => map.Key)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            foreach(var opType in unaryMappings.Keys)
+            {
+                var mapping = unaryMappings[opType];
+                foreach(var dataMapping in mapping)
+                {
+                    dataMapping.Key.Left.Should().Be(dataMapping.Key.Right, $"unary mappings should be the same for data type {dataMapping.Key.Left} for operator {opType}.");
+                    dataMapping.Value.Left.Should().Be(dataMapping.Value.Right, $"unary mappings should be the same for data type {dataMapping.Value.Left} for operator {opType}.");
+                }
+            }
         }
     }
 }
