@@ -82,7 +82,7 @@ namespace HisRoyalRedness.com
         #endregion IComparable implementation
 
         public override string ToString() => ToString(Verbosity.ValueOnly);
-        public string ToString(Verbosity verbosity)
+        public virtual string ToString(Verbosity verbosity)
         {
             switch (verbosity)
             {

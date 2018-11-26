@@ -26,8 +26,5 @@ namespace HisRoyalRedness.com
         public static TimespanType operator -(DateType a, DateType b)
             => new TimespanType(a.Value - b.Value);
         #endregion Operator overloads
-
-        //Date                Timespan            +, -
-        //                    Date                -
     }
 }

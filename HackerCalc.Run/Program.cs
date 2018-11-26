@@ -26,7 +26,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1]);
                         else
-                            Debug("1+2.0");
+                            Debug("9u4+9u4");
                         break;
 
                     case "cast":
@@ -56,7 +56,7 @@ namespace HisRoyalRedness.com
             Console.WriteLine("Enter an expression, or an empty line to quit");
             string input = null;
             while (!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
-                Console.WriteLine($" = {(Parser.ParseExpression(input)?.Evaluate())}");
+                Console.WriteLine($" = {_evaluator.Value.Evaluate(Parser.ParseExpression(input))}");
         }
 
         static void Debug(string input)
@@ -79,8 +79,9 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine("Evaluation");
             Console.WriteLine("----------");
-            var result = DoWithCatch<IDataType>(() => rootToken?.Evaluate(), "EVALUATE");
+            var result = DoWithCatch<IDataType>(() => _evaluator.Value.Evaluate(rootToken), "EVALUATE");
             Console.WriteLine(result?.ToString(Verbosity.ValueAndType) ?? "<null>");
+            Console.WriteLine(Engine.State);
 
             Console.WriteLine();
 
@@ -251,14 +252,14 @@ namespace HisRoyalRedness.com
                     subDict[entry.Item2].Add(entry.Item3);
             }
 
-            foreach (var opType in dict.Keys)
+            foreach (var opType in dict.Keys.OrderBy(k => k))
             {
                 var opStr = $"{opType} ({opType.GetEnumDescription()})";
                 var firstCol = $"{opStr,-20}";
-                foreach (var rightType in dict[opType].Keys)
+                foreach (var rightType in dict[opType].Keys.OrderBy(k => k))
                 {
                     var scndCol = $"{rightType,-20}";
-                    var csv = string.Join(", ", dict[opType][rightType].Select(op => op.ToString()));
+                    var csv = string.Join(", ", dict[opType][rightType].Select(op => op.ToString()).OrderBy(k => k));
 
                     Console.WriteLine($"{firstCol}{scndCol}{csv}");
                     firstCol = $"{"",-20}";
@@ -285,14 +286,11 @@ namespace HisRoyalRedness.com
 
             static readonly Lazy<SortByTypeComparer> _instance = new Lazy<SortByTypeComparer>(() => new SortByTypeComparer());
         }
+
+        static CalcEngine Engine { get; } = new CalcEngine();
+        static CalcSettings Settings => Engine.Settings;
+        static CalcState State => Engine.State;
+
+        static Lazy<IEvaluator> _evaluator = new Lazy<IEvaluator>(() => new Evaluator<DataType>(Engine, Settings));
     }
-
-    public static class TokenExtensions
-    {
-        public static IDataType Evaluate(this IToken token)
-            => _evaluator.Value.Evaluate(token);
-
-        static Lazy<IEvaluator> _evaluator = new Lazy<IEvaluator>(() => new Evaluator<DataType>(new CalcEngine()));
-    }
-
 }

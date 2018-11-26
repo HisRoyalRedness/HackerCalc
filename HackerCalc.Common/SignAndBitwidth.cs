@@ -38,7 +38,7 @@ namespace HisRoyalRedness.com
         public bool Equals(BitWidthAndSignPair other)
             => BitWidth == other.BitWidth && IsSigned == other.IsSigned;
         public override bool Equals(object obj)
-            => obj as BitWidthAndSignPair == null ? false : Equals((BitWidthAndSignPair)obj);
+            => (obj as BitWidthAndSignPair) is null ? false : Equals((BitWidthAndSignPair)obj);
 
         public static bool operator ==(BitWidthAndSignPair a, BitWidthAndSignPair b)
             => a.BitWidth == b.BitWidth && a.IsSigned == b.IsSigned;

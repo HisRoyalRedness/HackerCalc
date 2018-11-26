@@ -45,6 +45,7 @@
       <HintPath>..\packages\FluentAssertions.5.4.2\lib\net47\FluentAssertions.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
       <Private>True</Private>
@@ -67,6 +68,7 @@
     <Compile Include="Data mapping\AllOperatorsMappedTest.cs" />
     <Compile Include="Data mapping\LiteralTokenMapTest.cs" />
     <Compile Include="Data mapping\MinMaxMapTest.cs" />
+    <Compile Include="Operation testing\AddOperatorTest.cs" />
     <Compile Include="Parse testing\BasicOperatorParseTest.cs" />
     <Compile Include="Parse testing\DateParseTest.cs" />
     <Compile Include="Parse testing\FloatParseTest.cs" />

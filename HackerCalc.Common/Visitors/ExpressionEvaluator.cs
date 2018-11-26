@@ -9,14 +9,18 @@ namespace HisRoyalRedness.com
     public class Evaluator<TDataEnum> : IEvaluator<TDataEnum>
         where TDataEnum : Enum
     {
-        public Evaluator(ICalcEngine<TDataEnum> calcEngine)
+        public Evaluator(ICalcEngine<TDataEnum> calcEngine, ICalcSettings settings)
         {
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings)); ;
             CalcEngine = calcEngine ?? throw new ArgumentNullException(nameof(calcEngine));
         }
 
         #region IEvaluator Evaluate implementation
         IDataType IEvaluator.Evaluate(IToken token)
-            => token.Accept<IDataType<TDataEnum>>(this);
+        { 
+            CalcEngine.State.Reset();
+            return token.Accept<IDataType<TDataEnum>>(this);
+        }
 
         IDataType ITokenVisitor<IDataType>.Visit<TToken>(TToken token)
             => VisitInternal(token);
@@ -53,7 +57,8 @@ namespace HisRoyalRedness.com
         }
 
         public ICalcEngine<TDataEnum> CalcEngine { get; private set; }
-
+        public ICalcSettings Settings { get; private set; }
+        public ICalcState State { get; private set; }
 
     }
 }

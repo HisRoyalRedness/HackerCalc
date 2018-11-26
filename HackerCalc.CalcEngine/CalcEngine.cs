@@ -9,6 +9,24 @@ namespace HisRoyalRedness.com
 {
     public class CalcEngine : ICalcEngine<DataType>
     {
+        #region Constructors
+        public CalcEngine()
+            : this(null)
+        { }
+
+        public CalcEngine(CalcSettings settings, CalcState state = null)
+        {
+            Settings = settings ?? new CalcSettings();
+            State = State ?? new CalcState();
+
+            // For now, I don't anticipate having multiple CalcEngine instances at one time.
+            // If that changes, I'll need to think of some other way to get the settings
+            // passed on to each data type of a given calc instance.
+            DataMapper.Settings = Settings;
+            DataMapper.State = State;
+        }
+        #endregion Constructors
+
         #region ICalcEngine implementation
         IDataType ICalcEngine.ConvertToDataType(ILiteralToken token)
             => DataMapper.Map(token);
@@ -16,6 +34,11 @@ namespace HisRoyalRedness.com
             => DataMapper.Map(token);
         IDataType ICalcEngine.Calculate(OperatorType opType, params IDataType[] operands)
             => Calculate(opType, operands.Select(o => (IDataType<DataType>)o).ToArray());
+        ICalcSettings ICalcEngine.Settings => Settings;
+        ICalcState ICalcEngine.State => State;
+
+        public CalcSettings Settings { get; private set; }
+        public CalcState State { get; private set; }
         #endregion ICalcEngine implementation
 
         public IDataType<DataType> Calculate(OperatorType opType, params IDataType<DataType>[] operands)
@@ -75,7 +98,6 @@ namespace HisRoyalRedness.com
         static DataTypeValuePair<DataType> GetDataTypeValuePair(IDataType<DataType> left, IDataType<DataType> right)
             => new DataTypeValuePair<DataType>(left, right);
 
-
         #region Add
         static IDataType<DataType> Add(DataTypeValuePair<DataType> pair)
         {
@@ -100,21 +122,21 @@ namespace HisRoyalRedness.com
                     if (pair.Right.DataType == DataType.Float)
                         return ((FloatType)pair.Left) + ((FloatType)pair.Right);
                     break;
-                //case TokenDataType.Time:
-                //    if (pair.Right.DataType == TokenDataType.Timespan)
-                //        return ((OldTimeToken)pair.Left) + ((OldTimespanToken)pair.Right);
-                //    break;
-                //case TokenDataType.Timespan:
-                //    switch (pair.Right.DataType)
-                //    {
-                //        case TokenDataType.Date:
-                //            return ((OldDateToken)pair.Right) + ((OldTimespanToken)pair.Left);
-                //        case TokenDataType.Time:
-                //            return ((OldTimespanToken)pair.Left) + ((OldTimeToken)pair.Right);
-                //        case TokenDataType.Timespan:
-                //            return ((OldTimespanToken)pair.Left) + ((OldTimespanToken)pair.Right);
-                //    }
-                //    break;
+                case DataType.Time:
+                    if (pair.Right.DataType == DataType.Timespan)
+                        return ((TimeType)pair.Left) + ((TimespanType)pair.Right);
+                    break;
+                case DataType.Timespan:
+                    switch (pair.Right.DataType)
+                    {
+                        case DataType.Date:
+                            return ((TimespanType)pair.Right) + ((DateType)pair.Left);
+                        case DataType.Time:
+                            return ((TimespanType)pair.Left) + ((TimeType)pair.Right);
+                        case DataType.Timespan:
+                            return ((TimespanType)pair.Left) + ((TimespanType)pair.Right);
+                    }
+                    break;
                 case DataType.UnlimitedInteger:
                     if (pair.Right.DataType == DataType.UnlimitedInteger)
                         return ((UnlimitedIntegerType)pair.Left) + ((UnlimitedIntegerType)pair.Right);
@@ -126,5 +148,6 @@ namespace HisRoyalRedness.com
         }
         static string AddErrorMessage(DataTypeValuePair<DataType> pair) => $"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})";
         #endregion Add
+        
     }
 }

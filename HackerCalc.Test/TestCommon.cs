@@ -329,6 +329,29 @@ namespace HisRoyalRedness.com
             return field.GetValue(instance);
         }
 
+        public static void TestThatAllPossibleOperandTypesAreSupported(Dictionary<DataType, HashSet<DataType>> supportedOperandTypes, string operationDescription)
+        {
+            var allTypePairs = (new[] { EnumExtensions.GetEnumCollection<DataType>(), EnumExtensions.GetEnumCollection<DataType>() })
+                .CartesianProduct()
+                .Select(r => new DataTypePair<DataType>(r.First(), r.Last()))
+                .Distinct();
+
+            var supportedTypes = allTypePairs
+                .Where(p => supportedOperandTypes.ContainsKey(p.Left) && supportedOperandTypes[p.Left].Contains(p.Right))
+                .ToList();
+
+            foreach (var pair in allTypePairs)
+            {
+                var valuePair = new DataTypeValuePair<DataType>(TestCommon.MakeDataType(pair.Left), TestCommon.MakeDataType(pair.Right));
+                dynamic result;
+                var act = new Action(() => result = (dynamic)valuePair.Left + (dynamic)valuePair.Right);
+                if (supportedTypes.Contains(pair))
+                    act.Should().NotThrow($"a {pair.Left} and {pair.Right} should be able to be {operationDescription}");
+                else
+                    act.Should().Throw<Exception>($"a {pair.Left} and {pair.Right} should not be able to be {operationDescription}");
+            }
+        }
+
         #region Test trait descriptions
         public const string INCOMPLETE = "Incomplete";
         public const string BASIC_PARSE = "Basic parse";

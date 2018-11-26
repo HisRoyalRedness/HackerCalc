@@ -10,6 +10,8 @@ namespace HisRoyalRedness.com
     {
         IDataType ConvertToDataType(ILiteralToken token);
         IDataType Calculate(OperatorType opType, params IDataType[] operands);
+        ICalcSettings Settings { get; }
+        ICalcState State { get; }
     }
 
     public interface ICalcEngine<TDataTypeEnum> : ICalcEngine

@@ -59,6 +59,10 @@ namespace HisRoyalRedness.com
                 : null;
         #endregion Map - Convert literal token to data type
 
+        // Not ideal, but gets the job done for now...
+        public static CalcSettings Settings { get; set; }
+        public static CalcState State { get; set; }
+
         static void BuildOperandTypeCastMap()
         {
             // Binary operations
@@ -291,10 +295,10 @@ namespace HisRoyalRedness.com
 
                 { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
             });
             #endregion LeftShift
 
@@ -342,10 +346,10 @@ namespace HisRoyalRedness.com
 
                 { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Float),                new DTP(DataType.UnlimitedInteger,      DataType.Float) },
-                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
             });
             #endregion Power
 
@@ -393,7 +397,7 @@ namespace HisRoyalRedness.com
 
                 { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Timespan),             DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
@@ -440,7 +444,7 @@ namespace HisRoyalRedness.com
 
                 { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Float),                new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
-                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Timespan),             DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },

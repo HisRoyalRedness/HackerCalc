@@ -68,7 +68,7 @@ namespace HisRoyalRedness.com
         // Unary operators
         [UnaryOperator]
         [Description("~")]
-        BitwiseNegate,          // i.e. 2's complement
+        BitwiseNegate,          // i.e. 1's complement
         [UnaryOperator]
         [Description("!-")]
         NumericNegate,          // i.e. value * -1

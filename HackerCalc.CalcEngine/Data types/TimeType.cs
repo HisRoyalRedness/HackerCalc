@@ -9,7 +9,7 @@ namespace HisRoyalRedness.com
     public class TimeType : DataTypeBase<TimeSpan, TimeType>
     {
         public TimeType(TimeSpan value)
-            : base(value, DataType.Timespan)
+            : base(value, DataType.Time)
         { }
 
         #region Type casting
@@ -31,7 +31,5 @@ namespace HisRoyalRedness.com
         public static TimeType operator -(TimeType a, TimespanType b)
             => new TimeType(a.Value - b.Value);
         #endregion Operator overloads
-
-        //Time                Timespan            +, -
     }
 }

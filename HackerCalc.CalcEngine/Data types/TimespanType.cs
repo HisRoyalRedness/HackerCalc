@@ -31,17 +31,10 @@ namespace HisRoyalRedness.com
             => new FloatType(a.Value.TotalSeconds / b.Value.TotalSeconds);
         public static FloatType operator %(TimespanType a, TimespanType b)
             => new FloatType(a.Value.TotalSeconds % b.Value.TotalSeconds);
-        #endregion Operator overloads
 
-        #region Operator implementations
-        public static TimespanType neg(TimespanType a)
+        // Unary
+        public static TimespanType operator -(TimespanType a)
             => new TimespanType(-a.Value);
-        #endregion Operator implementations
-
-
-        //Timespan            Date                +, -
-        //                    Time                +
-        //                    Timespan            +, -, /, %, !-
-        //                    Float               *, /, %
+        #endregion Operator overloads
     }
 }

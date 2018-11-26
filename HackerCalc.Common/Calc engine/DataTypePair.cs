@@ -70,6 +70,9 @@ namespace HisRoyalRedness.com
         public IDataType<TDataTypeEnum> Left { get; private set; }
         public IDataType<TDataTypeEnum> Right { get; private set; }
 
+        public DataTypePair<TDataTypeEnum> ToDataTypePair()
+            => new DataTypePair<TDataTypeEnum>(Left.DataType, Right.DataType);
+
         #region Equality
         public override bool Equals(object obj)
             => (obj is DataTypeValuePair<TDataTypeEnum> other)

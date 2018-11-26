@@ -81,6 +81,7 @@ Todo
   * Implement all data types
    * ~~LimitedIntegerType~~
      * ~~Sign and bitwidth~~
+     * Implement LimitedIntegerType.Normalise()
    * ~~UnlimitedIntegerType~~
    * ~~DateType~~
    * ~~FloatType~~
@@ -89,7 +90,7 @@ Todo
   * Implement operations on all data types
    * LimitedIntegerType
      * Sign and bitwidth
-   * UnlimitedIntegerType
+   * ~~UnlimitedIntegerType~~
    * ~~DateType~~
    * ~~FloatType~~
    * ~~TimeType~~
@@ -97,9 +98,13 @@ Todo
   * Implement IComparable and IEquatable on data types
   * ~~Implement casting to/from data types~~
    * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
+     * Casting to a specific bitwidth and sign?   
 * Remove old code
 * Put licence headers and footers on all source code
-
+* Find a more accurate way to do power and root
+* Remember left shift and right shift on integers is limited by number of bits. Negative shifts aren't intuitive. Maybe block negative shifts? Shifts on BigIntegers are limited to 16 bits
+* Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
+* Complete the operator unit tests. Just started with Add...
 
 License
 -------

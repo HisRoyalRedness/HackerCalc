@@ -41,6 +41,10 @@ namespace HisRoyalRedness.com
 
         public static FloatType operator %(TimespanType a, FloatType b)
             => new FloatType(a.Value.TotalSeconds % b.Value);
+
+        // Unary
+        public static FloatType operator -(FloatType a)
+            => new FloatType(-a.Value);
         #endregion Operator overloads
 
         #region Operator implementations
@@ -48,11 +52,6 @@ namespace HisRoyalRedness.com
             => new FloatType(Math.Pow(a.Value, b.Value));
         public static FloatType root(FloatType a, FloatType b)
             => new FloatType(Math.Pow(a.Value, 1.0 / b.Value));
-        public static FloatType neg(FloatType a)
-            => new FloatType(-a.Value);
         #endregion Operator implementations
-
-        //Float               Float               +, -, *, /, **, //, %, !-
-        //                    Timespan            *
     }
 }
