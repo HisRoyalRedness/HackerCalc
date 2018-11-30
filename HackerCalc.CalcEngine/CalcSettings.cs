@@ -10,19 +10,12 @@ namespace HisRoyalRedness.com
 {
     public class CalcSettings : NotifyBase, ICalcSettings
     {
-        public bool AllowOverflow
+        public bool AllowOverOrUnderflow
         {
-            get => _allowOverflow;
-            set => SetProperty(ref _allowOverflow, value);
+            get => _allowOverOrUnderflow;
+            set => SetProperty(ref _allowOverOrUnderflow, value);
         }
-        bool _allowOverflow = true;
-
-        public bool AllowUnderflow
-        {
-            get => _allowUnderflow;
-            set => SetProperty(ref _allowUnderflow, value);
-        }
-        bool _allowUnderflow = true;
+        bool _allowOverOrUnderflow = true;
 
         public bool AllowSignChange
         {

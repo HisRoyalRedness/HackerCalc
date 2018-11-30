@@ -60,7 +60,7 @@ namespace HisRoyalRedness.com
                         var num = portions.Groups[3].Value;
                         var isSigned = portions.Groups[4].Value.ToLower() != "u";
                         var bitWidth = LimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None);
+                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None, true);
                     }
 
                 case "unlimitedinteger":

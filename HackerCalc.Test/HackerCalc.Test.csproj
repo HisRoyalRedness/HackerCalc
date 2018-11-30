@@ -91,6 +91,7 @@
     <Compile Include="TestCommon.cs" />
     <Compile Include="Type casting\LimitedIntegerTypeRangeTest.cs" />
     <Compile Include="Type casting\TypeCastTest.cs" />
+    <Compile Include="Types\LimitedIntegerTypeTests.cs" />
     <Compile Include="Visitors\TokenPrinterTest.cs" />
   </ItemGroup>
   <ItemGroup>

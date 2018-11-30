@@ -20,37 +20,31 @@ namespace HisRoyalRedness.com
         static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth)
         {
             var minAndMax = MinAndMaxMap.Instance[signAndBitwidth];
-            fdfdf
+            var oldValue = value;
+            value &= minAndMax.Mask;
 
-            // TODO: Complete Normalise!!!
-
-            if (value > minAndMax.Max)
+            if (oldValue != value)
             {
-                if (signAndBitwidth.IsSigned)
-                {
+                if (DataMapper.Settings.AllowOverOrUnderflow)
+                    DataMapper.State.OverOrUnderflowOccurred = true;
+                else
+                    throw new InvalidCalcOperationException("Overflow or underflow of LimitedIntegerTypes is not permitted.");
+            }
 
-                }
-                else
-                {
-                    if (DataMapper.Settings.AllowOverflow)
-                    {
-                        DataMapper.State.OverflowOccurred = true;
-                        value = value % (minAndMax.Max + 1);
-                    }
-                    else
-                        throw new InvalidCalcOperationException("Overflow is not allowed.");
-                }
-            }
-            else if (value < minAndMax.Min)
+            if (signAndBitwidth.IsSigned)
             {
-                if (DataMapper.Settings.AllowUnderflow)
-                {
-                    DataMapper.State.UnderflowOccurred = true;
-                    value = value % (minAndMax.Max + 1);
-                }
-                else
-                    throw new InvalidCalcOperationException("Underflow is not allowed.");
+                if (value > minAndMax.Max)
+                    value -= (minAndMax.Mask  + 1);
             }
+
+            if ((oldValue >= 0) != (value >= 0))
+            {
+                if (DataMapper.Settings.AllowSignChange)
+                    DataMapper.State.SignChangedOccurred = true;
+                else
+                    throw new InvalidCalcOperationException("Sign change through overflow or underflow of LimitedIntegerTypes is not permitted.");
+            }
+
             return value;
         }
 

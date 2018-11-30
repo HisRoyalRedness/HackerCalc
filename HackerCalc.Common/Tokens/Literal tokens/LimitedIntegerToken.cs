@@ -30,24 +30,26 @@ namespace HisRoyalRedness.com
             : this(typedValue, bitWidth, isSigned, isSigned && typedValue < 0, null, SourcePosition.None)
         { }
 
-        private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position)
+        private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, bool ignoreRange = false)
             : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)
         {
             if (isNeg)
                 typedValue *= -1;
             SignAndBitWidth = new BitWidthAndSignPair(bitWidth, isSigned);
-            var limit = MinAndMaxMap.Instance[SignAndBitWidth];
-            if (typedValue < limit.Min)
-                throw new ParseException($"{typedValue} is less than the minimum of {limit.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
-            else if (typedValue > limit.Max)
-                throw new ParseException($"{typedValue} is greater than the maximum of {limit.Max} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
-
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
+            if (!ignoreRange)
+            {
+                if (typedValue < _minAndMax.Min)
+                    throw new ParseException($"{typedValue} is less than the minimum of {_minAndMax.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
+                else if (typedValue > _minAndMax.Max)
+                    throw new ParseException($"{typedValue} is greater than the maximum of {_minAndMax.Max} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
+            }
+            
         }
         #endregion Constructors
 
         #region Parsing
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position)
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, bool ignoreRange = false)
         {
             BigInteger val;
             switch (numBase)
@@ -59,7 +61,7 @@ namespace HisRoyalRedness.com
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
-            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position);
+            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position, ignoreRange);
         }
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)

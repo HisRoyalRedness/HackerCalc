@@ -11,31 +11,30 @@ namespace HisRoyalRedness.com
     {
         public void Reset()
         {
-            OverflowOccurred = false;
-            UnderflowOccurred = false;
+            OverOrUnderflowOccurred = false;
         }
 
-        public bool OverflowOccurred
+        public bool OverOrUnderflowOccurred
         {
-            get => _overflowOccurred;
-            set => SetProperty(ref _overflowOccurred, value);
+            get => _overOrUnderflowOccurred;
+            set => SetProperty(ref _overOrUnderflowOccurred, value);
         }
-        bool _overflowOccurred = true;
+        bool _overOrUnderflowOccurred = true;
 
-        public bool UnderflowOccurred
+        public bool SignChangedOccurred
         {
-            get => _underflowOccurred;
-            set => SetProperty(ref _underflowOccurred, value);
+            get => _signChangeOccurred;
+            set => SetProperty(ref _signChangeOccurred, value);
         }
-        bool _underflowOccurred = true;
+        bool _signChangeOccurred = true;
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            if (UnderflowOccurred)
-                sb.AppendLine("Underflow");
-            if (OverflowOccurred)
-                sb.AppendLine("Overflow");
+            if (OverOrUnderflowOccurred)
+                sb.AppendLine("Overflow or Underflow");
+            if (SignChangedOccurred)
+                sb.AppendLine("Sign change");
             return sb.ToString();
         }
     }
