@@ -9,12 +9,8 @@ namespace HisRoyalRedness.com
 {
     public class CalcEngine : ICalcEngine<DataType>
     {
-        #region Constructors
-        public CalcEngine()
-            : this(null)
-        { }
-
-        public CalcEngine(CalcSettings settings, CalcState state = null)
+        #region Constructor
+        private CalcEngine(CalcSettings settings, CalcState state = null)
         {
             Settings = settings ?? new CalcSettings();
             State = State ?? new CalcState();
@@ -26,6 +22,9 @@ namespace HisRoyalRedness.com
             DataMapper.State = State;
         }
         #endregion Constructors
+
+        public static CalcEngine Instance => _instance.Value;
+        static Lazy<CalcEngine> _instance = new Lazy<CalcEngine>(() => new CalcEngine(null));
 
         #region ICalcEngine implementation
         IDataType ICalcEngine.ConvertToDataType(ILiteralToken token)
@@ -57,11 +56,11 @@ namespace HisRoyalRedness.com
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a binary operator, and two operands were provided.");
                 
                 Func<DataTypeValuePair<DataType>, IDataType<DataType>> opFunc = null;
-                Func<DataTypeValuePair<DataType>, string> errorFunc = null;
+                string errorMsg;
                 switch (opType)
                 {
-                    case OperatorType.Add: opFunc = Add; errorFunc = AddErrorMessage; break;
-                    case OperatorType.Subtract:
+                    case OperatorType.Add: opFunc = Add; errorMsg = Properties.Resources.CALCENGINE_AddErrorMessage;  break;
+                    case OperatorType.Subtract: opFunc = Subtract; errorMsg = Properties.Resources.CALCENGINE_SubtractErrorMessage; break;
                     case OperatorType.Multiply:
                     case OperatorType.Divide:
                     case OperatorType.Power:
@@ -80,7 +79,12 @@ namespace HisRoyalRedness.com
                 var currentValuePair = GetDataTypeValuePair(operands[0], operands[1]);
                 var targetDataTypePair = DataMapper.GetOperandDataTypes(opType, currentValuePair);
                 if (!targetDataTypePair.OperationSupported)
-                    throw new InvalidCalcOperationException(errorFunc(currentValuePair));
+                    throw new InvalidCalcOperationException(
+                        string.Format(errorMsg, 
+                            currentValuePair.Left.DataType, 
+                            currentValuePair.Left.ObjectValue, 
+                            currentValuePair.Right.DataType, 
+                            currentValuePair.Right.ObjectValue));
 
                 var currentDataTypePair = GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
@@ -130,7 +134,7 @@ namespace HisRoyalRedness.com
                     switch (pair.Right.DataType)
                     {
                         case DataType.Date:
-                            return ((TimespanType)pair.Right) + ((DateType)pair.Left);
+                            return ((TimespanType)pair.Left) + ((DateType)pair.Right);
                         case DataType.Time:
                             return ((TimespanType)pair.Left) + ((TimeType)pair.Right);
                         case DataType.Timespan:
@@ -146,8 +150,55 @@ namespace HisRoyalRedness.com
             }
             throw new InvalidCalcOperationException($"Unhandled data type {pair.Right.DataType}");
         }
-        static string AddErrorMessage(DataTypeValuePair<DataType> pair) => $"Can't add a {pair.Left.DataType} ({pair.Left.ObjectValue}) to a {pair.Right.DataType} ({pair.Right.ObjectValue})";
         #endregion Add
-        
+
+        #region Subtract
+        static IDataType<DataType> Subtract(DataTypeValuePair<DataType> pair)
+        {
+            //Subtract (-)        LimitedInteger      LimitedInteger
+            //                    UnlimitedInteger    UnlimitedInteger
+            //                    Float               Float
+            //                    Date                Date, Timespan
+            //                    Time                Timespan
+            //                    Timespan            Timespan
+
+            switch (pair.Left.DataType)
+            {
+                case DataType.LimitedInteger:
+                    if (pair.Right.DataType == DataType.LimitedInteger)
+                        return ((LimitedIntegerType)pair.Left) - ((LimitedIntegerType)pair.Right);
+                    break;
+                case DataType.UnlimitedInteger:
+                    if (pair.Right.DataType == DataType.UnlimitedInteger)
+                        return ((UnlimitedIntegerType)pair.Left) - ((UnlimitedIntegerType)pair.Right);
+                    break;
+                case DataType.Float:
+                    if (pair.Right.DataType == DataType.Float)
+                        return ((FloatType)pair.Left) - ((FloatType)pair.Right);
+                    break;
+                case DataType.Date:
+                    switch (pair.Right.DataType)
+                    {
+                        case DataType.Date:
+                            return ((DateType)pair.Left) - ((DateType)pair.Right);
+                        case DataType.Timespan:
+                            return ((DateType)pair.Left) - ((TimespanType)pair.Right);
+                    }
+                    break;
+                case DataType.Time:
+                    if (pair.Right.DataType == DataType.Timespan)
+                        return ((TimeType)pair.Left) - ((TimespanType)pair.Right);
+                    break;
+                case DataType.Timespan:
+                    if (pair.Right.DataType == DataType.Timespan)
+                        return ((TimespanType)pair.Left) - ((TimespanType)pair.Right);
+                    break;
+                default:
+                    throw new InvalidCalcOperationException($"Unhandled data type {pair.Left.DataType}");
+            }
+            throw new InvalidCalcOperationException($"Unhandled data type {pair.Right.DataType}");
+        }
+        #endregion Subtract
+
     }
 }

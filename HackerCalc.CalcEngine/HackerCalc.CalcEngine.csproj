@@ -56,12 +56,23 @@
     <Compile Include="Data types\TimespanType.cs" />
     <Compile Include="Data types\TimeType.cs" />
     <Compile Include="Data types\UnlimitedIntegerType.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj">
       <Project>{c07ad894-0d40-4c1f-b650-519f6f4ad85e}</Project>
       <Name>HackerCalc.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

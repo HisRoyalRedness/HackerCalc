@@ -39,10 +39,13 @@ Literals
    * Time portion only
      * Support time formats 'HH:mm' or 'HH:mm:ss'
      * e.g. ``11:48``, or ``11:48:56``
+     * <mark>Support milliseconds?</mark>
  * **Timespans**
    * A period of time
      * Supports these time units: days, hours, minutes, seconds
      * e.g. ``1 day 2 hours``, or ``16 hours 2 mins 1 sec``
+     * The time portions need not be whole numbers, e.g. ``16.1 hours 2.6 mins 1.03 sec``
+     * <mark>Support milliseconds?</mark>
 
 Operators 
 ---------
@@ -71,17 +74,19 @@ Todo
     * ~~Float~~
     * ~~Date~~
     * ~~Time~~
+      * Support milliseconds??
     * ~~Timespan~~
+      * Support milliseconds??
   * ~~Handle basic operators~~
   * ~~Support for functions~~
   * ~~Make sure all failed parsing raises a ParseException (rather than some other exception)~~
   * Perhaps support timezone offsets on date/times??
 * Calculation
   * Get the calculation engine design sorted
-  * Implement all data types
+  * ~~Implement all data types~~
    * ~~LimitedIntegerType~~
      * ~~Sign and bitwidth~~
-     * Implement LimitedIntegerType.Normalise()
+     * ~~Implement LimitedIntegerType.Normalise()~~
    * ~~UnlimitedIntegerType~~
    * ~~DateType~~
    * ~~FloatType~~
@@ -95,7 +100,8 @@ Todo
    * ~~FloatType~~
    * ~~TimeType~~
    * ~~TimespanType~~
-  * Implement IComparable and IEquatable on data types
+  * Implement CalcEngine operations
+  * Implement IComparable and IEquatable on data types, with testing
   * ~~Implement casting to/from data types~~
    * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
      * Casting to a specific bitwidth and sign?   

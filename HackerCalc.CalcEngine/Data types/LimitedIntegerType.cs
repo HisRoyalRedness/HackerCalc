@@ -69,6 +69,37 @@ namespace HisRoyalRedness.com
         public BigInteger Max => _minAndMax.Max;
         public BigInteger Mask => _minAndMax.Mask;
 
+        protected override int InternalGetHashCode() => (Value.GetHashCode() << 1) ^ (SignAndBitWidth.GetHashCode());
+        protected override string InternalTypeName => nameof(LimitedIntegerType);
+
+        #region Equality
+        protected override bool InternalEquals(IDataType other)
+        {
+            if (other is LimitedIntegerType dt)
+                return dt.Value == Value && dt.SignAndBitWidth == SignAndBitWidth;
+            return false;
+        }
+        #endregion Equality
+
+        #region Comparison
+        protected override int InternalCompareTo(IDataType other)
+        {
+            if (other is null)
+                return 1;
+            else if (other is FloatType dt1)
+                return Value.CompareTo(new BigInteger(dt1.Value));
+            else if (other is LimitedIntegerType dt2)
+                return Value.CompareTo(dt2.Value);
+            else if (other is TimespanType dt3)
+                return Value.CompareTo(new BigInteger(dt3.Value.TotalSeconds));
+            else if (other is TimeType dt4)
+                return Value.CompareTo(new BigInteger(dt4.Value.TotalSeconds));
+            else if (other is UnlimitedIntegerType dt5)
+                return Value.CompareTo(dt5.Value);
+            throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
+        }
+        #endregion Comparison
+
         #region Type casting
         protected override TNewType InternalCastTo<TNewType>()
         {
@@ -153,6 +184,7 @@ namespace HisRoyalRedness.com
             switch (verbosity)
             {
                 case Verbosity.ValueOnly: return $"{Value}";
+                case Verbosity.ValueAndBitwidth: return $"{Value}{SignAndBitWidth}";
                 case Verbosity.ValueAndType: return $"{Value}{SignAndBitWidth}: {(GetType().Name)}";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(verbosity));

@@ -13,6 +13,37 @@ namespace HisRoyalRedness.com
             : base(value, DataType.Float)
         { }
 
+        protected override int InternalGetHashCode() => Value.GetHashCode();
+        protected override string InternalTypeName => nameof(FloatType);
+
+        #region Equality
+        protected override bool InternalEquals(IDataType other)
+        {
+            if (other is FloatType dt)
+                return dt.Value == Value;
+            return false;
+        }
+        #endregion Equality
+
+        #region Comparison
+        protected override int InternalCompareTo(IDataType other)
+        {
+            if (other is null)
+                return 1;
+            else if (other is FloatType dt1)
+                return Value.CompareTo(dt1.Value);
+            else if (other is LimitedIntegerType dt2)
+                return Value.CompareTo((float)dt2.Value);
+            else if (other is TimespanType dt3)
+                return Value.CompareTo(dt3.Value.TotalSeconds);
+            else if (other is TimeType dt4)
+                return Value.CompareTo(dt4.Value.TotalSeconds);
+            else if (other is UnlimitedIntegerType dt5)
+                return Value.CompareTo((float)dt5.Value);
+            throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
+        }
+        #endregion Comparison
+
         #region Type casting
         protected override TNewType InternalCastTo<TNewType>()
         {

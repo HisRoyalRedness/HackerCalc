@@ -69,6 +69,7 @@
     <Compile Include="Data mapping\LiteralTokenMapTest.cs" />
     <Compile Include="Data mapping\MinMaxMapTest.cs" />
     <Compile Include="Operation testing\AddOperatorTest.cs" />
+    <Compile Include="Operation testing\SubtractOperatorTest.cs" />
     <Compile Include="Parse testing\BasicOperatorParseTest.cs" />
     <Compile Include="Parse testing\DateParseTest.cs" />
     <Compile Include="Parse testing\FloatParseTest.cs" />

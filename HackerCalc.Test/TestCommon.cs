@@ -291,9 +291,16 @@ namespace HisRoyalRedness.com
                 default:
                     throw new TestOperationException($"Unsupported data type '{dataType}'.");
             }
-            return new CalcEngine().ConvertToTypedDataType(token);
+            return CalcEngine.Instance.ConvertToTypedDataType(token);
         }
         #endregion MakeDataType
+
+        public static IDataType<DataType> Evaluate(this string input)
+            => (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input));
+
+        public static IDataType<TDataEnum> Evaluate<TDataEnum>(this string input, ICalcEngine<TDataEnum> calcEngine)
+            where TDataEnum : Enum
+            => (IDataType<TDataEnum>)new Evaluator<TDataEnum>(calcEngine).Evaluate(Parser.ParseExpression(input));
 
         public static void CompareParseTree(string input, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
         {
@@ -329,7 +336,7 @@ namespace HisRoyalRedness.com
             return field.GetValue(instance);
         }
 
-        public static void TestThatAllPossibleOperandTypesAreSupported(Dictionary<DataType, HashSet<DataType>> supportedOperandTypes, string operationDescription)
+        public static void TestThatAllPossibleOperandTypesAreSupported(Dictionary<DataType, HashSet<DataType>> supportedOperandTypes, Func<InternalDataTypeBase, InternalDataTypeBase, InternalDataTypeBase> operation, string operationDescription)
         {
             var allTypePairs = (new[] { EnumExtensions.GetEnumCollection<DataType>(), EnumExtensions.GetEnumCollection<DataType>() })
                 .CartesianProduct()
@@ -342,9 +349,8 @@ namespace HisRoyalRedness.com
 
             foreach (var pair in allTypePairs)
             {
-                var valuePair = new DataTypeValuePair<DataType>(TestCommon.MakeDataType(pair.Left), TestCommon.MakeDataType(pair.Right));
-                dynamic result;
-                var act = new Action(() => result = (dynamic)valuePair.Left + (dynamic)valuePair.Right);
+                var valuePair = new DataTypeValuePair<DataType>(MakeDataType(pair.Left), MakeDataType(pair.Right));
+                var act = new Action(() => _ = operation(valuePair.Left as InternalDataTypeBase, valuePair.Right as InternalDataTypeBase));
                 if (supportedTypes.Contains(pair))
                     act.Should().NotThrow($"a {pair.Left} and {pair.Right} should be able to be {operationDescription}");
                 else
@@ -365,10 +371,14 @@ namespace HisRoyalRedness.com
         public const string LITERAL_TOKEN_PARSE = "Literal token parse";
         public const string OPERATOR_TOKEN_PARSE = "Operator token parse";
         public const string FUNCTION_TOKEN_PARSE = "Function token parse";
+
+        public const string ADD_OPERATION = "Addition";
         #endregion Test trait descriptions
 
         public static IReadOnlyList<IntegerBitWidth> IntegerBitWidths { get; }
             = Enum.GetValues(typeof(IntegerBitWidth)).Cast<IntegerBitWidth>().ToList().AsReadOnly();
+
+        static Lazy<Evaluator<DataType>> _evaluator = new Lazy<Evaluator<DataType>>(() => new Evaluator<DataType>(CalcEngine.Instance));
 
         static Regex _limitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)([iu])(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static Regex _unlimitedIntegerRegex = new Regex(@"(-)?(0x|b|o)?([0-9a-f]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);

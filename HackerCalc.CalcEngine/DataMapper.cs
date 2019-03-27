@@ -16,16 +16,18 @@ namespace HisRoyalRedness.com
         static DataMapper()
         {
             BuildOperandTypeCastMap();
-            _allTypeCasts = new Lazy<Dictionary<DataType, HashSet<DataType>>>(() => BuildTypeCastSummaryMaps());
+            AllTypeCasts = new Lazy<Dictionary<DataType, HashSet<DataType>>>(() => BuildTypeCastSummaryMaps());
+            AllInputOperandTypes = new Lazy<Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>>(() => BuildOperandTypeMaps(true));
+            AllSupportedOperationTypes = new Lazy<Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>>(() => BuildOperandTypeMaps(false));
         }
 
         public static DTP GetOperandDataTypes(OperatorType opType, DTP operandTypePair)
-            => _operandTypeCastMap[opType][operandTypePair];
+            => OperandTypeCastMap[opType][operandTypePair];
         public static DTP GetOperandDataTypes(OperatorType opType, DTVP valuePair)
-            => _operandTypeCastMap[opType][new DataTypePair<DataType>(valuePair.Left.DataType, valuePair.Right.DataType)];
+            => OperandTypeCastMap[opType][new DataTypePair<DataType>(valuePair.Left.DataType, valuePair.Right.DataType)];
 
         // For unit tests
-        public static Dictionary<OperatorType, Dictionary<DTP, DTP>> OperandTypeCastMap => _operandTypeCastMap;
+        public static Dictionary<OperatorType, Dictionary<DTP, DTP>> OperandTypeCastMap { get; } = new Dictionary<OperatorType, Dictionary<DTP, DTP>>();
 
         #region Map - Convert literal token to data type
         public static IDataType<DataType> Map(ILiteralToken token)
@@ -67,7 +69,7 @@ namespace HisRoyalRedness.com
         {
             // Binary operations
             #region Add
-            _operandTypeCastMap.Add(OperatorType.Add, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Add, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                new DTP(DataType.Date,                  DataType.Timespan) },
@@ -114,7 +116,7 @@ namespace HisRoyalRedness.com
             #endregion Add
 
             #region Subtract
-            _operandTypeCastMap.Add(OperatorType.Subtract, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Subtract, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 new DTP(DataType.Date,                  DataType.Date) },
                 { new DTP(DataType.Date,                DataType.Float),                new DTP(DataType.Date,                  DataType.Timespan) },
@@ -123,35 +125,35 @@ namespace HisRoyalRedness.com
                 { new DTP(DataType.Date,                DataType.Timespan),             new DTP(DataType.Date,                  DataType.Timespan) },
                 { new DTP(DataType.Date,                DataType.UnlimitedInteger),     new DTP(DataType.Date,                  DataType.Timespan) },
 
-                { new DTP(DataType.Float,               DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
+                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
                 { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
                 { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Float,               DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
                 { new DTP(DataType.Float,               DataType.UnlimitedInteger),     new DTP(DataType.Float,                 DataType.Float) },
 
-                { new DTP(DataType.LimitedInteger,      DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
+                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
                 { new DTP(DataType.LimitedInteger,      DataType.UnlimitedInteger),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
 
-                { new DTP(DataType.Time,                DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
+                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Float),                new DTP(DataType.Time,                  DataType.Timespan) },
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       new DTP(DataType.Time,                  DataType.Timespan) },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Timespan),             new DTP(DataType.Time,                  DataType.Timespan) },
                 { new DTP(DataType.Time,                DataType.UnlimitedInteger),     new DTP(DataType.Time,                  DataType.Timespan) },
 
-                { new DTP(DataType.Timespan,            DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
+                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Float),                new DTP(DataType.Timespan,              DataType.Timespan) },
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       new DTP(DataType.Timespan,              DataType.Timespan) },
                 { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
                 { new DTP(DataType.Timespan,            DataType.UnlimitedInteger),     new DTP(DataType.Timespan,              DataType.Timespan) },
 
-                { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
@@ -161,7 +163,7 @@ namespace HisRoyalRedness.com
             #endregion Subtract
 
             #region Multiply
-            _operandTypeCastMap.Add(OperatorType.Multiply, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Multiply, new Dictionary<DTP, DTP>()
             {
 
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
@@ -209,7 +211,7 @@ namespace HisRoyalRedness.com
             #endregion Multiply
 
             #region Divide
-            _operandTypeCastMap.Add(OperatorType.Divide, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Divide, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
@@ -256,7 +258,7 @@ namespace HisRoyalRedness.com
             #endregion Divide
 
             #region LeftShift
-            _operandTypeCastMap.Add(OperatorType.LeftShift, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.LeftShift, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
@@ -303,11 +305,11 @@ namespace HisRoyalRedness.com
             #endregion LeftShift
 
             #region RightShift
-            _operandTypeCastMap.Add(OperatorType.RightShift, _operandTypeCastMap[OperatorType.LeftShift]);            
+            OperandTypeCastMap.Add(OperatorType.RightShift, OperandTypeCastMap[OperatorType.LeftShift]);            
             #endregion RightShift
 
             #region Power
-            _operandTypeCastMap.Add(OperatorType.Power, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Power, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
@@ -354,11 +356,11 @@ namespace HisRoyalRedness.com
             #endregion Power
 
             #region Root
-            _operandTypeCastMap.Add(OperatorType.Root, _operandTypeCastMap[OperatorType.Power]);
+            OperandTypeCastMap.Add(OperatorType.Root, OperandTypeCastMap[OperatorType.Power]);
             #endregion Root
 
             #region Modulo
-            _operandTypeCastMap.Add(OperatorType.Modulo, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.Modulo, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
@@ -405,7 +407,7 @@ namespace HisRoyalRedness.com
             #endregion Modulo
 
             #region And
-            _operandTypeCastMap.Add(OperatorType.And, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.And, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
@@ -452,16 +454,16 @@ namespace HisRoyalRedness.com
             #endregion And
 
             #region Or
-            _operandTypeCastMap.Add(OperatorType.Or, _operandTypeCastMap[OperatorType.And]);
+            OperandTypeCastMap.Add(OperatorType.Or, OperandTypeCastMap[OperatorType.And]);
             #endregion Or
 
             #region Xor
-            _operandTypeCastMap.Add(OperatorType.Xor, _operandTypeCastMap[OperatorType.And]);
+            OperandTypeCastMap.Add(OperatorType.Xor, OperandTypeCastMap[OperatorType.And]);
             #endregion Xor
 
             // Unary operations
             #region NumericNegate
-            _operandTypeCastMap.Add(OperatorType.NumericNegate, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.NumericNegate, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
@@ -473,7 +475,7 @@ namespace HisRoyalRedness.com
             #endregion NumericNegate
 
             #region BitwiseNegate
-            _operandTypeCastMap.Add(OperatorType.BitwiseNegate, new Dictionary<DTP, DTP>()
+            OperandTypeCastMap.Add(OperatorType.BitwiseNegate, new Dictionary<DTP, DTP>()
             {
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
@@ -490,12 +492,10 @@ namespace HisRoyalRedness.com
         {
             var allPairCasts = DataMapper.OperandTypeCastMap
                 .SelectMany(op => op.Value)
-                .Where(pairs => pairs.Value.OperationSupported)
-                .ToList();
+                .Where(pairs => pairs.Value.OperationSupported);
             var allTypeCasts =
                 allPairCasts.Select(pair => new KeyValuePair<DataType, DataType>(pair.Key.Left, pair.Value.Left)).Concat(
-                allPairCasts.Select(pair => new KeyValuePair<DataType, DataType>(pair.Key.Right, pair.Value.Right)))
-                .ToList();
+                allPairCasts.Select(pair => new KeyValuePair<DataType, DataType>(pair.Key.Right, pair.Value.Right)));
             var allCasts = new Dictionary<DataType, HashSet<DataType>>();
             foreach (var cast in allTypeCasts)
             {
@@ -507,9 +507,36 @@ namespace HisRoyalRedness.com
             return allCasts;
         }
 
+        // List of operand types, grouped by operations, that are supported as input operand types
+        static Dictionary<OperatorType, Dictionary<DataType, List<DataType>>> BuildOperandTypeMaps(bool inputTypes = false)
+        {
+            var dict = new Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>();
+            foreach (var opType in EnumExtensions.GetEnumCollection<OperatorType>())
+            {
+                if (!dict.ContainsKey(opType))
+                    dict.Add(opType, new Dictionary<DataType, List<DataType>>());
+                var subDict = dict[opType];
+                var opTypesByOperator = DataMapper.OperandTypeCastMap[opType]
+                    .Where(kv => kv.Value.OperationSupported)
+                    .Select(kv => new Tuple<OperatorType, DataType, DataType>(
+                        opType, 
+                        inputTypes ? kv.Key.Left : kv.Value.Left, 
+                        inputTypes ? kv.Key.Right : kv.Value.Right))
+                    .Distinct();
+                foreach (var entry in opTypesByOperator)
+                {
+                    if (!subDict.ContainsKey(entry.Item2))
+                        subDict.Add(entry.Item2, new List<DataType>());
+                    if (!subDict[entry.Item2].Contains(entry.Item3))
+                        subDict[entry.Item2].Add(entry.Item3);
+                }
+            }
+            return dict;
+        }
+
         public static void PrintAllTypeCasts()
         {
-            foreach (var cast in _allTypeCasts.Value)
+            foreach (var cast in AllTypeCasts.Value)
             {
                 Console.WriteLine($"{cast.Key}:");
                 foreach (var val in cast.Value)
@@ -518,10 +545,29 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public static Lazy<Dictionary<DataType, HashSet<DataType>>> AllTypeCasts => _allTypeCasts;
-        static readonly Lazy<Dictionary<DataType, HashSet<DataType>>> _allTypeCasts;
-        #endregion Support and testing
+        public static void PrintOperandTypes(Dictionary<OperatorType, Dictionary<DataType, List<DataType>>> dict)
+        {
+            foreach (var opType in dict.Keys.OrderBy(k => k))
+            {
+                var opStr = $"{opType} ({opType.GetEnumDescription()})";
+                var firstCol = $"{opStr,-20}";
+                foreach (var rightType in dict[opType].Keys.OrderBy(k => k))
+                {
+                    var scndCol = $"{rightType,-20}";
+                    var csv = string.Join(", ", dict[opType][rightType].Select(op => op.ToString()).OrderBy(k => k));
 
-        readonly static Dictionary<OperatorType, Dictionary<DTP, DTP>> _operandTypeCastMap = new Dictionary<OperatorType, Dictionary<DTP, DTP>>();
+                    Console.WriteLine($"{firstCol}{scndCol}{csv}");
+                    firstCol = $"{"",-20}";
+                    scndCol = $"{"",-20}";
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public static Lazy<Dictionary<DataType, HashSet<DataType>>> AllTypeCasts { get; private set; }
+        public static Lazy<Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>> AllInputOperandTypes { get; private set; }
+        public static Lazy<Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>> AllSupportedOperationTypes { get; private set; }
+
+        #endregion Support and testing
     }
 }

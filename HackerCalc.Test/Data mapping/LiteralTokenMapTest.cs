@@ -45,9 +45,8 @@ namespace HisRoyalRedness.com
         static TDataType ConvertToDataType<TDataType>(LiteralTokenType tokenType)
             where TDataType : class, IDataType<DataType>
         {
-            ICalcEngine calcEngine = new CalcEngine();
             ILiteralToken literalToken = TestCommon.MakeLiteralToken(tokenType);
-            var dataType = calcEngine.ConvertToDataType(literalToken);
+            var dataType = ((ICalcEngine)CalcEngine.Instance).ConvertToDataType(literalToken);
 
             dataType.Should().NotBeNull();
             dataType.Should().BeOfType<TDataType>();

@@ -1,0 +1,632 @@
+/*
+    HackerCalc grammar file
+        
+        Used to generate Parser.generated.cs and Scanner.generated.cs
+
+    Keith Fletcher
+    Oct 2018
+
+    This file is Unlicensed.
+    See the foot of the file, or refer to <http://unlicense.org>
+*/
+
+$namespace=HisRoyalRedness.com
+
+using System.IO;
+using System.Collections.Generic;
+
+COMPILER HackerCalc
+
+/*-------------------------------------------------------------------------*/
+
+IGNORECASE
+
+CHARACTERS
+	letter              = "abcdefghijklmnopqrstuvwxyz_".
+	digit               = "0123456789".
+	cr                  = '\r'.
+	lf                  = '\n'.
+	tab                 = '\t'.
+	stringCh            = ANY - '"' - '\\' - cr - lf.
+	charCh              = ANY - '\'' - '\\' - cr - lf.
+	hex                 = "0123456789abcdef".
+    zero_to_one         = "01".
+    zero_to_two         = "012".
+    zero_to_three       = "0123".
+    zero_to_five        = "012345".
+    zero_to_seven       = "01234567".
+
+
+    /* Ordered from tightest to loosest binding order */
+    logNotOp            = '!'.
+    bitNotOp            = '~'.
+    multOp              = '*'.
+    divideOp            = "/\\".
+    moduloOp            = '%'.
+    addOp               = '+'.
+    subOp               = '-'.
+    shiftLeftOp         = '<'.
+    shiftRightOp        = '>'.
+    andOp               = '&'.
+    orOp                = '|'.
+    xorOp               = '^'.
+    openBrac            = '('.
+    closeBrac           = ')'.
+    underscore          = '_'.
+    comma               = ','.
+    
+    /* datatype modifiers */
+    signed_int_mod      = 'i'.
+    unsigned_int_mod    = 'u'.
+    flt_type_mod        = 'f'.
+    binary_type_mod     = 'b'.
+    octal_type_mod      = 'o'.
+
+TOKENS
+
+    i4                  = signed_int_mod "4".
+    i8                  = signed_int_mod "8".
+    i16                 = signed_int_mod "16".
+    i32                 = signed_int_mod "32".
+    i64                 = signed_int_mod "64".
+    i128                = signed_int_mod "128".
+
+    u4                  = unsigned_int_mod "4".
+    u8                  = unsigned_int_mod "8".
+    u16                 = unsigned_int_mod "16".
+    u32                 = unsigned_int_mod "32".
+    u64                 = unsigned_int_mod "64".
+    u128                = unsigned_int_mod "128".
+
+    /* Limited integers: These are integers limited to a particular bitwidth */
+    /* Sign flags and bitwidth are added with CONTEXT to ensure that we parse them with no whitespace between the number, sign flag and bit width */
+    bin_limited_int     = binary_type_mod zero_to_one { zero_to_one } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    oct_limited_int     = octal_type_mod zero_to_seven { zero_to_seven } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    dec_limited_int     = digit { digit } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    hex_limited_int     = "0x" hex { hex } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+
+    /* Unlimited integers: Not bound be any limits  */
+    bin_unlimited_int   = binary_type_mod zero_to_one { zero_to_one }.
+    oct_unlimited_int   = octal_type_mod zero_to_seven { zero_to_seven }.
+    dec_unlimited_int   = digit { digit }.
+    hex_unlimited_int   = "0x" hex { hex }.
+
+    true_float          = {digit} '.' digit {digit}.
+    typed_float         = digit { digit } CONTEXT ( flt_type_mod ).
+    float_type          = flt_type_mod.
+
+    typed_ts_seconds    = ( digit { digit } | {digit} '.' digit {digit} ) CONTEXT ( "ts" ).
+    timespan_type       = "ts".
+    time_type           = "tt".
+    date_type           = "dt".
+
+    ts_nanosec_type     = "ns" | "nsec" | "nanosec" | "nanosecond" | "nanoseconds".
+    ts_microsec_type    = "us" | "usec" | "microsec" | "microsecond" | "microseconds".
+    ts_millisec_type    = "ms" | "msec" | "millisec" | "millisecond" | "milliseconds".
+    ts_seconds_type     = "s" | "se" | "sec" | "secs" | "seco" | "secon" | "second" | "seconds".
+    ts_minutes_type     = "m" | "mi" | "min" | "mins" | "minu" | "minut" | "minute" | "minutes".
+    ts_hours_type       = "h" | "ho" | "hou" | "hour" | "hours" | "hr" | "hrs".
+    ts_days_type        = "d" | "da" | "day" | "days".
+
+    date                =   ( digit digit [ digit digit ] '-' ( '0' digit | '1' zero_to_two ) '-' ( zero_to_two digit | '3' zero_to_one ) )
+                          | ( digit digit [ digit digit ] '/' ( '0' digit | '1' zero_to_two ) '/' ( zero_to_two digit | '3' zero_to_one ) ).
+    date_rev            =   ( ( zero_to_two digit | '3' zero_to_one ) '-' ( '0' digit | '1' zero_to_two ) '-' digit digit digit digit )
+                          | ( ( zero_to_two digit | '3' zero_to_one ) '/' ( '0' digit | '1' zero_to_two ) '/' digit digit digit digit ).
+
+    time                =   ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
+                          | ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit.
+
+    now                 = "NOW".
+
+    func_name           = ( 
+                            letter 
+                            | 
+                            ( underscore | ( letter ( letter | underscore ) ) { letter | digit | underscore } ) 
+                          ) CONTEXT ( openBrac ).
+
+    /* lets not support '!' for now... */
+    notToken            = /*logNotOp |*/ bitNotOp. // '-' if also considered a notToken, but we need a bit of complexity in the scanner to differentiate it from subOp (minus)
+    multToken           = multOp | divideOp | moduloOp.
+    exponentToken       = multOp multOp | divideOp divideOp.
+    addToken            = addOp.
+    subToken            = subOp.
+    shiftToken          = shiftLeftOp shiftLeftOp | shiftRightOp shiftRightOp.
+    bitToken            = andOp | orOp | xorOp.
+
+    unlimited_cast      = openBrac signed_int_mod closeBrac.
+    signed_cast         = openBrac ( signed_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ) closeBrac.
+    unsigned_cast       = openBrac ( unsigned_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ) closeBrac.
+    float_cast          = openBrac ( "f" | "fl" | "flt" | "float" ) closeBrac.
+    timespan_cast       = openBrac ( "ts" | "timespan" ) closeBrac.
+    time_cast           = openBrac ( "t" | "ti" | "time" ) closeBrac.
+    date_cast           = openBrac ( "d" | "dt" | "date" ) closeBrac.
+
+    openBracket         = openBrac.
+    closeBracket        = closeBrac.
+    paramDelim          = comma.
+
+IGNORE cr + lf + tab
+
+/*-------------------------------------------------------------------------*/
+
+PRODUCTIONS
+
+HackerCalc                                                      (. IToken token = null; .)
+= Expr<out token>                                               (. RootToken = token; .)
+.
+
+Expr<out IToken token>                                          
+=                   BitExpr<out token>
+.
+
+BitExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   ShiftExpr<out tk>
+                    {
+                        bitToken                                (. if (op == null) { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = tk); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = op); } .)
+                        ShiftExpr<out tk>                       (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+ShiftExpr<out IToken token>                                     (. IToken tk = null; OperatorToken op = null; .)
+=                   AddExpr<out tk>
+                    {
+                        shiftToken                              (. if (op == null) { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = tk); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = op); } .)
+                        AddExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+AddExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   MulExpr<out tk>
+                    {
+                        ( addToken | subToken )                 (. if (op == null) { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = tk); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = op); } .)
+                        MulExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+MulExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   ExponentExpr<out tk>
+                    {
+                        multToken                               (. if (op == null) { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = tk); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = op); } .)
+                        ExponentExpr<out tk>                    (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+ExponentExpr<out IToken token>                                  (. IToken tk = null; OperatorToken op = null; .)
+=                   NotExpr<out tk>
+                    {
+                        exponentToken                           (. if (op == null) { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = tk); } .)
+                                                                (. else { op = OperatorToken.Parse(t.val, GetPos(t)).Tap(o => o.Left = op); } .)
+                        NotExpr<out tk>                         (. op.Right = tk; .)
+                    }                                           (. token = (IToken)op ?? (IToken)tk; .)
+.
+
+NotExpr<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=                   [
+                        notToken                                (. op = OperatorToken.ParseNegate(t.val, GetPos(t)); .)
+                    ]
+                    Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+                    //Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+.
+
+//Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
+//=                   [ 
+//                          unlimited_cast                        (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
+//                        | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
+//                        | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
+//                        | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
+//                        | timespan_cast                         (. op = CastOperatorToken.TimespanCast(); .)
+//                        | time_cast                             (. op = CastOperatorToken.TimeCast(); .)
+//                        | date_cast                             (. op = CastOperatorToken.DateCast(); .)
+//                    ]
+//                    //Func<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+//                    Term<out tk>                                (. token = op == null ? tk : op.Tap(o => o.Left = tk); .)
+//.
+
+Func<out IToken token>                                          (. token = null; IToken tk = null; .)
+=                   
+                    func_name                                   (. var name = t.val; var pos = GetPos(t); .)
+                    openBracket                                 (. var parameters = new List<IToken>(); .)
+                    [
+                        Expr<out tk>                            (. parameters.Add(tk); .)
+                        {
+                            paramDelim
+                            Expr<out tk>                        (. parameters.Add(tk); .)
+                        }
+                    ]
+                    closeBracket                                (. token = FunctionToken.Parse(name, parameters, pos); .)
+                    |
+                    Term<out token>
+.
+
+Term<out IToken token>                                          (. token = null; .)
+=
+                    IF(IsPartialEquation())
+                    (
+                        EOF
+                    )
+                    | IF(IsBracket()) 
+                        Bracket<out token>
+                    | IF(IsTimespanNumber())
+                        Timespan<out token>
+                    | IF(IsDateTime())
+                        DateTime<out token>
+                    | Date<out token>
+                    | Time<out token>
+                    | Numeric<out token>
+                    | Now<out token>
+.
+
+Bracket<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
+=
+                    [ 
+                        subToken                                (. op = OperatorToken.ParseNegate(t.val, GetPos(t)); .)
+                    ]
+                    openBracket                                 (. var pos = GetPos(t); .)
+                    Expr<out tk>                                (. IToken grp = new GroupingToken(tk, pos); .)
+                    closeBracket                                (. token = op == null ? grp : ((OperatorToken)op).Tap(o => o.Left = grp); .)
+.
+
+DateTime<out IToken token>                                      
+=                                                               (. DateToken dt = null; .)
+                    (
+                        date                                    (. dt = DateToken.Parse(t.val, false, GetPos(t)); .)
+                        |
+                        date_rev                                (. dt = DateToken.Parse(t.val, true, GetPos(t)); .)
+                    )
+                    time                                        (. token = DateToken.CreateDateTime(dt, TimeToken.Parse(t.val, GetPos(t))); .)
+.
+
+Date<out IToken token>                                          (. token = null; .)
+=
+                    date                                        (. token = DateToken.Parse(t.val, false, GetPos(t)); .)
+                    | date_rev                                  (. token = DateToken.Parse(t.val, true, GetPos(t)); .)
+.
+
+Time<out IToken token>                                          (. token = null; .)
+=
+                    time                                        (. token = TimeToken.Parse(t.val, GetPos(t)); .)
+.
+
+Numeric<out IToken token>                                       (. token = null; bool isNeg = false; .)
+=                                                               
+                    [ 
+                        subToken                                (. isNeg = true; .)
+                    ]
+                    (
+                        Float<out token, ref isNeg>
+                        |
+                        Integer<out token, ref isNeg> 
+                    )
+.
+
+Integer<out IToken token, ref bool isNeg>                       (. token = null; .)
+=
+                    (
+                        UnlimitedInteger<out token, ref isNeg>
+                        |
+                        LimitedInteger<out token, ref isNeg>
+                    )
+.
+
+Float<out IToken token, ref bool isNeg>
+=                   ( true_float | typed_float )                (. var fltVal = t.val; var rawToken = t.val; var pos = GetPos(t); .)
+                    [
+                        float_type                              (. rawToken += t.val; .)
+                    ]
+                                                                (. token = FloatToken.Parse(fltVal, isNeg, rawToken, pos); .)
+.
+
+Now<out IToken token>
+=                   now                                         (. token = new DateToken(); .)
+.
+
+Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
+=
+                    CompoundTimespanPortion<out tk>             (. token = tk; .)
+.
+
+UnlimitedInteger<out IToken token, ref bool isNeg>
+=                                                               (. var intBase = IntegerBase.Decimal; .)
+                    (
+                        dec_unlimited_int
+                        |
+                        hex_unlimited_int                       (. intBase = IntegerBase.Hexadecimal; .)
+                        |
+                        bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
+                        |
+                        oct_unlimited_int                       (. intBase = IntegerBase.Octal; .)
+                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg, GetPos(t)); .)
+.
+
+LimitedInteger<out IToken token, ref bool isNeg>
+=                                                               (. var intBase = IntegerBase.Decimal; .)
+                    (
+                        dec_limited_int
+                        |
+                        hex_limited_int                         (. intBase = IntegerBase.Hexadecimal; .)
+                        |
+                        bin_limited_int                         (. intBase = IntegerBase.Binary; .)
+                        |
+                        oct_limited_int                         (. intBase = IntegerBase.Octal; .)
+                    )                                           (. var intVal = t.val; var isSigned = true; var signAndBitWidth = ""; var pos = GetPos(t); .)
+                    (
+                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. signAndBitWidth = t.val; .)
+                        |
+                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. signAndBitWidth = t.val; isSigned = false; .)
+                    )
+                                                                (. var bitWidth = LimitedIntegerToken.ParseBitWidth(signAndBitWidth.Substring(1)); .)
+                                                                (. var rawToken = intVal + signAndBitWidth; .)
+                                                                (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken, pos); .)
+.
+
+CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)
+=                                                               (. TimespanToken tk = null; .)
+                    (
+                        IF(IsTimespanDays())
+                        (
+                            TimespanDays<out tk>                (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                IF(IsTimespanHours())
+                                (
+                                    TimespanHours<out tk>               (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        IF(IsTimespanMinutes())
+                                        (
+                                            TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                            [
+                                                TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
+                                            ]
+                                        )
+                                        |
+                                        (
+                                            TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                        )
+                                    ]
+
+                                )
+                                | IF(IsTimespanMinutes())
+                                (
+                                    TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
+                                    ]
+                                )
+                                |
+                                (
+                                    TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                )
+                            ]
+                        )
+                        | IF(IsTimespanHours())
+                        (
+                            TimespanHours<out tk>               (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                IF(IsTimespanMinutes())
+                                (
+                                    TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
+                                    ]
+                                )
+                                |
+                                (
+                                    TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
+                                )
+                            ]
+                        )
+                        | IF(IsTimespanMinutes())
+                        (
+                            TimespanMinutes<out tk>             (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                TimespanSeconds<out tk>         (. token = token.AddCompoundPortions(tk); .)
+                            ]
+                        )
+
+
+
+                        | IF(IsTimespanSeconds())
+                        (
+                            TimespanSeconds<out tk>                                                     (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                IF(IsTimespanMilliSeconds())
+                                (
+                                    TimespanMilliSeconds<out tk>                                        (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        IF(IsTimespanMicroSeconds())
+                                        (
+                                            TimespanMicroSeconds<out tk>                                (. token = token.AddCompoundPortions(tk); .)
+                                            [
+                                                TimespanNanoSeconds<out tk>                             (. token = token.AddCompoundPortions(tk); .)
+                                            ]
+                                        )
+                                        |
+                                        (
+                                            TimespanNanoSeconds<out tk>                                 (. token = token.AddCompoundPortions(tk); .)
+                                        )
+                                    ]
+                                )
+                                | IF(IsTimespanMicroSeconds())
+                                (
+                                    TimespanMicroSeconds<out tk>                                        (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        TimespanNanoSeconds<out tk>                                     (. token = token.AddCompoundPortions(tk); .)
+                                    ]
+                                )
+                                |
+                                (
+                                    TimespanNanoSeconds<out tk>                                         (. token = token.AddCompoundPortions(tk); .)
+                                )
+                            ]
+                        )
+                        | IF(IsTimespanMilliSeconds())
+                        (
+                            TimespanMilliSeconds<out tk>                                                (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                IF(IsTimespanMicroSeconds())
+                                (
+                                    TimespanMicroSeconds<out tk>                                        (. token = token.AddCompoundPortions(tk); .)
+                                    [
+                                        TimespanNanoSeconds<out tk>                                     (. token = token.AddCompoundPortions(tk); .)
+                                    ]
+                                )
+                                |
+                                (
+                                    TimespanNanoSeconds<out tk>                                         (. token = token.AddCompoundPortions(tk); .)
+                                )
+                            ]
+                        )
+                        | IF(IsTimespanMicroSeconds())
+                        (
+                            TimespanMicroSeconds<out tk>                                                (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                TimespanNanoSeconds<out tk>                                             (. token = token.AddCompoundPortions(tk); .)
+                            ]
+                        )
+                        |
+                        (
+                            TimespanNanoSeconds<out tk>                                                 (. token = token.AddCompoundPortions(tk); .)
+                        )
+                    )
+.
+
+TimespanNanoSeconds<out TimespanToken token>                    (. var ns = ""; var tsType = ""; SourcePosition pos = null; .)
+=                   (
+                        (
+                            true_float                          (. ns = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. ns = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(ns)/1000000.0), $"{ns} {tsType}", pos); .)
+.
+
+TimespanMicroSeconds<out TimespanToken token>                   (. var us = ""; var tsType = ""; SourcePosition pos = null; .)
+=                   (
+                        (
+                            true_float                          (. us = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. us = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(us)/1000.0), $"{us} {tsType}", pos); .)
+.
+
+TimespanMilliSeconds<out TimespanToken token>                   (. var ms = ""; var tsType = ""; SourcePosition pos = null; .)
+=                   (
+                        (
+                            true_float                          (. ms = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. ms = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(ms)), $"{ms} {tsType}", pos); .)
+.
+
+TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
+=                   (
+                        (
+                            typed_ts_seconds                    (. seconds = t.val; pos = GetPos(t); .)
+                            timespan_type                       (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            true_float                          (. seconds = t.val; pos = GetPos(t); .)
+                            ts_seconds_type                     (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+                            ts_seconds_type                     (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds)), $"{seconds} {tsType}", pos); .)
+.
+
+TimespanMinutes<out TimespanToken token>
+=                                                               (. token = null; .)
+                                                                (. var minutes = ""; var tsType = ""; SourcePosition pos = null; .)
+                    (
+                        (
+                            true_float                          (. minutes = t.val; pos = GetPos(t); .)
+                            ts_minutes_type                     (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. minutes = t.val; pos = GetPos(t); .)
+                            ts_minutes_type                     (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes)), $"{minutes} {tsType}", pos); .)
+.
+
+TimespanHours<out TimespanToken token>
+=                                                               (. token = null; .)
+                                                                (. var hours = ""; var tsType = ""; SourcePosition pos = null; .)
+                    (
+                        (
+                            true_float                          (. hours = t.val; pos = GetPos(t); .)
+                            ts_hours_type                       (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. hours = t.val; pos = GetPos(t); .)
+                            ts_hours_type                       (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours)), $"{hours} {tsType}", pos); .)
+.
+
+TimespanDays<out TimespanToken token>
+=                                                               (. token = null; .)
+                                                                (. var days = ""; var tsType = ""; SourcePosition pos = null; .)
+                    (
+                        (
+                            true_float                          (. days = t.val; pos = GetPos(t); .)
+                            ts_days_type                        (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. days = t.val; pos = GetPos(t); .)
+                            ts_days_type                        (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days)), $"{days} {tsType}", pos); .)
+.
+
+END HackerCalc.
+
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/

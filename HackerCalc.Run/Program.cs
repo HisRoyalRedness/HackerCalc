@@ -26,7 +26,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1]);
                         else
-                            Debug("9u4+9u4");
+                            Debug("1 min 1 ms");
                         break;
 
                     case "cast":
@@ -42,9 +42,12 @@ namespace HisRoyalRedness.com
                         break;
 
                     case "opsops":
-                        OperationsByOperator();
+                        DataMapper.PrintOperandTypes(DataMapper.AllSupportedOperationTypes.Value);
                         break;
 
+                    case "opsopsin":
+                        DataMapper.PrintOperandTypes(DataMapper.AllInputOperandTypes.Value);
+                        break;
                 }
             }
             else
@@ -180,7 +183,7 @@ namespace HisRoyalRedness.com
         static void ShowUsage()
         {
             var exeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-            Console.WriteLine($"Usage: {exeName}  [ i | d [ <expr> ] | cast | minmax | opstype | opsops ]");
+            Console.WriteLine($"Usage: {exeName}  [ i | d [ <expr> ] | cast | minmax | opstype | opsops | opsopsin ]");
         }
 
         static void PrintMinMax()
@@ -236,39 +239,6 @@ namespace HisRoyalRedness.com
             }
         }
 
-        static void OperationsByOperator()
-        {
-            var dict = new Dictionary<OperatorType, Dictionary<DataType, List<DataType>>>();
-            foreach (var entry in EnumExtensions.GetEnumCollection<OperatorType>()
-                .SelectMany(opType => DataMapper.OperandTypeCastMap[opType].Select(kv =>
-                    new Tuple<OperatorType, DataType, DataType>(opType, kv.Value.Left, kv.Value.Right))))
-            {
-                if (!dict.ContainsKey(entry.Item1))
-                    dict.Add(entry.Item1, new Dictionary<DataType, List<DataType>>());
-                var subDict = dict[entry.Item1];
-                if (!subDict.ContainsKey(entry.Item2))
-                    subDict.Add(entry.Item2, new List<DataType>());
-                if (!subDict[entry.Item2].Contains(entry.Item3))
-                    subDict[entry.Item2].Add(entry.Item3);
-            }
-
-            foreach (var opType in dict.Keys.OrderBy(k => k))
-            {
-                var opStr = $"{opType} ({opType.GetEnumDescription()})";
-                var firstCol = $"{opStr,-20}";
-                foreach (var rightType in dict[opType].Keys.OrderBy(k => k))
-                {
-                    var scndCol = $"{rightType,-20}";
-                    var csv = string.Join(", ", dict[opType][rightType].Select(op => op.ToString()).OrderBy(k => k));
-
-                    Console.WriteLine($"{firstCol}{scndCol}{csv}");
-                    firstCol = $"{"",-20}";
-                    scndCol = $"{"",-20}";
-                }
-                Console.WriteLine();
-            }
-        }
-
         internal class SortByTypeComparer : IComparer<Tuple<OperatorType, DataType, DataType>>
         {
             public int Compare(Tuple<OperatorType, DataType, DataType> x, Tuple<OperatorType, DataType, DataType> y)
@@ -287,7 +257,7 @@ namespace HisRoyalRedness.com
             static readonly Lazy<SortByTypeComparer> _instance = new Lazy<SortByTypeComparer>(() => new SortByTypeComparer());
         }
 
-        static CalcEngine Engine { get; } = new CalcEngine();
+        static CalcEngine Engine { get; } = CalcEngine.Instance;
         static CalcSettings Settings => Engine.Settings;
         static CalcState State => Engine.State;
 

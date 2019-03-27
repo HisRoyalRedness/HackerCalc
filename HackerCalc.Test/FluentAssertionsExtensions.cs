@@ -124,6 +124,25 @@ namespace HisRoyalRedness.com
         protected abstract bool TypedValueEqual(TTypedValue expected);
     }
     #endregion LiteralTokenAssertions
+    #region IDataTypeAssertions
+    public class IDataTypeAssertions : ReferenceTypeAssertions<IDataType<DataType>, IDataTypeAssertions>
+    {
+        public IDataTypeAssertions(IDataType<DataType> dataType)
+        {
+            Subject = dataType;
+        }
+
+        protected override string Identifier => ((IDataTypeTesting)Subject).TypeName;
+
+        public AndConstraint<IDataTypeAssertions> Be(IDataType<DataType> expected, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .TestDataType(expected, Identifier, Subject);
+            return new AndConstraint<IDataTypeAssertions>(this);
+        }
+    }
+    #endregion IDataTypeAssertions
 
     public static class FluentAssertionsExtensions
     {
@@ -134,6 +153,7 @@ namespace HisRoyalRedness.com
         public static TimeTokenAssertions Should(this TimeToken token) => new TimeTokenAssertions(token);
         public static UnlimitedIntegerTokenAssertions Should(this UnlimitedIntegerToken token) => new UnlimitedIntegerTokenAssertions(token);
 
+        public static IDataTypeAssertions Should(this IDataType<DataType> dataType) => new IDataTypeAssertions(dataType);
 
         public static Continuation TestToken<TToken>(this AssertionScope scope, TToken expected, string expectedName, TToken actual, Predicate<TToken> tokenEquals)
             where TToken : class, ILiteralToken
@@ -145,13 +165,23 @@ namespace HisRoyalRedness.com
                 .Then.ForCondition((expected is null) || !(actual is null)).FailWith($"Expected {expectedName} to be '{expected}', but it was null.")
 
                 // if neither is null, then the TypeValues should match
-                .Then.ForCondition((expected is null) || (actual is null) || tokenEquals(expected)).FailWith($"Expected {expectedName} to be '{expected}', but is was '{actual}'");
+                .Then.ForCondition((expected is null) || (actual is null) || tokenEquals(expected)).FailWith($"Expected {expectedName} to be '{expected}', but it was '{actual}'");
 
         public static Continuation TestTokenValue<TToken, TTypedValue>(this AssertionScope scope, TTypedValue expected, string expectedName, TToken actual, Predicate<TTypedValue> typedValueEquals)
             where TToken : class, ILiteralToken
             => scope
                 // if neither is null, then the TypeValues should match
-                .ForCondition(typedValueEquals(expected)).FailWith($"Expected the value of {expectedName} to be '{expected}', but is was '{actual}'");
+                .ForCondition(typedValueEquals(expected)).FailWith($"Expected the value of {expectedName} to be '{expected}', but it was '{actual}'");
 
+        public static Continuation TestDataType(this AssertionScope scope, IDataType<DataType> expected, string expectedName, IDataType<DataType> actual)
+            => scope
+                // if expected is null, then actual should also be null
+                .ForCondition(!(expected is null) || (actual is null)).FailWith($"Expected {expectedName} to be null, but it is wasn't.")
+
+                // if expected is not null, then neither should actual be
+                .Then.ForCondition((expected is null) || !(actual is null)).FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was null.")
+
+                // if neither is null, then the TypeValues should match
+                .Then.ForCondition((expected is null) || (actual is null) || actual.Equals(expected)).FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was '{actual.ToString(Verbosity.ValueAndBitwidth)}'");
     }
 }

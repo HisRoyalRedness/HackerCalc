@@ -12,6 +12,7 @@ namespace HisRoyalRedness.com
         public void Reset()
         {
             OverOrUnderflowOccurred = false;
+            SignChangedOccurred = false;
         }
 
         public bool OverOrUnderflowOccurred
@@ -19,14 +20,14 @@ namespace HisRoyalRedness.com
             get => _overOrUnderflowOccurred;
             set => SetProperty(ref _overOrUnderflowOccurred, value);
         }
-        bool _overOrUnderflowOccurred = true;
+        bool _overOrUnderflowOccurred = false;
 
         public bool SignChangedOccurred
         {
             get => _signChangeOccurred;
             set => SetProperty(ref _signChangeOccurred, value);
         }
-        bool _signChangeOccurred = true;
+        bool _signChangeOccurred = false;
 
         public override string ToString()
         {
