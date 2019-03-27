@@ -116,7 +116,8 @@ TOKENS
     time                =   ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
                           | ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit.
 
-    now                 = "NOW".
+    current_date_time   = "NOW".
+    current_time        = "TIME".
 
     func_name           = ( 
                             letter 
@@ -257,7 +258,8 @@ Term<out IToken token>                                          (. token = null;
                     | Date<out token>
                     | Time<out token>
                     | Numeric<out token>
-                    | Now<out token>
+                    | NowDate<out token>
+                    | NowTime<out token>
 .
 
 Bracket<out IToken token>                                       (. IToken tk = null; OperatorToken op = null; .)
@@ -320,8 +322,12 @@ Float<out IToken token, ref bool isNeg>
                                                                 (. token = FloatToken.Parse(fltVal, isNeg, rawToken, pos); .)
 .
 
-Now<out IToken token>
-=                   now                                         (. token = new DateToken(); .)
+NowDate<out IToken token>
+=                   current_date_time                           (. token = new DateToken(); .)
+.
+
+NowTime<out IToken token>
+=                   current_time                                (. token = new TimeToken(); .)
 .
 
 Timespan<out IToken token>                                      (. TimespanToken tk = null; .)

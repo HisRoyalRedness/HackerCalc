@@ -26,7 +26,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1]);
                         else
-                            Debug("1 min 1 ms");
+                            Debug("time");
                         break;
 
                     case "cast":

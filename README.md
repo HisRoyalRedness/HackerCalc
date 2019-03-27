@@ -3,10 +3,10 @@ HackerCalc
 
 A basic calculator application that supports both 'numeric' and 'programmer' calculation modes.
 Numeric handles the basic math operations that you'd expect from most calculators.
-Programmer mode works numbers is different bases (binary, octal and hexadecimal), and supports
+Programmer mode works with numbers in different bases (binary, octal and hexadecimal), and supports
 math based on a particular bit width.
 
-The application supports the mixing of these two modes to some degree. Expressions can be entered
+The application supports the mixing of these modes to some degree. Expressions can be entered
 without having to explicitly set the calculater mode beforehand.
 
 Basic date and time calculations are also supported.
@@ -14,7 +14,7 @@ Basic date and time calculations are also supported.
 Literals
 -------------
 
- * **Integers**  
+ * **Integers**
    * Numeric base
      * **``b1011010``**       Binary
      * **``o147``**           Octal
@@ -35,10 +35,12 @@ Literals
      * Can use either '-' or '/' as a separator for date elements
      * Support time formats 'HH:mm' or 'HH:mm:ss'
      * e.g. ``2018-02-05``, or ``2018/02/05 11:48``
+     * **``NOW``** returns the current date and time
  * **Times**
    * Time portion only
      * Support time formats 'HH:mm' or 'HH:mm:ss'
      * e.g. ``11:48``, or ``11:48:56``
+     * **``TIME``** returns the current time
      * <mark>Support fractions of a second?</mark>
  * **Timespans**
    * A period of time
@@ -46,7 +48,7 @@ Literals
      * e.g. ``1 day 2 hours``, or ``16 hours 2 mins 1 sec 20ms``
      * The time portions need not be whole numbers, e.g. ``16.1 hours 2.6 mins 1.03 sec``
 
-Operators 
+Operators
 ---------
 Listed in order of precedence
 
@@ -102,7 +104,7 @@ Todo
   * Implement IComparable and IEquatable on data types, with testing
   * ~~Implement casting to/from data types~~
    * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
-     * Casting to a specific bitwidth and sign?   
+     * Casting to a specific bitwidth and sign?
 * Remove old code
 * Put licence headers and footers on all source code
 * Find a more accurate way to do power and root

@@ -43,6 +43,13 @@ namespace HisRoyalRedness.com
         public void DatesAreParsedCorrectly(string stringToParse, string expectedTokenStr)
             => TestCommon.LiteralTokensAreParsedCorrectly<DateToken>(stringToParse, expectedTokenStr);
 
+        [TestMethod]
+        public void NowParsesToCurrentDateAndTime()
+        {
+            var dtToken = Parser.ParseExpression("now") as DateToken ?? throw new ParseException("Couldn't parse NOW");
+            (DateTime.Now - dtToken.TypedValue).Should().BeCloseTo(TimeSpan.Zero, 10);
+        }
+
         // These need to be evaluated.
         // They're not parsed as dates, so they get interpreted as subtractions
         [DataTestMethod]

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 using System.Numerics;
+using FluentAssertions;
 
 namespace HisRoyalRedness.com
 {
@@ -42,6 +43,13 @@ namespace HisRoyalRedness.com
         [DataRow("23:59:59", "23:59:59")]
         public void HoursMinutesAndSecondsAreParsedCorrectly(string stringToParse, string expectedTokenStr)
             => TestCommon.LiteralTokensAreParsedCorrectly<TimeToken>(stringToParse, expectedTokenStr);
+
+        [TestMethod]
+        public void TimeParsesToCurrentTime()
+        {
+            var tToken = Parser.ParseExpression("time") as TimeToken ?? throw new ParseException("Couldn't parse TIME");
+            (DateTime.Now.TimeOfDay - tToken.TypedValue).Should().BeCloseTo(TimeSpan.Zero, 20);
+        }
     }
 }
 

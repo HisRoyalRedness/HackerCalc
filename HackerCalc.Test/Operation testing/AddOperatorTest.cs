@@ -37,7 +37,7 @@ namespace HisRoyalRedness.com
         [DataRow("2.1+3.1", "5.2f")]
         [DataRow("2.1+3u4", "5.1f")]
         //[DataRow("2.1+10:00:00", "10:00:02.1")]
-        [DataRow("2.1+10hrs", "10hrs 2.1 sec")]
+        [DataRow("2.1+10hrs", "10hrs 2sec 100ms")]
         [DataRow("2.1+3", "5.1f")]
         public void AddOperandTypeTests(string actual, string expected)
             => actual.Evaluate().Should().Be(expected.Evaluate());

@@ -36,7 +36,7 @@ namespace HisRoyalRedness.com
 
 
         public TimeToken()
-            : this(TimeSpan.Zero)
+            : this(DateTime.Now.TimeOfDay)
         { }
         #endregion Constructors
 
