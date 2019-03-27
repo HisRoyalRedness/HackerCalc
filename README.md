@@ -39,13 +39,12 @@ Literals
    * Time portion only
      * Support time formats 'HH:mm' or 'HH:mm:ss'
      * e.g. ``11:48``, or ``11:48:56``
-     * <mark>Support milliseconds?</mark>
+     * <mark>Support fractions of a second?</mark>
  * **Timespans**
    * A period of time
-     * Supports these time units: days, hours, minutes, seconds
-     * e.g. ``1 day 2 hours``, or ``16 hours 2 mins 1 sec``
+     * Supports these time units: days, hours, minutes, seconds and milliseconds
+     * e.g. ``1 day 2 hours``, or ``16 hours 2 mins 1 sec 20ms``
      * The time portions need not be whole numbers, e.g. ``16.1 hours 2.6 mins 1.03 sec``
-     * <mark>Support milliseconds?</mark>
 
 Operators 
 ---------
@@ -74,9 +73,8 @@ Todo
     * ~~Float~~
     * ~~Date~~
     * ~~Time~~
-      * Support milliseconds??
+      * <mark>Support fractions of a second?</mark>
     * ~~Timespan~~
-      * Support milliseconds??
   * ~~Handle basic operators~~
   * ~~Support for functions~~
   * ~~Make sure all failed parsing raises a ParseException (rather than some other exception)~~

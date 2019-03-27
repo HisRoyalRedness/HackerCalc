@@ -56,86 +56,25 @@ namespace HisRoyalRedness.com
         }
 
         #region Resolvers
-        public bool IsTimespanSeconds()
+        public enum TimePortion
         {
-            switch(la.kind)
+            Any,
+            Days,
+            Hours,
+            Minutes,
+            Seconds,
+            Milliseconds,
+            Microseconds,
+            Nanoseconds
+        }
+
+        bool IsTimespanPortion(TimePortion portion, bool throwSynError = false)
+        {
+            switch (la.kind)
             {
-                // Definately seconds
                 case _typed_ts_seconds:
-                    return true;
+                    return portion == TimePortion.Seconds || portion == TimePortion.Any;
 
-                // Maybe seconds. Need to check further
-                case _dec_unlimited_int:
-                case _true_float:
-                    // true_float could be a time portion or just a numeric value.
-                    // Return true if it's a time portion. Assume anything else is a numeric
-                    var next = scanner.Peek().kind;
-                    scanner.ResetPeek();
-                    switch (next)
-                    {
-                        case _ts_seconds_type:
-                            return true;
-                        default:
-                            return false;
-                    }
-                // Anything else is a syntax error
-                default:
-                    SynErr(la.kind);
-                    return false;
-            }
-        }
-
-        public bool IsTimespanMinutes()
-        {
-            switch (la.kind)
-            {
-                // Maybe minutes. Need to check further
-                case _dec_unlimited_int:
-                case _true_float:
-                    // true_float could be a time portion or just a numeric value.
-                    // Return true if it's a time portion. Assume anything else is a numeric
-                    var next = scanner.Peek().kind;
-                    scanner.ResetPeek();
-                    switch (next)
-                    {
-                        case _ts_minutes_type:
-                            return true;
-                        default:
-                            return false;
-                    }
-                default:
-                    return false;
-            }
-        }
-
-        public bool IsTimespanHours()
-        {
-            switch (la.kind)
-            {
-                // Maybe minutes. Need to check further
-                case _dec_unlimited_int:
-                case _true_float:
-                    // true_float could be a time portion or just a numeric value.
-                    // Return true if it's a time portion. Assume anything else is a numeric
-                    var next = scanner.Peek().kind;
-                    scanner.ResetPeek();
-                    switch (next)
-                    {
-                        case _ts_hours_type:
-                            return true;
-                        default:
-                            return false;
-                    }
-                default:
-                    return false;
-            }
-        }
-
-        public bool IsTimespanDays()
-        {
-            switch (la.kind)
-            {
-                // Maybe minutes. Need to check further
                 case _dec_unlimited_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
@@ -145,46 +84,39 @@ namespace HisRoyalRedness.com
                     switch (next)
                     {
                         case _ts_days_type:
-                            return true;
-                        default:
-                            return false;
-                    }
-                default:
-                    return false;
-            }
-        }
-
-        public bool IsTimespanNumber()
-        {
-            switch(la.kind)
-            {
-                // Typed timespan
-                case _typed_ts_seconds:
-                    return true;
-
-                // Stuff that could be either an integer, float or timespan
-                case _true_float:
-                case _dec_unlimited_int:
-                    // true_float could be a time portion or just a numeric value.
-                    // Return true if it's a time portion. Assume anything else is a numeric
-                    var next = scanner.Peek().kind;
-                    scanner.ResetPeek();
-                    switch (next)
-                    {
-                        case _ts_seconds_type:
-                        case _ts_minutes_type:
+                            return portion == TimePortion.Days || portion == TimePortion.Any;
                         case _ts_hours_type:
-                        case _ts_days_type:
-                            return true;
+                            return portion == TimePortion.Hours || portion == TimePortion.Any;
+                        case _ts_minutes_type:
+                            return portion == TimePortion.Minutes || portion == TimePortion.Any;
+                        case _ts_seconds_type:
+                            return portion == TimePortion.Seconds || portion == TimePortion.Any;
+                        case _ts_millisec_type:
+                            return portion == TimePortion.Milliseconds || portion == TimePortion.Any;
+                        case _ts_microsec_type:
+                            return portion == TimePortion.Microseconds || portion == TimePortion.Any;
+                        case _ts_nanosec_type:
+                            return portion == TimePortion.Nanoseconds || portion == TimePortion.Any;
                         default:
                             return false;
                     }
-
-                // Assume anything else is not a TimeSpan
+                // Anything else is possibly a syntax error,
+                // but at the very least not a time portion
                 default:
+                    if (throwSynError)
+                        SynErr(la.kind);
                     return false;
             }
         }
+
+        public bool IsTimespanNanoSeconds() => IsTimespanPortion(TimePortion.Nanoseconds);
+        public bool IsTimespanMicroSeconds() => IsTimespanPortion(TimePortion.Microseconds);
+        public bool IsTimespanMilliSeconds() => IsTimespanPortion(TimePortion.Milliseconds);
+        public bool IsTimespanSeconds() => IsTimespanPortion(TimePortion.Seconds);
+        public bool IsTimespanMinutes() => IsTimespanPortion(TimePortion.Minutes);
+        public bool IsTimespanHours() => IsTimespanPortion(TimePortion.Hours);
+        public bool IsTimespanDays() => IsTimespanPortion(TimePortion.Days);
+        public bool IsTimespanNumber() => IsTimespanPortion(TimePortion.Any);
 
         public bool IsDateTime()
         {

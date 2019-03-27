@@ -12,6 +12,30 @@ namespace HisRoyalRedness.com
     public class TimespanParseTest
     {
         [DataTestMethod]
+        [DataRow("100ms")]
+        [DataRow("100msec")]
+        [DataRow("100millisec")]
+        [DataRow("100milliseconds")]
+        [DataRow("100 ms")]
+        [DataRow("100 msec")]
+        [DataRow("100 millisec")]
+        [DataRow("100 milliseconds")]
+        public void DecimalMillisecondsAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromMilliseconds(100));
+
+        [DataTestMethod]
+        [DataRow("100.1ms")]
+        [DataRow("100.1msec")]
+        [DataRow("100.1millisec")]
+        [DataRow("100.1milliseconds")]
+        [DataRow("100.1 ms")]
+        [DataRow("100.1 msec")]
+        [DataRow("100.1 millisec")]
+        [DataRow("100.1 milliseconds")]
+        public void FloatMillisecondsAreParsedCorrectly(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<TimespanToken, TimeSpan>(stringToParse, TimeSpan.FromMilliseconds(100.1));
+
+        [DataTestMethod]
         [DataRow("100ts")]
         [DataRow("100s")]
         [DataRow("100se")]

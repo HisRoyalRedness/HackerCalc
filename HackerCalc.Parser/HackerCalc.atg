@@ -100,6 +100,9 @@ TOKENS
     time_type           = "tt".
     date_type           = "dt".
 
+    ts_nanosec_type     = "ns" | "nsec" | "nanosec" | "nanosecond" | "nanoseconds".
+    ts_microsec_type    = "us" | "usec" | "microsec" | "microsecond" | "microseconds".
+    ts_millisec_type    = "ms" | "msec" | "millisec" | "millisecond" | "milliseconds".
     ts_seconds_type     = "s" | "se" | "sec" | "secs" | "seco" | "secon" | "second" | "seconds".
     ts_minutes_type     = "m" | "mi" | "min" | "mins" | "minu" | "minut" | "minute" | "minutes".
     ts_hours_type       = "h" | "ho" | "hou" | "hour" | "hours" | "hr" | "hrs".
@@ -322,8 +325,7 @@ Now<out IToken token>
 .
 
 Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
-=
-                    CompoundTimespanPortion<out tk>             (. token = tk; .)
+=                   TimespanDaysOrLess<out tk>                  (. token = tk; .)
 .
 
 UnlimitedInteger<out IToken token, ref bool isNeg>
@@ -360,73 +362,159 @@ LimitedInteger<out IToken token, ref bool isNeg>
                                                                 (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken, pos); .)
 .
 
-CompoundTimespanPortion<out TimespanToken token>                (. token = new TimespanToken(); .)
+
+TimespanDaysOrLess<out TimespanToken token>                     (. token = new TimespanToken(); .)
 =                                                               (. TimespanToken tk = null; .)
                     (
                         IF(IsTimespanDays())
                         (
-                            TimespanDays<out tk>                (. token = token.AddCompoundPortions(tk); .)
+                           TimespanDays<out tk>                 (. token = token.AddCompoundPortions(tk); .)
                             [
-                                IF(IsTimespanHours())
-                                (
-                                    TimespanHours<out tk>               (. token = token.AddCompoundPortions(tk); .)
-                                    [
-                                        IF(IsTimespanMinutes())
-                                        (
-                                            TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                            [
-                                                TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
-                                            ]
-                                        )
-                                        |
-                                        (
-                                            TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                        )
-                                    ]
-
-                                )
-                                | IF(IsTimespanMinutes())
-                                (
-                                    TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                    [
-                                        TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
-                                    ]
-                                )
-                                |
-                                (
-                                    TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                )
-                            ]
-                        )
-                        | IF(IsTimespanHours())
-                        (
-                            TimespanHours<out tk>               (. token = token.AddCompoundPortions(tk); .)
-                            [
-                                IF(IsTimespanMinutes())
-                                (
-                                    TimespanMinutes<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                    [
-                                        TimespanSeconds<out tk> (. token = token.AddCompoundPortions(tk); .)
-                                    ]
-                                )
-                                |
-                                (
-                                    TimespanSeconds<out tk>     (. token = token.AddCompoundPortions(tk); .)
-                                )
-                            ]
-                        )
-                        | IF(IsTimespanMinutes())
-                        (
-                            TimespanMinutes<out tk>             (. token = token.AddCompoundPortions(tk); .)
-                            [
-                                TimespanSeconds<out tk>         (. token = token.AddCompoundPortions(tk); .)
+                                TimespanHoursOrLess<out tk>     (. token = token.AddCompoundPortions(tk); .)
                             ]
                         )
                         | 
                         (
-                            TimespanSeconds<out tk>             (. token = token.AddCompoundPortions(tk); .)
+                            TimespanHoursOrLess<out tk>         (. token = token.AddCompoundPortions(tk); .)
                         )
                     )
+.
+
+TimespanHoursOrLess<out TimespanToken token>                    (. token = new TimespanToken(); .)
+=                                                               (. TimespanToken tk = null; .)
+                    (
+                        IF(IsTimespanHours())
+                        (
+                           TimespanHours<out tk>                (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                TimespanMinutesOrLess<out tk>   (. token = token.AddCompoundPortions(tk); .)
+                            ]
+                        )
+                        | 
+                        (
+                            TimespanMinutesOrLess<out tk>       (. token = token.AddCompoundPortions(tk); .)
+                        )
+                    )
+.
+
+TimespanMinutesOrLess<out TimespanToken token>                  (. token = new TimespanToken(); .)
+=                                                               (. TimespanToken tk = null; .)
+                    (
+                        IF(IsTimespanMinutes())
+                        (
+                            TimespanMinutes<out tk>             (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                TimespanSecondsOrLess<out tk>   (. token = token.AddCompoundPortions(tk); .)
+                            ]
+                        )
+                        | 
+                        (
+                            TimespanSecondsOrLess<out tk>       (. token = token.AddCompoundPortions(tk); .)
+                        )
+                    )
+.
+
+TimespanSecondsOrLess<out TimespanToken token>                  (. token = new TimespanToken(); .)
+=                                                               (. TimespanToken tk = null; .)
+                    (
+                        IF(IsTimespanSeconds())
+                        (
+                            TimespanSeconds<out tk>             (. token = token.AddCompoundPortions(tk); .)
+                            [
+                                TimespanMilliSecondsOrLess<out tk> (. token = token.AddCompoundPortions(tk); .)
+                            ]
+                        )
+                        | 
+                        (
+                            TimespanMilliSecondsOrLess<out tk>  (. token = token.AddCompoundPortions(tk); .)
+                        )
+                    )
+.
+
+TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+=                                                               (. TimespanToken tk = null; .)
+                    TimespanMilliSeconds<out tk>                (. token = token.AddCompoundPortions(tk); .)
+.
+
+//TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+//=                                                               (. TimespanToken tk = null; .)
+//                    (
+//                        IF(IsTimespanMilliSeconds())
+//                        (
+//                            TimespanMilliSeconds<out tk>        (. token = token.AddCompoundPortions(tk); .)
+//                            [
+//                                TimespanMicroSecondsOrLess<out tk> (. token = token.AddCompoundPortions(tk); .)
+//                            ]
+//                        )
+//                        | 
+//                        (
+//                            TimespanMicroSecondsOrLess<out tk>  (. token = token.AddCompoundPortions(tk); .)
+//                        )
+//                    )
+//.
+//
+//TimespanMicroSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+//=                                                               (. TimespanToken tk = null; .)
+//                    (
+//                        IF(IsTimespanMicroSeconds())
+//                        (
+//                            TimespanMicroSeconds<out tk>        (. token = token.AddCompoundPortions(tk); .)
+//                            [
+//                                TimespanNanoSecondsOrLess<out tk> (. token = token.AddCompoundPortions(tk); .)
+//                            ]
+//                        )
+//                        | 
+//                        (
+//                            TimespanNanoSecondsOrLess<out tk>   (. token = token.AddCompoundPortions(tk); .)
+//                        )
+//                    )
+//.
+//
+//TimespanNanoSecondsOrLess<out TimespanToken token>              (. token = new TimespanToken(); .)
+//=                                                               (. TimespanToken tk = null; .)
+//                    TimespanNanoSeconds<out tk>                 (. token = token.AddCompoundPortions(tk); .)
+//.
+//
+//TimespanNanoSeconds<out TimespanToken token>                    (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
+//=                   (
+//                        (
+//                            true_float                          (. seconds = t.val; pos = GetPos(t); .)
+//                            ts_nanosec_type                     (. tsType = t.val; .)
+//                        )
+//                        |
+//                        (
+//                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+//                            ts_nanosec_type                     (. tsType = t.val; .)
+//                        )
+//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000000.0), $"{seconds} {tsType}", pos); .)
+//.
+//
+//TimespanMicroSeconds<out TimespanToken token>                   (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
+//=                   (
+//                        (
+//                            true_float                          (. seconds = t.val; pos = GetPos(t); .)
+//                            ts_microsec_type                    (. tsType = t.val; .)
+//                        )
+//                        |
+//                        (
+//                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+//                            ts_microsec_type                    (. tsType = t.val; .)
+//                        )
+//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000.0), $"{seconds} {tsType}", pos); .)
+//.
+
+TimespanMilliSeconds<out TimespanToken token>                   (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
+=                   (
+                        (
+                            true_float                          (. seconds = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                        |
+                        (
+                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+                            ts_millisec_type                    (. tsType = t.val; .)
+                        )
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)), $"{seconds} {tsType}", pos); .)
 .
 
 TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
