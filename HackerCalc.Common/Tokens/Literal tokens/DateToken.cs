@@ -24,14 +24,10 @@ namespace HisRoyalRedness.com
         private DateToken(DateTime typedValue, string rawToken, SourcePosition position)
             : base(LiteralTokenType.Date, typedValue, rawToken, position)
         { }
-
-        public DateToken()
-            : this(DateTime.Now, "now", SourcePosition.None)
-        { }
         #endregion Constructors
 
         #region Parsing
-        public static DateToken Parse(string value, bool dmy, SourcePosition position)
+        public static DateToken Parse(string value, bool dmy, SourcePosition position, IConfiguration configuration)
         {
             var portions = value.Split('-', '/');
             if (portions.Length != 3)
@@ -72,6 +68,11 @@ namespace HisRoyalRedness.com
 
         public static DateToken CreateDateTime(DateToken dateToken, TimeToken timeToken)
             => new DateToken(dateToken.TypedValue + timeToken.TypedValue, $"{dateToken.RawToken} {timeToken.RawToken}", dateToken.Position);
+
+        public static DateToken Default => Now;
+
+        public static DateToken Now
+            => new DateToken(DateTime.Now, "now", SourcePosition.None);
     }
 }
 

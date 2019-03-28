@@ -132,7 +132,7 @@ namespace HisRoyalRedness.com
             Subject = dataType;
         }
 
-        protected override string Identifier => ((IDataTypeTesting)Subject).TypeName;
+        protected override string Identifier => ((IDataTypeTesting)Subject)?.TypeName ?? typeof(IDataType<DataType>).Name;
 
         public AndConstraint<IDataTypeAssertions> Be(IDataType<DataType> expected, string because = "", params object[] becauseArgs)
         {

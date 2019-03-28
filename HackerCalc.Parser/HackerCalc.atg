@@ -113,8 +113,8 @@ TOKENS
     date_rev            =   ( ( zero_to_two digit | '3' zero_to_one ) '-' ( '0' digit | '1' zero_to_two ) '-' digit digit digit digit )
                           | ( ( zero_to_two digit | '3' zero_to_one ) '/' ( '0' digit | '1' zero_to_two ) '/' digit digit digit digit ).
 
-    time                =   ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
-                          | ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit.
+    time                =   [ digit { digit } '.' ] ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit
+                          | [ digit { digit } '.' ] ( [ zero_to_one ] digit | '2' zero_to_three ) ':' zero_to_five digit ':' zero_to_five digit [ '.' digit { digit } ].
 
     current_date_time   = "NOW".
     current_time        = "TIME".
@@ -275,22 +275,22 @@ Bracket<out IToken token>                                       (. IToken tk = n
 DateTime<out IToken token>                                      
 =                                                               (. DateToken dt = null; .)
                     (
-                        date                                    (. dt = DateToken.Parse(t.val, false, GetPos(t)); .)
+                        date                                    (. dt = DateToken.Parse(t.val, false, GetPos(t), Configuration); .)
                         |
-                        date_rev                                (. dt = DateToken.Parse(t.val, true, GetPos(t)); .)
+                        date_rev                                (. dt = DateToken.Parse(t.val, true, GetPos(t), Configuration); .)
                     )
-                    time                                        (. token = DateToken.CreateDateTime(dt, TimeToken.Parse(t.val, GetPos(t))); .)
+                    time                                        (. token = DateToken.CreateDateTime(dt, TimeToken.Parse(t.val, GetPos(t), Configuration)); .)
 .
 
 Date<out IToken token>                                          (. token = null; .)
 =
-                    date                                        (. token = DateToken.Parse(t.val, false, GetPos(t)); .)
-                    | date_rev                                  (. token = DateToken.Parse(t.val, true, GetPos(t)); .)
+                    date                                        (. token = DateToken.Parse(t.val, false, GetPos(t), Configuration); .)
+                    | date_rev                                  (. token = DateToken.Parse(t.val, true, GetPos(t), Configuration); .)
 .
 
 Time<out IToken token>                                          (. token = null; .)
 =
-                    time                                        (. token = TimeToken.Parse(t.val, GetPos(t)); .)
+                    time                                        (. token = TimeToken.Parse(t.val, GetPos(t), Configuration); .)
 .
 
 Numeric<out IToken token>                                       (. token = null; bool isNeg = false; .)
@@ -319,15 +319,15 @@ Float<out IToken token, ref bool isNeg>
                     [
                         float_type                              (. rawToken += t.val; .)
                     ]
-                                                                (. token = FloatToken.Parse(fltVal, isNeg, rawToken, pos); .)
+                                                                (. token = FloatToken.Parse(fltVal, isNeg, rawToken, pos, Configuration); .)
 .
 
 NowDate<out IToken token>
-=                   current_date_time                           (. token = new DateToken(); .)
+=                   current_date_time                           (. token = DateToken.Now; .)
 .
 
 NowTime<out IToken token>
-=                   current_time                                (. token = new TimeToken(); .)
+=                   current_time                                (. token = TimeToken.Now; .)
 .
 
 Timespan<out IToken token>                                      (. TimespanToken tk = null; .)
@@ -344,7 +344,7 @@ UnlimitedInteger<out IToken token, ref bool isNeg>
                         bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
                         |
                         oct_unlimited_int                       (. intBase = IntegerBase.Octal; .)
-                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg, GetPos(t)); .)
+                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg, GetPos(t), Configuration); .)
 .
 
 LimitedInteger<out IToken token, ref bool isNeg>
@@ -365,11 +365,11 @@ LimitedInteger<out IToken token, ref bool isNeg>
                     )
                                                                 (. var bitWidth = LimitedIntegerToken.ParseBitWidth(signAndBitWidth.Substring(1)); .)
                                                                 (. var rawToken = intVal + signAndBitWidth; .)
-                                                                (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken, pos); .)
+                                                                (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken, pos, Configuration); .)
 .
 
 
-TimespanDaysOrLess<out TimespanToken token>                     (. token = new TimespanToken(); .)
+TimespanDaysOrLess<out TimespanToken token>                     (. token = TimespanToken.Zero; .)
 =                                                               (. TimespanToken tk = null; .)
                     (
                         IF(IsTimespanDays())
@@ -386,7 +386,7 @@ TimespanDaysOrLess<out TimespanToken token>                     (. token = new T
                     )
 .
 
-TimespanHoursOrLess<out TimespanToken token>                    (. token = new TimespanToken(); .)
+TimespanHoursOrLess<out TimespanToken token>                    (. token = TimespanToken.Zero; .)
 =                                                               (. TimespanToken tk = null; .)
                     (
                         IF(IsTimespanHours())
@@ -403,7 +403,7 @@ TimespanHoursOrLess<out TimespanToken token>                    (. token = new T
                     )
 .
 
-TimespanMinutesOrLess<out TimespanToken token>                  (. token = new TimespanToken(); .)
+TimespanMinutesOrLess<out TimespanToken token>                  (. token = TimespanToken.Zero; .)
 =                                                               (. TimespanToken tk = null; .)
                     (
                         IF(IsTimespanMinutes())
@@ -420,7 +420,7 @@ TimespanMinutesOrLess<out TimespanToken token>                  (. token = new T
                     )
 .
 
-TimespanSecondsOrLess<out TimespanToken token>                  (. token = new TimespanToken(); .)
+TimespanSecondsOrLess<out TimespanToken token>                  (. token = TimespanToken.Zero; .)
 =                                                               (. TimespanToken tk = null; .)
                     (
                         IF(IsTimespanSeconds())
@@ -437,12 +437,12 @@ TimespanSecondsOrLess<out TimespanToken token>                  (. token = new T
                     )
 .
 
-TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = TimespanToken.Zero; .)
 =                                                               (. TimespanToken tk = null; .)
                     TimespanMilliSeconds<out tk>                (. token = token.AddCompoundPortions(tk); .)
 .
 
-//TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+//TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = TimespanToken.Zero; .)
 //=                                                               (. TimespanToken tk = null; .)
 //                    (
 //                        IF(IsTimespanMilliSeconds())
@@ -459,7 +459,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new T
 //                    )
 //.
 //
-//TimespanMicroSecondsOrLess<out TimespanToken token>             (. token = new TimespanToken(); .)
+//TimespanMicroSecondsOrLess<out TimespanToken token>             (. token = TimespanToken.Zero; .)
 //=                                                               (. TimespanToken tk = null; .)
 //                    (
 //                        IF(IsTimespanMicroSeconds())
@@ -476,7 +476,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new T
 //                    )
 //.
 //
-//TimespanNanoSecondsOrLess<out TimespanToken token>              (. token = new TimespanToken(); .)
+//TimespanNanoSecondsOrLess<out TimespanToken token>              (. token = TimespanToken.Zero; .)
 //=                                                               (. TimespanToken tk = null; .)
 //                    TimespanNanoSeconds<out tk>                 (. token = token.AddCompoundPortions(tk); .)
 //.
@@ -492,7 +492,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new T
 //                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
 //                            ts_nanosec_type                     (. tsType = t.val; .)
 //                        )
-//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000000.0), $"{seconds} {tsType}", pos); .)
+//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000000.0), $"{seconds} {tsType}", pos, Configuration); .)
 //.
 //
 //TimespanMicroSeconds<out TimespanToken token>                   (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
@@ -506,7 +506,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = new T
 //                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
 //                            ts_microsec_type                    (. tsType = t.val; .)
 //                        )
-//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000.0), $"{seconds} {tsType}", pos); .)
+//                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000.0), $"{seconds} {tsType}", pos, Configuration); .)
 //.
 
 TimespanMilliSeconds<out TimespanToken token>                   (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
@@ -520,7 +520,7 @@ TimespanMilliSeconds<out TimespanToken token>                   (. var seconds =
                             dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
                             ts_millisec_type                    (. tsType = t.val; .)
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)), $"{seconds} {tsType}", pos); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)), $"{seconds} {tsType}", pos, Configuration); .)
 .
 
 TimespanSeconds<out TimespanToken token>                        (. var seconds = ""; var tsType = ""; SourcePosition pos = null; .)
@@ -539,7 +539,7 @@ TimespanSeconds<out TimespanToken token>                        (. var seconds =
                             dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
                             ts_seconds_type                     (. tsType = t.val; .)
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds)), $"{seconds} {tsType}", pos); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds)), $"{seconds} {tsType}", pos, Configuration); .)
 .
 
 TimespanMinutes<out TimespanToken token>
@@ -555,7 +555,7 @@ TimespanMinutes<out TimespanToken token>
                             dec_unlimited_int                   (. minutes = t.val; pos = GetPos(t); .)
                             ts_minutes_type                     (. tsType = t.val; .)
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes)), $"{minutes} {tsType}", pos); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes)), $"{minutes} {tsType}", pos, Configuration); .)
 .
 
 TimespanHours<out TimespanToken token>
@@ -571,7 +571,7 @@ TimespanHours<out TimespanToken token>
                             dec_unlimited_int                   (. hours = t.val; pos = GetPos(t); .)
                             ts_hours_type                       (. tsType = t.val; .)
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours)), $"{hours} {tsType}", pos); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours)), $"{hours} {tsType}", pos, Configuration); .)
 .
 
 TimespanDays<out TimespanToken token>
@@ -587,7 +587,7 @@ TimespanDays<out TimespanToken token>
                             dec_unlimited_int                   (. days = t.val; pos = GetPos(t); .)
                             ts_days_type                        (. tsType = t.val; .)
                         )
-                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days)), $"{days} {tsType}", pos); .)
+                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days)), $"{days} {tsType}", pos, Configuration); .)
 .
 
 END HackerCalc.

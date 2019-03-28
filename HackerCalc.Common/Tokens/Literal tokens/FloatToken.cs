@@ -20,20 +20,16 @@ namespace HisRoyalRedness.com
     public class FloatToken : LiteralToken<double, FloatToken>
     {
         #region Constructors
-        public FloatToken(double typedValue)
-            : this(typedValue, null, SourcePosition.None)
-        { }
-
         private FloatToken(double typedValue, string rawToken, SourcePosition position)
             : base(LiteralTokenType.Float, typedValue, rawToken, position)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static FloatToken Parse(string value)
-            => FloatToken.Parse(value, false, value, SourcePosition.None);
+        public static FloatToken Parse(string value, IConfiguration configuration)
+            => FloatToken.Parse(value, false, value, SourcePosition.None, configuration);
 
-        public static FloatToken Parse(string value, bool isNeg, string rawToken, SourcePosition position)
+        public static FloatToken Parse(string value, bool isNeg, string rawToken, SourcePosition position, IConfiguration configuration)
             => new FloatToken(double.Parse(isNeg ? $"-{value}" : value), $"{(isNeg ? "-" : "")}{rawToken}", position);
         #endregion Parsing
 
@@ -60,6 +56,11 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => $"{TypedValue:0.000}";
         #endregion ToString
+
+        public static FloatToken Default
+            => new FloatToken(0.0, null, SourcePosition.None);
+        public static FloatToken One
+            => new FloatToken(1.0, null, SourcePosition.None);
     }
 }
 

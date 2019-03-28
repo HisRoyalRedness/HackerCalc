@@ -21,6 +21,9 @@ namespace HisRoyalRedness.com
         Time,
         [Description("Timespan")]
         Timespan,
+
+        [DontEnumerate]
+        Unknown
     }
 
     public interface IDataTypeBase<TBaseType, TConcreteDataType> : IDataType<DataType>
@@ -78,10 +81,10 @@ namespace HisRoyalRedness.com
             => CalcEngine.Instance.Calculate(OperatorType.Divide, a, b) as InternalDataTypeBase;
         public static InternalDataTypeBase operator %(InternalDataTypeBase a, InternalDataTypeBase b)
             => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator <<(InternalDataTypeBase a, int b)
-            => CalcEngine.Instance.Calculate(OperatorType.LeftShift, a, (IDataType<DataType>)(new UnlimitedIntegerToken(b))) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator >>(InternalDataTypeBase a, int b)
-            => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, (IDataType<DataType>)(new UnlimitedIntegerToken(b))) as InternalDataTypeBase;
+        //public static InternalDataTypeBase operator <<(InternalDataTypeBase a, int b)
+        //    => CalcEngine.Instance.Calculate(OperatorType.LeftShift, a, (IDataType<DataType>)(new UnlimitedIntegerToken(b))) as InternalDataTypeBase;
+        //public static InternalDataTypeBase operator >>(InternalDataTypeBase a, int b)
+        //    => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, (IDataType<DataType>)(new UnlimitedIntegerToken(b))) as InternalDataTypeBase;
         public static InternalDataTypeBase operator &(InternalDataTypeBase a, InternalDataTypeBase b)
             => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
         public static InternalDataTypeBase operator |(InternalDataTypeBase a, InternalDataTypeBase b)

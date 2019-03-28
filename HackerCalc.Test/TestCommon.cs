@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using FluentAssertions;
 using System.Numerics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HisRoyalRedness.com
 {
@@ -20,11 +21,11 @@ namespace HisRoyalRedness.com
             where TToken : class, ILiteralToken
             => MakeLiteralToken(tokenString) as TToken;
 
-        public static ILiteralToken MakeLiteralToken(this string tokenString)
+        public static ILiteralToken MakeLiteralToken(this string tokenString, IConfiguration configuration = null)
         {
             if (string.IsNullOrWhiteSpace(tokenString))
                 return null;
-                
+
             var firstSpace = tokenString.IndexOf(' ');
             var tokenType = firstSpace <= 0
                 ? tokenString
@@ -37,11 +38,11 @@ namespace HisRoyalRedness.com
             {
                 case "date":
                 case "datetoken":
-                    return DateToken.Parse(tokenArg, false, SourcePosition.None);
+                    return DateToken.Parse(tokenArg, false, SourcePosition.None, configuration);
 
                 case "float":
                 case "floattoken":
-                    return FloatToken.Parse(tokenArg);
+                    return FloatToken.Parse(tokenArg, configuration);
 
                 case "limitedinteger":
                 case "limitedintegertoken":
@@ -60,7 +61,7 @@ namespace HisRoyalRedness.com
                         var num = portions.Groups[3].Value;
                         var isSigned = portions.Groups[4].Value.ToLower() != "u";
                         var bitWidth = LimitedIntegerToken.ParseBitWidth(portions.Groups[5].Value);
-                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None, true);
+                        return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None, configuration ?? new Configuration() { IgnoreLimitedIntegerMaxMinRange = true });
                     }
 
                 case "unlimitedinteger":
@@ -78,16 +79,16 @@ namespace HisRoyalRedness.com
                             default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
                         }
                         var num = portions.Groups[3].Value;
-                        return UnlimitedIntegerToken.Parse(num, numBase, isNeg, SourcePosition.None);
+                        return UnlimitedIntegerToken.Parse(num, numBase, isNeg, SourcePosition.None, configuration);
                     }
 
                 case "timespan":
                 case "timespantoken":
-                    return TimespanToken.Parse(TimeToken.Parse(tokenArg, SourcePosition.None).TypedValue, tokenArg, SourcePosition.None);
+                    return TimespanToken.Parse(TimeToken.Parse(tokenArg, SourcePosition.None, configuration).TypedValue, tokenArg, SourcePosition.None, configuration);
 
                 case "time":
                 case "timetoken":
-                    return TimeToken.Parse(tokenArg, SourcePosition.None);
+                    return TimeToken.Parse(tokenArg, SourcePosition.None, configuration);
 
                 default:
                     throw new TestOperationException($"Unrecognised token type {tokenType}");
@@ -100,32 +101,32 @@ namespace HisRoyalRedness.com
             {
                 case LiteralTokenType.Date:
                     return string.IsNullOrEmpty(value)
-                        ? new DateToken()
+                        ? DateToken.Now
                         : MakeLiteralToken($"date {value}");
 
                 case LiteralTokenType.Float:
                     return string.IsNullOrEmpty(value)
-                        ? new FloatToken(1.0)
+                        ? FloatToken.One
                         : MakeLiteralToken($"float {value}");
 
                 case LiteralTokenType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new LimitedIntegerToken(1, IntegerBitWidth._32, true)
+                        ? LimitedIntegerToken.One
                         : MakeLiteralToken($"limitedinteger {value}");
 
                 case LiteralTokenType.Time:
                     return string.IsNullOrEmpty(value)
-                        ? new TimeToken(TimeSpan.FromSeconds(1))
+                        ? TimeToken.One
                         : MakeLiteralToken($"time {value}");
 
                 case LiteralTokenType.Timespan:
                     return string.IsNullOrEmpty(value)
-                        ? new TimespanToken(TimeSpan.FromSeconds(1))
+                        ? TimespanToken.One
                         : MakeLiteralToken($"timespan {value}");
 
                 case LiteralTokenType.UnlimitedInteger:
                     return string.IsNullOrEmpty(value)
-                        ? new UnlimitedIntegerToken(1)
+                        ? UnlimitedIntegerToken.One
                         : MakeLiteralToken($"unlimitedinteger {value}");
 
                 default:
@@ -358,6 +359,27 @@ namespace HisRoyalRedness.com
             }
         }
 
+        public static void EvaluateActualAndExpected(string actualStr, string expectedStr, string expectedTypeStr = null)
+        {
+            var actual = actualStr.Evaluate();
+            var expected = expectedStr.Evaluate();
+
+            // Fluent assertions don't print the message correctly
+            //Assert.IsNotNull(actual, $"{nameof(actualStr)} should evaluate to a valid {nameof(IDataType)}.");
+            //Assert.IsNotNull(expected, $"{nameof(expectedStr)} should evaluate to a valid {nameof(IDataType)}.");
+            actual.Should().NotBeNull($"{nameof(actualStr)} should evaluate to a valid {nameof(IDataType)}.");
+            expected.Should().NotBeNull($"{nameof(expectedStr)} should evaluate to a valid {nameof(IDataType)}.");
+
+            if (!string.IsNullOrEmpty(expectedTypeStr))
+            {
+                var expectedType = (DataType)Enum.Parse(typeof(DataType), expectedTypeStr);
+                actual.DataType.Should().Be(expectedType);
+                expected.DataType.Should().Be(expectedType);
+            }
+
+            actual.Should().Be(expected);
+        }
+
         #region Test trait descriptions
         public const string INCOMPLETE = "Incomplete";
         public const string BASIC_PARSE = "Basic parse";
@@ -396,4 +418,16 @@ namespace HisRoyalRedness.com
         { }
     }
     #endregion Test exceptions
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class TypedDataRowAttribute : DataRowAttribute
+    {
+        public TypedDataRowAttribute(object data1)
+            : base(data1?.ToString())
+        { }
+
+        public TypedDataRowAttribute(object data1, params object[] moreData)
+            : base(data1?.ToString(), moreData.Select(d => d?.ToString()).ToArray())
+        { }
+    }
 }

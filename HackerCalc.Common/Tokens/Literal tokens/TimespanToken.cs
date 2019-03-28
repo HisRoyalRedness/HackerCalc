@@ -24,18 +24,10 @@ namespace HisRoyalRedness.com
         private TimespanToken(TimeSpan typedValue, string rawToken, SourcePosition position)
             : base(LiteralTokenType.Timespan, typedValue, rawToken, position)
         { }
-
-        public TimespanToken(TimeSpan typedValue)
-            : this(typedValue, null, SourcePosition.None)
-        { }
-
-        public TimespanToken()
-            : this(TimeSpan.Zero)
-        { }
         #endregion Constructors
 
         #region Parsing
-        public static TimespanToken Parse(TimeSpan timespan, string rawToken, SourcePosition position)
+        public static TimespanToken Parse(TimeSpan timespan, string rawToken, SourcePosition position, IConfiguration configuration)
             => new TimespanToken(timespan, rawToken, position);
 
         public TimespanToken AddCompoundPortions(TimespanToken other)
@@ -85,6 +77,12 @@ namespace HisRoyalRedness.com
         string LongStringPortions(int value, string singular)
             => value == 1 ? $"1 {singular}" : $"{value} {singular}s";
         #endregion ToString
+
+        public static TimespanToken Default => Zero;
+        public static TimespanToken Zero
+            => new TimespanToken(TimeSpan.Zero, null, SourcePosition.None);
+        public static TimespanToken One
+            => new TimespanToken(TimeSpan.FromSeconds(1), null, SourcePosition.None);
     }
 }
 

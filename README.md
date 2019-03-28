@@ -38,10 +38,9 @@ Literals
      * **``NOW``** returns the current date and time
  * **Times**
    * Time portion only
-     * Support time formats 'HH:mm' or 'HH:mm:ss'
-     * e.g. ``11:48``, or ``11:48:56``
+     * Support time formats 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.fff'
+     * e.g. ``11:48``, or ``11:48:56``, or ``11:48:56.8``
      * **``TIME``** returns the current time
-     * <mark>Support fractions of a second?</mark>
  * **Timespans**
    * A period of time
      * Supports these time units: days, hours, minutes, seconds and milliseconds
@@ -75,7 +74,6 @@ Todo
     * ~~Float~~
     * ~~Date~~
     * ~~Time~~
-      * <mark>Support fractions of a second?</mark>
     * ~~Timespan~~
   * ~~Handle basic operators~~
   * ~~Support for functions~~

@@ -26,18 +26,15 @@ namespace HisRoyalRedness.com
     public class LimitedIntegerToken : LiteralToken<BigInteger, LimitedIntegerToken>
     {
         #region Constructors
-        public LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned)
-            : this(typedValue, bitWidth, isSigned, isSigned && typedValue < 0, null, SourcePosition.None)
-        { }
-
-        private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, bool ignoreRange = false)
+        private LimitedIntegerToken(BigInteger typedValue, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, IConfiguration configuration)
             : base(LiteralTokenType.LimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)
         {
             if (isNeg)
                 typedValue *= -1;
             SignAndBitWidth = new BitWidthAndSignPair(bitWidth, isSigned);
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
-            if (!ignoreRange)
+
+            if (!(configuration?.IgnoreLimitedIntegerMaxMinRange ?? false))
             {
                 if (typedValue < _minAndMax.Min)
                     throw new ParseException($"{typedValue} is less than the minimum of {_minAndMax.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
@@ -49,7 +46,7 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
-        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, bool ignoreRange = false)
+        public static LimitedIntegerToken Parse(string value, IntegerBase numBase, IntegerBitWidth bitWidth, bool isSigned, bool isNeg, string rawToken, SourcePosition position, IConfiguration configuration)
         {
             BigInteger val;
             switch (numBase)
@@ -61,7 +58,7 @@ namespace HisRoyalRedness.com
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
-            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position, ignoreRange);
+            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position, configuration ?? Configuration.Default);
         }
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)
@@ -120,6 +117,11 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => $"{TypedValue}{SignAndBitWidth}";
         #endregion ToString 
+
+        public static LimitedIntegerToken Default
+            => new LimitedIntegerToken(0, IntegerBitWidth._32, true, false, null, SourcePosition.None, Configuration.Default);
+        public static LimitedIntegerToken One
+            => new LimitedIntegerToken(1, IntegerBitWidth._32, true, false, null, SourcePosition.None, Configuration.Default);
 
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;

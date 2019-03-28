@@ -22,17 +22,24 @@ namespace HisRoyalRedness.com
 {
     public partial class Parser
     {
-        public static IToken ParseExpression(string expression)
-            => ParseExpression(expression, null);
-
-        public static IToken ParseExpression(string expression, List<Token> scannedTokens)
+        public Parser(Scanner scanner, IConfiguration configuration)
+            : this(scanner)
         {
+            Configuration = configuration;
+        }
+
+        public static IToken ParseExpression(string expression, IConfiguration configuration = null)
+            => ParseExpression(expression, null, configuration);
+
+        public static IToken ParseExpression(string expression, List<Token> scannedTokens, IConfiguration configuration)
+        {
+            configuration = configuration ?? HisRoyalRedness.com.Configuration.Default;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
-                var scanner = new Scanner(ms);
+                var scanner = new Scanner(ms, configuration);
                 if (scannedTokens != null)
                     scanner.ScannedTokens = tkn => scannedTokens.Add(tkn);
-                var parser = new Parser(scanner);
+                var parser = new Parser(scanner, configuration);
                 return parser.Parse()
                     ? parser.RootToken
                     : null;
@@ -40,11 +47,12 @@ namespace HisRoyalRedness.com
         }
 
 
-        public static IEnumerable<Token> ScanExpression(string expression)
+        public static IEnumerable<Token> ScanExpression(string expression, IConfiguration configuration = null)
         {
+            configuration = configuration ?? HisRoyalRedness.com.Configuration.Default;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
-                var scanner = new Scanner(ms);
+                var scanner = new Scanner(ms, configuration);
                 while (true)
                 {
                     var token = scanner.Scan();
@@ -151,6 +159,8 @@ namespace HisRoyalRedness.com
         public static SourcePosition GetPos(Token token) => new SourcePosition(token.line, token.col);
 
         public IToken RootToken { get; private set; }
+
+        public IConfiguration Configuration { get; } = HisRoyalRedness.com.Configuration.Default;
     }
 
     #region Errors

@@ -23,31 +23,19 @@ namespace HisRoyalRedness.com
     public class TimeToken : LiteralToken<TimeSpan, TimeToken>
     {
         #region Constructors
-        private TimeToken(TimeSpan typedValue, string rawToken, SourcePosition position)
+        private TimeToken(TimeSpan typedValue, string rawToken, SourcePosition position, IConfiguration configuration)
             : base(LiteralTokenType.Time, typedValue, rawToken, position)
         {
-            if (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0)
+            if (!configuration.AllowMultidayTimes && (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0))
                 throw new ParseException("Time must be within the range of a single day");
         }
-
-        public TimeToken(TimeSpan typedValue)
-            : this(typedValue, null, SourcePosition.None)
-        { }
-
-
-        public TimeToken()
-            : this(DateTime.Now.TimeOfDay)
-        { }
         #endregion Constructors
 
         #region Parsing
-        public static TimeToken Parse(string value, SourcePosition position)
-        {
-            if (TimeSpan.TryParse(value, out TimeSpan time))
-                return new TimeToken(time, value, position);
-            else
-                throw new ParseException($"Invalid time format '{value}'");
-        }
+        public static TimeToken Parse(string value, SourcePosition position, IConfiguration configuration)
+            => TimeSpan.TryParse(value, out TimeSpan time)
+            ? new TimeToken(time, value, position, configuration ?? Configuration.Default)
+            : throw new ParseException($"Invalid time format '{value}'");
         #endregion Parsing
 
         #region Equality
@@ -69,6 +57,13 @@ namespace HisRoyalRedness.com
         #region Comparison
         public override int CompareTo(TimeToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
         #endregion Comparison
+
+        public static TimeToken Default => Now;
+
+        public static TimeToken Now
+            => new TimeToken(DateTime.Now.TimeOfDay, "time", SourcePosition.None, Configuration.Default);
+        public static TimeToken One
+            => new TimeToken(TimeSpan.FromSeconds(1), null, SourcePosition.None, Configuration.Default);
     }
 }
 

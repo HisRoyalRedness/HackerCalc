@@ -24,17 +24,13 @@ namespace HisRoyalRedness.com
     public class UnlimitedIntegerToken : LiteralToken<BigInteger, UnlimitedIntegerToken>
     {
         #region Constructors
-        public UnlimitedIntegerToken(BigInteger typedValue)
-            : this(typedValue, typedValue < 0, null, SourcePosition.None)
-        { }
-
         private UnlimitedIntegerToken(BigInteger typedValue, bool isNeg, string rawToken, SourcePosition position)
             : base(LiteralTokenType.UnlimitedInteger, (isNeg ? typedValue * -1 : typedValue), rawToken, position)
         { }
         #endregion Constructors
 
         #region Parsing
-        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg, SourcePosition position)
+        public static UnlimitedIntegerToken Parse(string value, IntegerBase numBase, bool isNeg, SourcePosition position, IConfiguration configuration)
         {
             BigInteger val;
             switch (numBase)
@@ -73,6 +69,11 @@ namespace HisRoyalRedness.com
         #region ToString
         public override string ToString() => TypedValue.ToString();
         #endregion ToString 
+
+        public static UnlimitedIntegerToken Default
+            => new UnlimitedIntegerToken(0, false, null, SourcePosition.None);
+        public static UnlimitedIntegerToken One
+            => new UnlimitedIntegerToken(1, false, null, SourcePosition.None);
     }
 }
 

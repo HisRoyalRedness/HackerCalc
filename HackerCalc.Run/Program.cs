@@ -14,19 +14,24 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
+            var config = new Configuration()
+            {
+                AllowMultidayTimes = true
+            };
+
             if (args.Length > 0)
             {
                 switch (args[0].ToLower())
                 {
                     case "i":
-                        Interative();
+                        Interative(config);
                         break;
 
                     case "d":
                         if (args.Length > 1)
-                            Debug(args[1]);
+                            Debug(args[1], config);
                         else
-                            Debug("time");
+                            Debug("1.12:34:56", config);
                         break;
 
                     case "cast":
@@ -54,22 +59,22 @@ namespace HisRoyalRedness.com
                 ShowUsage();
         }
 
-        static void Interative()
+        static void Interative(IConfiguration config)
         {
             Console.WriteLine("Enter an expression, or an empty line to quit");
             string input = null;
             while (!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
-                Console.WriteLine($" = {_evaluator.Value.Evaluate(Parser.ParseExpression(input))}");
+                Console.WriteLine($" = {_evaluator.Value.Evaluate(Parser.ParseExpression(input, config))}");
         }
 
-        static void Debug(string input)
+        static void Debug(string input, IConfiguration config)
         {
             Console.WriteLine($"                1         2         3         4         5         6         7         8         9         ");
             Console.WriteLine($"       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             Console.WriteLine($"Input: {input}");
 
             var scannedTokens = new List<Token>();
-            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input, scannedTokens), "PARSE");
+            var rootToken = DoWithCatch<IToken>(() => Parser.ParseExpression(input, scannedTokens, config), "PARSE");
             Console.WriteLine();
 
             Console.WriteLine("Expression");

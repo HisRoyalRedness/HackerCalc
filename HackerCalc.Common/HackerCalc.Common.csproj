@@ -47,6 +47,7 @@
     <Compile Include="Calc engine\DataTypePair.cs" />
     <Compile Include="Calc engine\ICalcSettings.cs" />
     <Compile Include="Calc engine\ICalcState.cs" />
+    <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Visitors\IEvaluator.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Constants.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Tokens\OperatorToken.cs" />
     <Compile Include="Tokens\TokenBase.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

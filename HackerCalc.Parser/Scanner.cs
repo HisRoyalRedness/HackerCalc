@@ -52,8 +52,10 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public Scanner(Stream s)
+        public Scanner(Stream s, IConfiguration configuration)
         {
+
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             buffer = new Buffer(s, true);
             Init();
         }
@@ -121,6 +123,7 @@ namespace HisRoyalRedness.com
         public void ResetPeek() { pt = tokenChain; }
 
         public Action<Token> ScannedTokens { get; set; }
+        public IConfiguration Configuration { get; }
 
         #region IDisposable
         private bool _disposed = false;
