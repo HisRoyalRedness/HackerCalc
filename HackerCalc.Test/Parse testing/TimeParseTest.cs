@@ -50,6 +50,28 @@ namespace HisRoyalRedness.com
             var tToken = Parser.ParseExpression("time") as TimeToken ?? throw new ParseException("Couldn't parse TIME");
             (DateTime.Now.TimeOfDay - tToken.TypedValue).Should().BeCloseTo(TimeSpan.Zero, 20);
         }
+
+        [TestMethod]
+        public void DaysAreExcludedByDefault()
+        {
+            new Action(() => Parser.ParseExpression("1.10:34:45")).Should().Throw<ParseException>();
+        }
+
+        [TestMethod]
+        public void DaysCanBeIncludedWithConfiguration()
+        {
+            var config = new Configuration()
+            {
+                AllowMultidayTimes = true
+            };
+
+            var token = Parser.ParseExpression("1.10:34:45", config) as TimeToken;
+            token.Should().NotBeNull();
+            token.TypedValue.Days.Should().Be(1);
+
+            config.AllowMultidayTimes = false;
+            new Action(() => Parser.ParseExpression("1.10:34:45", config)).Should().Throw<ParseException>();
+        }
     }
 }
 

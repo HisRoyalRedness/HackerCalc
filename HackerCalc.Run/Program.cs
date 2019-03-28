@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1], config);
                         else
-                            Debug("1.12:34:56", config);
+                            Debug("1.11:22:33.444", config);
                         break;
 
                     case "cast":

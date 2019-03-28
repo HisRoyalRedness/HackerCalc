@@ -41,6 +41,8 @@ Literals
      * Support time formats 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.fff'
      * e.g. ``11:48``, or ``11:48:56``, or ``11:48:56.8``
      * **``TIME``** returns the current time
+     * **Times** can be configured to allow days, in the format 'd.HH:mm', 'd.HH:mm:ss' or 'd.HH:mm:ss.fff'
+     * <mark>Negative times?</mark>
  * **Timespans**
    * A period of time
      * Supports these time units: days, hours, minutes, seconds and milliseconds
