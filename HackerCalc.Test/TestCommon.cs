@@ -296,12 +296,12 @@ namespace HisRoyalRedness.com
         }
         #endregion MakeDataType
 
-        public static IDataType<DataType> Evaluate(this string input)
-            => (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input));
+        public static IDataType<DataType> Evaluate(this string input, IConfiguration configuration = null)
+            => (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input, configuration));
 
-        public static IDataType<TDataEnum> Evaluate<TDataEnum>(this string input, ICalcEngine<TDataEnum> calcEngine)
+        public static IDataType<TDataEnum> Evaluate<TDataEnum>(this string input, ICalcEngine<TDataEnum> calcEngine, IConfiguration configuration = null)
             where TDataEnum : Enum
-            => (IDataType<TDataEnum>)new Evaluator<TDataEnum>(calcEngine).Evaluate(Parser.ParseExpression(input));
+            => (IDataType<TDataEnum>)new Evaluator<TDataEnum>(calcEngine).Evaluate(Parser.ParseExpression(input, configuration));
 
         public static void CompareParseTree(string input, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
         {
@@ -359,10 +359,16 @@ namespace HisRoyalRedness.com
             }
         }
 
-        public static void EvaluateActualAndExpected(string actualStr, string expectedStr, string expectedTypeStr = null)
+        public static void EvaluateActualAndExpected(string actualStr, string expectedStr, string expectedTypeStr = null, IConfiguration configuration = null)
         {
-            var actual = actualStr.Evaluate();
-            var expected = expectedStr.Evaluate();
+            if (string.IsNullOrEmpty(expectedStr))
+            {
+                new Action(() => actualStr.Evaluate(configuration ?? Configuration.Default)).Should().Throw<InvalidCalcOperationException>();
+                return;
+            }
+
+            var actual = actualStr.Evaluate(configuration ?? Configuration.Default);
+            var expected = expectedStr.Evaluate(configuration ?? Configuration.Default);
 
             // Fluent assertions don't print the message correctly
             //Assert.IsNotNull(actual, $"{nameof(actualStr)} should evaluate to a valid {nameof(IDataType)}.");
@@ -395,6 +401,7 @@ namespace HisRoyalRedness.com
         public const string FUNCTION_TOKEN_PARSE = "Function token parse";
 
         public const string ADD_OPERATION = "Addition";
+        public const string SUBTRACT_OPERATION = "Subtraction";
         #endregion Test trait descriptions
 
         public static IReadOnlyList<IntegerBitWidth> IntegerBitWidths { get; }

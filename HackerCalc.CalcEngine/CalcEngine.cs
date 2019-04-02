@@ -42,6 +42,9 @@ namespace HisRoyalRedness.com
 
         public IDataType<DataType> Calculate(OperatorType opType, params IDataType<DataType>[] operands)
         {
+            if (operands.Length == 0)
+                    throw new InvalidCalcOperationException($"No operands were provided.");
+
             // Unary
             if (operands.Length == 1)
             {
@@ -54,7 +57,7 @@ namespace HisRoyalRedness.com
             {
                 if(!opType.IsBinaryOperator())
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a binary operator, and two operands were provided.");
-                
+
                 Func<DataTypeValuePair<DataType>, IDataType<DataType>> opFunc = null;
                 string errorMsg;
                 switch (opType)
@@ -89,7 +92,15 @@ namespace HisRoyalRedness.com
                 var currentDataTypePair = GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
                     currentValuePair = GetDataTypeValuePair(operands[0].CastTo(targetDataTypePair.Left), operands[1].CastTo(targetDataTypePair.Right));
-                return opFunc(currentValuePair);
+                var opResult = opFunc(currentValuePair);
+                if (opResult == null)
+                    throw new InvalidCalcOperationException(
+                        string.Format(errorMsg,
+                            currentValuePair.Left.DataType,
+                            currentValuePair.Left.ObjectValue,
+                            currentValuePair.Right.DataType,
+                            currentValuePair.Right.ObjectValue));
+                return opResult;
             }
             else
                 throw new InvalidCalcOperationException("Only unary and binary operations are supported");
@@ -105,12 +116,14 @@ namespace HisRoyalRedness.com
         #region Add
         static IDataType<DataType> Add(DataTypeValuePair<DataType> pair)
         {
-            //Add (+)             LimitedInteger      LimitedInteger
-            //                    Date                Timespan
-            //                    Timespan            Date, Time, Timespan
-            //                    Float               Float
-            //                    Time                Timespan
-            //                    UnlimitedInteger    UnlimitedInteger
+            /*
+            Add (+)             LimitedInteger      LimitedInteger
+                                UnlimitedInteger    UnlimitedInteger
+                                Float               Float
+                                Date                Timespan
+                                Time                Timespan
+                                Timespan            Date, Time, Timespan
+            */
 
             switch (pair.Left.DataType)
             {
@@ -118,13 +131,17 @@ namespace HisRoyalRedness.com
                     if (pair.Right.DataType == DataType.LimitedInteger)
                         return ((LimitedIntegerType)pair.Left) + ((LimitedIntegerType)pair.Right);
                     break;
-                case DataType.Date:
-                    if (pair.Right.DataType == DataType.Timespan)
-                        return new DateType(((DateType)pair.Left).Value + ((TimespanType)pair.Right).Value);
+                case DataType.UnlimitedInteger:
+                    if (pair.Right.DataType == DataType.UnlimitedInteger)
+                        return ((UnlimitedIntegerType)pair.Left) + ((UnlimitedIntegerType)pair.Right);
                     break;
                 case DataType.Float:
                     if (pair.Right.DataType == DataType.Float)
                         return ((FloatType)pair.Left) + ((FloatType)pair.Right);
+                    break;
+                case DataType.Date:
+                    if (pair.Right.DataType == DataType.Timespan)
+                        return new DateType(((DateType)pair.Left).Value + ((TimespanType)pair.Right).Value);
                     break;
                 case DataType.Time:
                     if (pair.Right.DataType == DataType.Timespan)
@@ -141,26 +158,24 @@ namespace HisRoyalRedness.com
                             return ((TimespanType)pair.Left) + ((TimespanType)pair.Right);
                     }
                     break;
-                case DataType.UnlimitedInteger:
-                    if (pair.Right.DataType == DataType.UnlimitedInteger)
-                        return ((UnlimitedIntegerType)pair.Left) + ((UnlimitedIntegerType)pair.Right);
-                    break;
                 default:
                     throw new InvalidCalcOperationException($"Unhandled data type {pair.Left.DataType}");
             }
-            throw new InvalidCalcOperationException($"Unhandled data type {pair.Right.DataType}");
+            return null;
         }
         #endregion Add
 
         #region Subtract
         static IDataType<DataType> Subtract(DataTypeValuePair<DataType> pair)
         {
-            //Subtract (-)        LimitedInteger      LimitedInteger
-            //                    UnlimitedInteger    UnlimitedInteger
-            //                    Float               Float
-            //                    Date                Date, Timespan
-            //                    Time                Timespan
-            //                    Timespan            Timespan
+            /*
+            Subtract (-)        LimitedInteger      LimitedInteger
+                                UnlimitedInteger    UnlimitedInteger
+                                Float               Float
+                                Date                Date, Timespan
+                                Time                Time, Timespan
+                                Timespan            Timespan
+            */
 
             switch (pair.Left.DataType)
             {
@@ -186,8 +201,13 @@ namespace HisRoyalRedness.com
                     }
                     break;
                 case DataType.Time:
-                    if (pair.Right.DataType == DataType.Timespan)
-                        return ((TimeType)pair.Left) - ((TimespanType)pair.Right);
+                    switch(pair.Right.DataType)
+                    {
+                        case DataType.Time:
+                            return ((TimeType)pair.Left) - ((TimeType)pair.Right);
+                        case DataType.Timespan:
+                            return ((TimeType)pair.Left) - ((TimespanType)pair.Right);
+                    }
                     break;
                 case DataType.Timespan:
                     if (pair.Right.DataType == DataType.Timespan)
@@ -196,7 +216,7 @@ namespace HisRoyalRedness.com
                 default:
                     throw new InvalidCalcOperationException($"Unhandled data type {pair.Left.DataType}");
             }
-            throw new InvalidCalcOperationException($"Unhandled data type {pair.Right.DataType}");
+            return null;
         }
         #endregion Subtract
 

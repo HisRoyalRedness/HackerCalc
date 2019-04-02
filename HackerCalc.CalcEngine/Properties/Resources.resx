@@ -122,7 +122,7 @@
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
   <data name="CALCENGINE_SubtractErrorMessage" xml:space="preserve">
-    <value>Can't subtract a {0} ({1}) from a {2} ({3})</value>
+    <value>Can't subtract a {2} ({3}) from a {0} ({1})</value>
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
 </root>

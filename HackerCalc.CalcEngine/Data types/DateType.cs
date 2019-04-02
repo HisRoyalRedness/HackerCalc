@@ -43,6 +43,8 @@ namespace HisRoyalRedness.com
         public static DateType operator +(DateType a, TimespanType b)
             => new DateType(a.Value + b.Value);
         public static DateType operator +(TimespanType a, DateType b) => b + a;
+        public static DateType operator -(DateType a, TimeType b)
+            => new DateType(a.Value - b.Value);
         public static DateType operator -(DateType a, TimespanType b)
             => new DateType(a.Value - b.Value);
 

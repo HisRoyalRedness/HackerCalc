@@ -70,7 +70,7 @@ namespace HisRoyalRedness.com.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t subtract a {0} ({1}) from a {2} ({3}).
+        ///   Looks up a localized string similar to Can&apos;t subtract a {2} ({3}) from a {0} ({1}).
         /// </summary>
         internal static string CALCENGINE_SubtractErrorMessage {
             get {

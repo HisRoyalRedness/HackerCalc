@@ -62,6 +62,8 @@ namespace HisRoyalRedness.com
         public static TimeType operator +(TimespanType a, TimeType b) => b + a;
         public static TimeType operator -(TimeType a, TimespanType b)
             => new TimeType(a.Value - b.Value);
+        public static TimespanType operator -(TimeType a, TimeType b)
+            => new TimespanType(a.Value - b.Value);
         #endregion Operator overloads
     }
 }

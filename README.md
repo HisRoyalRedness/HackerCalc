@@ -69,18 +69,8 @@ Listed in order of precedence
 Todo
 ----
 
-* Parsing
-  * ~~Get basic literal types parsed~~
-    * ~~LimitedInteger~~
-    * ~~UnlimitedInteger~~
-    * ~~Float~~
-    * ~~Date~~
-    * ~~Time~~
-    * ~~Timespan~~
-  * ~~Handle basic operators~~
-  * ~~Support for functions~~
-  * ~~Make sure all failed parsing raises a ParseException (rather than some other exception)~~
-  * Perhaps support timezone offsets on date/times??
+* ~~Parsing~~
+  * <mark>Perhaps support timezone offsets on date/times??</mark>
 * Calculation
   * Get the calculation engine design sorted
   * ~~Implement all data types~~
@@ -101,6 +91,21 @@ Todo
    * ~~TimeType~~
    * ~~TimespanType~~
   * Implement CalcEngine operations
+   * **Add** ~~implemented and tested~~
+   * **Subtract** ~~implemented and tested~~
+   * **Multiply**
+   * **Divide**
+   * **Power**
+   * **Root**
+   * **Modulo**
+   * **LeftShift**
+   * **RightShift**
+   * **And**
+   * **Or**
+   * **Xor**
+   * **BitwiseNegate**
+   * **NumericNegate**
+   * **Not**
   * Implement IComparable and IEquatable on data types, with testing
   * ~~Implement casting to/from data types~~
    * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
@@ -110,7 +115,6 @@ Todo
 * Find a more accurate way to do power and root
 * Remember left shift and right shift on integers is limited by number of bits. Negative shifts aren't intuitive. Maybe block negative shifts? Shifts on BigIntegers are limited to 16 bits
 * Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
-* Complete the operator unit tests. Just started with Add...
 
 License
 -------
