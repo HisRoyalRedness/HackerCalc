@@ -70,23 +70,106 @@ namespace HisRoyalRedness.com
         public int CompareTo(IDataType<DataType> other) => InternalCompareTo(other);
         #endregion ICompare
 
+        #region Operate
+        // Called by CalcEngine.Calculate()
+        internal static IDataType<DataType> Operate(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            if (opType.IsUnaryOperator())
+            {
+                if (operands.Length != 1)
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is a unary operator, but {operands.Length + 1} operands were provided.");
+                return ((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+            }
+            if (opType.IsBinaryOperator())
+            {
+                if (operands.Length != 2)
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is a binary operator, but {operands.Length + 1} operands were provided.");
+                return ((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+            }
+            throw new InvalidCalcOperationException("Only unary and binary operations are supported");
+        }
+
+        // Only the operator overloads should call this, and the overloads should only really be used
+        // by unit testing. This basically duplicates the code in CalcEngine.Calculate()
+        static InternalDataTypeBase StaticOperateInternal(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            if (operands.Length == 0)
+                throw new InvalidCalcOperationException($"No operands were provided.");
+
+            // Unary
+            if (operands.Length == 1)
+            {
+                if (!opType.IsUnaryOperator())
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a unary operator, and a single operand was provided.");
+                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+            }
+            // Binary
+            else if (operands.Length == 2)
+            {
+                if (!opType.IsBinaryOperator())
+                    throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a binary operator, and two operands were provided.");
+
+                string errorMsg;
+                switch (opType)
+                {
+                    case OperatorType.Add: errorMsg = Properties.Resources.CALCENGINE_AddErrorMessage; break;
+                    case OperatorType.Subtract: errorMsg = Properties.Resources.CALCENGINE_SubtractErrorMessage; break;
+                    case OperatorType.Multiply:
+                    case OperatorType.Divide:
+                    case OperatorType.Power:
+                    case OperatorType.Root:
+                    case OperatorType.Modulo:
+                    case OperatorType.LeftShift:
+                    case OperatorType.RightShift:
+                    case OperatorType.And:
+                    case OperatorType.Or:
+                    case OperatorType.Xor:
+                        throw new NotImplementedException();
+                    default:
+                        throw new InvalidCalcOperationException($"Unsupported binary operator '{opType.GetEnumDescription()}'.");
+                }
+
+                // Make sure the operation is supported for the provided types
+                var currentValuePair = CalcEngine.GetDataTypeValuePair(operands[0], operands[1]);
+                var targetDataTypePair = DataMapper.GetOperandDataTypes(opType, currentValuePair);
+                if (!targetDataTypePair.OperationSupported)
+                    throw new InvalidCalcOperationException(
+                        string.Format(errorMsg,
+                            currentValuePair.Left.DataType,
+                            currentValuePair.Left.ObjectValue,
+                            currentValuePair.Right.DataType,
+                            currentValuePair.Right.ObjectValue));
+
+                // If it is supported, possibly cast the operands into something more useful
+                var currentDataTypePair = CalcEngine.GetDataTypePair(operands[0], operands[1]);
+                if (currentDataTypePair != targetDataTypePair)
+                    operands = new IDataType<DataType>[] { operands[0].CastTo(targetDataTypePair.Left), operands[1].CastTo(targetDataTypePair.Right) };
+
+                // Attempt to perform the operation
+                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands)
+                    ?? throw new InvalidCalcOperationException(
+                        string.Format(errorMsg,
+                            currentValuePair.Left.DataType,
+                            currentValuePair.Left.ObjectValue,
+                            currentValuePair.Right.DataType,
+                            currentValuePair.Right.ObjectValue));
+            }
+            else
+                throw new InvalidCalcOperationException("Only unary and binary operations are supported");
+        }
+
+        protected abstract IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands);
+        #endregion Operate
+
         #region Operator overloads
-        public static InternalDataTypeBase operator +(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Add, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator -(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Subtract, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator *(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Multiply, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator /(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Divide, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator %(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator &(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator |(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
-        public static InternalDataTypeBase operator ^(InternalDataTypeBase a, InternalDataTypeBase b)
-            => CalcEngine.Instance.Calculate(OperatorType.Modulo, a, b) as InternalDataTypeBase;
+        public static InternalDataTypeBase operator +(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Add, a, b);
+        public static InternalDataTypeBase operator -(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Subtract, a, b);
+        public static InternalDataTypeBase operator *(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Multiply, a, b);
+        public static InternalDataTypeBase operator /(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Divide, a, b);
+        public static InternalDataTypeBase operator %(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Modulo, a, b);
+        public static InternalDataTypeBase operator &(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.And, a, b);
+        public static InternalDataTypeBase operator |(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Or, a, b);
+        public static InternalDataTypeBase operator ^(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Xor, a, b);
         #endregion Operator overloads
     }
     #endregion InternalDataTypeBase
@@ -104,6 +187,7 @@ namespace HisRoyalRedness.com
 
         public TBaseType Value { get; private set; }
         public override object ObjectValue => Value;
+
 
         #region Type casting
         public override TNewType CastTo<TNewType>()
@@ -140,6 +224,19 @@ namespace HisRoyalRedness.com
         public static bool operator !=(DataTypeBase<TBaseType, TConcreteDataType> a, IDataType b) => !(a == b);
         public override int GetHashCode() => InternalGetHashCode();
         #endregion Equality
+
+        /// <summary>
+        /// Validation for the concrete data type from the static Operate method, just in case
+        /// they've added some operate overrides that aren't implemented correctly
+        /// </summary>
+        protected static void OperateValidate(OperatorType opType, DataType dataType, params IDataType<DataType>[] operands)
+        {
+            if ((operands?.Length ?? 0) == 0)
+                throw new InvalidCalcOperationException("No operands were provided.");
+            if (operands[0].DataType != dataType)
+                throw new InvalidCalcOperationException(
+                    $"Invalid first operand type for {typeof(TBaseType).Name}, attempting a {opType} operation on ({string.Join(", ", operands.Select(o => o.DataType.ToString()))})");
+        }
 
         public override string ToString() => ToString(Verbosity.ValueOnly);
         public override string ToString(Verbosity verbosity)

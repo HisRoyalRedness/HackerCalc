@@ -60,34 +60,25 @@ namespace HisRoyalRedness.com
         }
         #endregion Type casting
 
-        #region Operator overloads
-        public static UnlimitedIntegerType operator +(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value + b.Value);
-        public static UnlimitedIntegerType operator -(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value - b.Value);
-        public static UnlimitedIntegerType operator *(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value * b.Value);
-        public static UnlimitedIntegerType operator /(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value / b.Value);
-        public static UnlimitedIntegerType operator %(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value % b.Value);
-        public static UnlimitedIntegerType operator &(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value & b.Value);
-        public static UnlimitedIntegerType operator |(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value | b.Value);
-        public static UnlimitedIntegerType operator ^(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(a.Value ^ b.Value);
-        public static UnlimitedIntegerType operator <<(UnlimitedIntegerType a, int b)
-            => new UnlimitedIntegerType(a.Value << b);
-        public static UnlimitedIntegerType operator >>(UnlimitedIntegerType a, int b)
-            => new UnlimitedIntegerType(a.Value >> b);
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
 
-        // Unary
-        public static UnlimitedIntegerType operator ~(UnlimitedIntegerType a)
-            => new UnlimitedIntegerType(~a.Value);
-        public static UnlimitedIntegerType operator -(UnlimitedIntegerType a)
-            => new UnlimitedIntegerType(-a.Value);
-        #endregion Operator overloads
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.UnlimitedInteger, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.UnlimitedInteger:
+                            return new UnlimitedIntegerType(((UnlimitedIntegerType)operands[0]).Value + ((UnlimitedIntegerType)operands[1]).Value);
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
 
         #region Operator implementations
         public static UnlimitedIntegerType pow(UnlimitedIntegerType a, UnlimitedIntegerType b)

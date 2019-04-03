@@ -56,14 +56,24 @@ namespace HisRoyalRedness.com
         }
         #endregion Type casting
 
-        #region Operator overloads
-        public static TimeType operator +(TimeType a, TimespanType b)
-            => new TimeType(a.Value + b.Value);
-        public static TimeType operator +(TimespanType a, TimeType b) => b + a;
-        public static TimeType operator -(TimeType a, TimespanType b)
-            => new TimeType(a.Value - b.Value);
-        public static TimespanType operator -(TimeType a, TimeType b)
-            => new TimespanType(a.Value - b.Value);
-        #endregion Operator overloads
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
+
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.Time, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Timespan:
+                            return new TimeType(((TimeType)operands[0]).Value + ((TimespanType)operands[1]).Value);
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
     }
 }

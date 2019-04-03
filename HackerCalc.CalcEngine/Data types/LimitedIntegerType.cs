@@ -14,7 +14,6 @@ namespace HisRoyalRedness.com
         {
             SignAndBitWidth = signAndBitwidth;
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
-
         }
 
         static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth)
@@ -150,34 +149,27 @@ namespace HisRoyalRedness.com
             return new BitWidthAndSignPair(a.BitWidth, false);
         }
 
-        #region Operator overloads
-        public static LimitedIntegerType operator +(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value + b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator -(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value - b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator *(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value * b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator /(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value / b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator %(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value % b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator &(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value & b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator |(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value | b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator ^(LimitedIntegerType a, LimitedIntegerType b)
-            => new LimitedIntegerType(a.Value ^ b.Value, GetCommonBitWidthAndSign(a, b));
-        public static LimitedIntegerType operator <<(LimitedIntegerType a, int b)
-            => new LimitedIntegerType(a.Value << b, a.SignAndBitWidth);
-        public static LimitedIntegerType operator >>(LimitedIntegerType a, int b)
-            => new LimitedIntegerType(a.Value >> b, a.SignAndBitWidth);
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
 
-        // Unary
-        public static LimitedIntegerType operator ~(LimitedIntegerType a)
-            => new LimitedIntegerType(~a.Value, a.SignAndBitWidth);
-        public static LimitedIntegerType operator -(LimitedIntegerType a)
-            => new LimitedIntegerType(-a.Value, a.SignAndBitWidth);
-        #endregion Operator overloads
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.LimitedInteger, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new LimitedIntegerType(
+                                ((LimitedIntegerType)operands[0]).Value + ((LimitedIntegerType)operands[1]).Value,
+                                GetCommonBitWidthAndSign((LimitedIntegerType)operands[0], (LimitedIntegerType)operands[1]));
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
 
         public override string ToString(Verbosity verbosity)
         {

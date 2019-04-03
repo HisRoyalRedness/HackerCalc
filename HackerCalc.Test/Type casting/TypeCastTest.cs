@@ -73,7 +73,7 @@ namespace HisRoyalRedness.com
             var intB = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, b);
             var intExp = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, expected);
 
-            var actual = intA + intB;
+            var actual = (LimitedIntegerType)(intA + intB);
             actual.Value.Should().Be(intExp.Value);
             actual.SignAndBitWidth.Should().Be(intExp.SignAndBitWidth);
         }

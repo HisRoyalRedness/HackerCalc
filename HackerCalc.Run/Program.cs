@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1], config);
                         else
-                            Debug("2019-01-23 12:34:56 - 12:34:56", config);
+                            Debug("1hr + 2019-01-23 12:34:56", config);
                         break;
 
                     case "cast":

@@ -39,17 +39,24 @@ namespace HisRoyalRedness.com
         protected override TNewType InternalCastTo<TNewType>() => null;
         #endregion Type casting
 
-        #region Operator overloads
-        public static DateType operator +(DateType a, TimespanType b)
-            => new DateType(a.Value + b.Value);
-        public static DateType operator +(TimespanType a, DateType b) => b + a;
-        public static DateType operator -(DateType a, TimeType b)
-            => new DateType(a.Value - b.Value);
-        public static DateType operator -(DateType a, TimespanType b)
-            => new DateType(a.Value - b.Value);
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
 
-        public static TimespanType operator -(DateType a, DateType b)
-            => new TimespanType(a.Value - b.Value);
-        #endregion Operator overloads
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.Date, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch(operands[1].DataType)
+                    {
+                        case DataType.Timespan:
+                            return new DateType(((DateType)operands[0]).Value + ((TimespanType)operands[1]).Value);
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
     }
 }

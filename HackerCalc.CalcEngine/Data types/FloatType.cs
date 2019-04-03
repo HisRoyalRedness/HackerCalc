@@ -58,25 +58,25 @@ namespace HisRoyalRedness.com
         }
         #endregion Type casting
 
-        #region Operator overloads
-        public static FloatType operator +(FloatType a, FloatType b)
-            => new FloatType(a.Value + b.Value);
-        public static FloatType operator -(FloatType a, FloatType b)
-            => new FloatType(a.Value - b.Value);
-        public static FloatType operator *(FloatType a, FloatType b)
-            => new FloatType(a.Value * b.Value);
-        public static FloatType operator /(FloatType a, FloatType b)
-            => new FloatType(a.Value / b.Value);
-        public static FloatType operator %(FloatType a, FloatType b)
-            => new FloatType(a.Value % b.Value);
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
 
-        public static FloatType operator %(TimespanType a, FloatType b)
-            => new FloatType(a.Value.TotalSeconds % b.Value);
-
-        // Unary
-        public static FloatType operator -(FloatType a)
-            => new FloatType(-a.Value);
-        #endregion Operator overloads
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.Float, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Float:
+                            return new FloatType(((FloatType)operands[0]).Value + ((FloatType)operands[1]).Value);
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
 
         #region Operator implementations
         public static FloatType pow(FloatType a, FloatType b)

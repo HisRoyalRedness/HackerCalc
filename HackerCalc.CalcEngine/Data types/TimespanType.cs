@@ -48,25 +48,28 @@ namespace HisRoyalRedness.com
         protected override TNewType InternalCastTo<TNewType>() => null;
         #endregion Type casting
 
-        #region Operator overloads
-        public static TimespanType operator +(TimespanType a, TimespanType b)
-            => new TimespanType(a.Value + b.Value);
-        public static TimespanType operator -(TimespanType a, TimespanType b)
-            => new TimespanType(a.Value - b.Value);
-        public static TimespanType operator *(TimespanType a, FloatType b) => b * a;
-        public static TimespanType operator *(FloatType a, TimespanType b)
-            => new TimespanType(TimeSpan.FromSeconds(a.Value * b.Value.TotalSeconds));
-        public static TimespanType operator /(TimespanType a, FloatType b)
-            => new TimespanType(TimeSpan.FromSeconds(a.Value.TotalSeconds / b.Value));
+        #region Operate
+        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
 
-        public static FloatType operator /(TimespanType a, TimespanType b)
-            => new FloatType(a.Value.TotalSeconds / b.Value.TotalSeconds);
-        public static FloatType operator %(TimespanType a, TimespanType b)
-            => new FloatType(a.Value.TotalSeconds % b.Value.TotalSeconds);
-
-        // Unary
-        public static TimespanType operator -(TimespanType a)
-            => new TimespanType(-a.Value);
-        #endregion Operator overloads
+        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        {
+            OperateValidate(opType, DataType.Timespan, operands);
+            switch (opType)
+            {
+                case OperatorType.Add:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Date:
+                            return new DateType(((DateType)operands[1]).Value + ((TimespanType)operands[0]).Value);
+                        case DataType.Time:
+                            return new TimeType(((TimespanType)operands[0]).Value + ((TimeType)operands[1]).Value);
+                        case DataType.Timespan:
+                            return new TimespanType(((TimespanType)operands[0]).Value + ((TimespanType)operands[1]).Value);
+                    }
+                    break;
+            }
+            return null;
+        }
+        #endregion Operate
     }
 }
