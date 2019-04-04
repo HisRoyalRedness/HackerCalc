@@ -14,7 +14,7 @@ namespace HisRoyalRedness.com
     {
         [TestMethod]
         public void AllSubtractOperandTypesAreSupported()
-            => TestCommon.TestThatAllPossibleOperandTypesAreSupported(_supportedOperatorPairs, (l, r) => l - r, "subtracted");
+            => TestCommon.TestThatAllPossibleOperandTypesAreSupported(_supportedOperatorPairs, (l, r) => (InternalDataTypeBase)TestCommon.Operate(OperatorType.Subtract, l, r), "subtracted");
 
         [DataTestMethod]
         // Limited

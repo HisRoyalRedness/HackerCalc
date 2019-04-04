@@ -337,6 +337,9 @@ namespace HisRoyalRedness.com
             return field.GetValue(instance);
         }
 
+        public static InternalDataTypeBase Operate(OperatorType opType, params IDataType<DataType>[] operands)
+            => (InternalDataTypeBase)CalcEngine.Instance.Calculate(opType, operands);
+
         public static void TestThatAllPossibleOperandTypesAreSupported(Dictionary<DataType, HashSet<DataType>> supportedOperandTypes, Func<InternalDataTypeBase, InternalDataTypeBase, InternalDataTypeBase> operation, string operationDescription)
         {
             var allTypePairs = (new[] { EnumExtensions.GetEnumCollection<DataType>(), EnumExtensions.GetEnumCollection<DataType>() })

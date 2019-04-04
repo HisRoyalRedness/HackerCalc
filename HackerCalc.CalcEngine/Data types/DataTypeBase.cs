@@ -89,9 +89,8 @@ namespace HisRoyalRedness.com
             throw new InvalidCalcOperationException("Only unary and binary operations are supported");
         }
 
-        // Only the operator overloads should call this, and the overloads should only really be used
-        // by unit testing. This basically duplicates the code in CalcEngine.Calculate()
-        static InternalDataTypeBase StaticOperateInternal(OperatorType opType, params IDataType<DataType>[] operands)
+        // Called by uniot tests. Minda mirrors what CalcEngine does
+        static InternalDataTypeBase UnitTestOperate(OperatorType opType, params IDataType<DataType>[] operands)
         {
             if (operands.Length == 0)
                 throw new InvalidCalcOperationException($"No operands were provided.");
@@ -160,17 +159,6 @@ namespace HisRoyalRedness.com
 
         protected abstract IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands);
         #endregion Operate
-
-        #region Operator overloads
-        public static InternalDataTypeBase operator +(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Add, a, b);
-        public static InternalDataTypeBase operator -(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Subtract, a, b);
-        public static InternalDataTypeBase operator *(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Multiply, a, b);
-        public static InternalDataTypeBase operator /(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Divide, a, b);
-        public static InternalDataTypeBase operator %(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Modulo, a, b);
-        public static InternalDataTypeBase operator &(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.And, a, b);
-        public static InternalDataTypeBase operator |(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Or, a, b);
-        public static InternalDataTypeBase operator ^(InternalDataTypeBase a, InternalDataTypeBase b) => StaticOperateInternal(OperatorType.Xor, a, b);
-        #endregion Operator overloads
     }
     #endregion InternalDataTypeBase
 
