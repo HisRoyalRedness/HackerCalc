@@ -33,7 +33,6 @@ namespace HisRoyalRedness.com
 
         public static IToken ParseExpression(string expression, List<Token> scannedTokens, IConfiguration configuration)
         {
-            configuration = configuration ?? HisRoyalRedness.com.Configuration.Default;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms, configuration);
@@ -49,7 +48,6 @@ namespace HisRoyalRedness.com
 
         public static IEnumerable<Token> ScanExpression(string expression, IConfiguration configuration = null)
         {
-            configuration = configuration ?? HisRoyalRedness.com.Configuration.Default;
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
                 var scanner = new Scanner(ms, configuration);
@@ -160,7 +158,7 @@ namespace HisRoyalRedness.com
 
         public IToken RootToken { get; private set; }
 
-        public IConfiguration Configuration { get; } = HisRoyalRedness.com.Configuration.Default;
+        public IConfiguration Configuration { get; }
     }
 
     #region Errors

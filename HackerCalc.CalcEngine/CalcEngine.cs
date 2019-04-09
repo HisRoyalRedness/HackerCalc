@@ -10,37 +10,24 @@ namespace HisRoyalRedness.com
     public class CalcEngine : ICalcEngine<DataType>
     {
         #region Constructor
-        private CalcEngine(CalcSettings settings, CalcState state = null)
+        private CalcEngine()
         {
-            Settings = settings ?? new CalcSettings();
-            State = State ?? new CalcState();
-
-            // For now, I don't anticipate having multiple CalcEngine instances at one time.
-            // If that changes, I'll need to think of some other way to get the settings
-            // passed on to each data type of a given calc instance.
-            DataMapper.Settings = Settings;
-            DataMapper.State = State;
         }
         #endregion Constructors
 
         public static CalcEngine Instance => _instance.Value;
-        static Lazy<CalcEngine> _instance = new Lazy<CalcEngine>(() => new CalcEngine(null));
+        static Lazy<CalcEngine> _instance = new Lazy<CalcEngine>(() => new CalcEngine());
 
         #region ICalcEngine implementation
-        IDataType ICalcEngine.ConvertToDataType(ILiteralToken token)
-            => DataMapper.Map(token);
-        public IDataType<DataType> ConvertToTypedDataType(ILiteralToken token)
-            => DataMapper.Map(token);
-        IDataType ICalcEngine.Calculate(OperatorType opType, params IDataType[] operands)
-            => Calculate(opType, operands.Select(o => (IDataType<DataType>)o).ToArray());
-        ICalcSettings ICalcEngine.Settings => Settings;
-        ICalcState ICalcEngine.State => State;
-
-        public CalcSettings Settings { get; private set; }
-        public CalcState State { get; private set; }
+        IDataType ICalcEngine.ConvertToDataType(ILiteralToken token, IConfiguration configuration)
+            => DataMapper.Map(token, configuration);
+        public IDataType<DataType> ConvertToTypedDataType(ILiteralToken token, IConfiguration configuration)
+            => DataMapper.Map(token, configuration);
+        IDataType ICalcEngine.Calculate(IConfiguration configuration, OperatorType opType, params IDataType[] operands)
+            => Calculate(configuration, opType, operands.Select(o => (IDataType<DataType>)o).ToArray());
         #endregion ICalcEngine implementation
 
-        public IDataType<DataType> Calculate(OperatorType opType, params IDataType<DataType>[] operands)
+        public IDataType<DataType> Calculate(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             if (operands.Length == 0)
                     throw new InvalidCalcOperationException($"No operands were provided.");
@@ -92,10 +79,14 @@ namespace HisRoyalRedness.com
                 // If it is supported, possibly cast the operands into something more useful
                 var currentDataTypePair = GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
-                    operands = new IDataType<DataType>[] { operands[0].CastTo(targetDataTypePair.Left), operands[1].CastTo(targetDataTypePair.Right) };
+                    operands = new IDataType<DataType>[] 
+                    {
+                        operands[0].CastTo(targetDataTypePair.Left, configuration),
+                        operands[1].CastTo(targetDataTypePair.Right, configuration)
+                    };
 
                 // Attempt to perform the operation
-                return InternalDataTypeBase.Operate(opType, operands)
+                return InternalDataTypeBase.Operate(configuration, opType, operands)
                     ?? throw new InvalidCalcOperationException(
                         string.Format(errorMsg,
                             currentValuePair.Left.DataType,

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
-    public interface IEvaluator : ITokenVisitor<IDataType>
+    public interface IEvaluator
     {
-        IDataType Evaluate(IToken token);
+        IDataType Evaluate(IToken token, IConfiguration configuration);
     }
 
-    public interface IEvaluator<TDataTypeEnum> : IEvaluator, ITokenVisitor<IDataType<TDataTypeEnum>>
+    public interface IEvaluator<TDataTypeEnum> : IEvaluator
         where TDataTypeEnum : Enum
     {
     }

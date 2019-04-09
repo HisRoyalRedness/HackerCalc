@@ -26,7 +26,8 @@ namespace HisRoyalRedness.com
         private TimeToken(TimeSpan typedValue, string rawToken, SourcePosition position, IConfiguration configuration)
             : base(LiteralTokenType.Time, typedValue, rawToken, position)
         {
-            if (!configuration.AllowMultidayTimes && (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0))
+            var allowMultiDay = configuration?.AllowMultidayTimes ?? false;
+            if (!allowMultiDay && (typedValue >= TimeSpan.FromDays(1) || typedValue.Ticks < 0))
                 throw new ParseException("Time must be within the range of a single day");
         }
         #endregion Constructors
@@ -34,7 +35,7 @@ namespace HisRoyalRedness.com
         #region Parsing
         public static TimeToken Parse(string value, SourcePosition position, IConfiguration configuration)
             => TimeSpan.TryParse(value, out TimeSpan time)
-            ? new TimeToken(time, value, position, configuration ?? Configuration.Default)
+            ? new TimeToken(time, value, position, configuration)
             : throw new ParseException($"Invalid time format '{value}'");
         #endregion Parsing
 
@@ -61,9 +62,9 @@ namespace HisRoyalRedness.com
         public static TimeToken Default => Now;
 
         public static TimeToken Now
-            => new TimeToken(DateTime.Now.TimeOfDay, "time", SourcePosition.None, Configuration.Default);
+            => new TimeToken(DateTime.Now.TimeOfDay, "time", SourcePosition.None, null);
         public static TimeToken One
-            => new TimeToken(TimeSpan.FromSeconds(1), null, SourcePosition.None, Configuration.Default);
+            => new TimeToken(TimeSpan.FromSeconds(1), null, SourcePosition.None, null);
     }
 }
 

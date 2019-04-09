@@ -34,11 +34,11 @@ namespace HisRoyalRedness.com
         [DataRow("340282366920938463463374607431768211456")]
         [DataRow("-170141183460469231731687303715884105729")]
         public void OutOfRangeLimitedIntegers(string value)
-            => new Action(() => LimitedIntegerType.CreateLimitedIntegerType(BigInteger.Parse(value))).Should().Throw<TypeConversionException>();
+            => new Action(() => LimitedIntegerType.CreateLimitedIntegerType(BigInteger.Parse(value), null)).Should().Throw<TypeConversionException>();
 
         static void TestLimitedIntegerRange(BigInteger value, BitWidthAndSignPair signAndBitwidth)
         {
-            var ltdInt = LimitedIntegerType.CreateLimitedIntegerType(value);
+            var ltdInt = LimitedIntegerType.CreateLimitedIntegerType(value, null);
             ltdInt.Value.Should().Be(value);
             ltdInt.IsSigned.Should().Be(signAndBitwidth.IsSigned);
             ltdInt.BitWidth.Should().Be(signAndBitwidth.BitWidth);

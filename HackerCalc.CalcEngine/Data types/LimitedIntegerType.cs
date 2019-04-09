@@ -9,23 +9,25 @@ namespace HisRoyalRedness.com
 {
     public class LimitedIntegerType : DataTypeBase<BigInteger, LimitedIntegerType>
     {
-        public LimitedIntegerType(BigInteger value, BitWidthAndSignPair signAndBitwidth)
-            : base(Normalise(value, signAndBitwidth), DataType.LimitedInteger)
+        public LimitedIntegerType(BigInteger value, BitWidthAndSignPair signAndBitwidth, IConfiguration configuration)
+            : base(Normalise(value, signAndBitwidth, configuration), DataType.LimitedInteger)
         {
             SignAndBitWidth = signAndBitwidth;
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
         }
 
-        static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth)
+        static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth, IConfiguration configuration)
         {
             var minAndMax = MinAndMaxMap.Instance[signAndBitwidth];
             var oldValue = value;
             value &= minAndMax.Mask;
 
+            var state = (configuration?.State as CalcState) ?? new CalcState();
+
             if (oldValue != value)
             {
-                if (DataMapper.Settings.AllowOverOrUnderflow)
-                    DataMapper.State.OverOrUnderflowOccurred = true;
+                if (configuration?.AllowOverOrUnderflow ?? true)
+                    state.OverOrUnderflowOccurred = true;
                 else
                     throw new InvalidCalcOperationException("Overflow or underflow of LimitedIntegerTypes is not permitted.");
             }
@@ -38,8 +40,8 @@ namespace HisRoyalRedness.com
 
             if ((oldValue >= 0) != (value >= 0))
             {
-                if (DataMapper.Settings.AllowSignChange)
-                    DataMapper.State.SignChangedOccurred = true;
+                if (configuration?.AllowSignChange ?? true)
+                    state.SignChangedOccurred = true;
                 else
                     throw new InvalidCalcOperationException("Sign change through overflow or underflow of LimitedIntegerTypes is not permitted.");
             }
@@ -47,7 +49,7 @@ namespace HisRoyalRedness.com
             return value;
         }
 
-        public static LimitedIntegerType CreateLimitedIntegerType(BigInteger value)
+        public static LimitedIntegerType CreateLimitedIntegerType(BigInteger value, IConfiguration configuration)
         {
             var isSigned = value < 0;
             var bitWidth = EnumExtensions
@@ -57,7 +59,7 @@ namespace HisRoyalRedness.com
                     : MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].Max >= value);
             if (bitWidth == 0)
                 throw new TypeConversionException($"{value} is out of range of a {nameof(LimitedIntegerType)}.");
-            return new LimitedIntegerType(value, new BitWidthAndSignPair(bitWidth, isSigned));
+            return new LimitedIntegerType(value, new BitWidthAndSignPair(bitWidth, isSigned), configuration);
         }
 
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
@@ -100,7 +102,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region Type casting
-        protected override TNewType InternalCastTo<TNewType>()
+        protected override TNewType InternalCastTo<TNewType>(IConfiguration configuration)
         {
             switch (typeof(TNewType).Name)
             {
@@ -150,9 +152,9 @@ namespace HisRoyalRedness.com
         }
 
         #region Operate
-        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
+        protected override IDataType<DataType> OperateInternal(IConfiguration configuration, OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(configuration, opType, operands);
 
-        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        static IDataType<DataType> OperateStatic(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             OperateValidate(opType, DataType.LimitedInteger, operands);
             switch (opType)
@@ -163,7 +165,8 @@ namespace HisRoyalRedness.com
                         case DataType.LimitedInteger:
                             return new LimitedIntegerType(
                                 ((LimitedIntegerType)operands[0]).Value + ((LimitedIntegerType)operands[1]).Value,
-                                GetCommonBitWidthAndSign((LimitedIntegerType)operands[0], (LimitedIntegerType)operands[1]));
+                                GetCommonBitWidthAndSign((LimitedIntegerType)operands[0], (LimitedIntegerType)operands[1]),
+                                configuration);
                     }
                     break;
             }

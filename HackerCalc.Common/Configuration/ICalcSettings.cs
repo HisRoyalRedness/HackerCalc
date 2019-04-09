@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
-    public interface ICalcSettings
-    {
-    }
+    //public interface ICalcSettings
+    //{
+    //}
 }

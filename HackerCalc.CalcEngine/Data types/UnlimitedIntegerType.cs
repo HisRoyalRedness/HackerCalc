@@ -45,7 +45,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region Type casting
-        protected override TNewType InternalCastTo<TNewType>()
+        protected override TNewType InternalCastTo<TNewType>(IConfiguration configuration)
         {
             switch (typeof(TNewType).Name)
             {
@@ -54,16 +54,16 @@ namespace HisRoyalRedness.com
                 case nameof(FloatType):
                     return new FloatType((double)Value) as TNewType;
                 case nameof(LimitedIntegerType):
-                    return LimitedIntegerType.CreateLimitedIntegerType(Value) as TNewType;
+                    return LimitedIntegerType.CreateLimitedIntegerType(Value, configuration) as TNewType;
             }
             return null;
         }
         #endregion Type casting
 
         #region Operate
-        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
+        protected override IDataType<DataType> OperateInternal(IConfiguration configuration, OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(configuration, opType, operands);
 
-        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        static IDataType<DataType> OperateStatic(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             OperateValidate(opType, DataType.UnlimitedInteger, operands);
             switch (opType)
@@ -84,7 +84,7 @@ namespace HisRoyalRedness.com
         public static UnlimitedIntegerType pow(UnlimitedIntegerType a, UnlimitedIntegerType b)
             => new UnlimitedIntegerType(BigInteger.Pow(a.Value, (int)b.Value));
         public static FloatType root(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => root(a, b.CastTo<FloatType>());
+            => root(a, b.CastTo<FloatType>(null));
 
         public static FloatType pow(UnlimitedIntegerType a, FloatType b)
             => new FloatType(Math.Pow((double)a.Value, b.Value));

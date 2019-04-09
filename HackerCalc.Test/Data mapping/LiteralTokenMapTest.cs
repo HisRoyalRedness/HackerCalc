@@ -46,7 +46,7 @@ namespace HisRoyalRedness.com
             where TDataType : class, IDataType<DataType>
         {
             ILiteralToken literalToken = TestCommon.MakeLiteralToken(tokenType);
-            var dataType = ((ICalcEngine)CalcEngine.Instance).ConvertToDataType(literalToken);
+            var dataType = ((ICalcEngine)CalcEngine.Instance).ConvertToDataType(literalToken, null);
 
             dataType.Should().NotBeNull();
             dataType.Should().BeOfType<TDataType>();

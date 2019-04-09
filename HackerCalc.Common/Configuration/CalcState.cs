@@ -7,7 +7,14 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
-    public class CalcState : NotifyBase, ICalcState
+    public interface ICalcState
+    {
+        bool OverOrUnderflowOccurred { get; }
+        bool SignChangedOccurred { get; }
+        void Reset();
+    }
+
+    public class CalcState : ICalcState
     {
         public void Reset()
         {
@@ -15,19 +22,8 @@ namespace HisRoyalRedness.com
             SignChangedOccurred = false;
         }
 
-        public bool OverOrUnderflowOccurred
-        {
-            get => _overOrUnderflowOccurred;
-            set => SetProperty(ref _overOrUnderflowOccurred, value);
-        }
-        bool _overOrUnderflowOccurred = false;
-
-        public bool SignChangedOccurred
-        {
-            get => _signChangeOccurred;
-            set => SetProperty(ref _signChangeOccurred, value);
-        }
-        bool _signChangeOccurred = false;
+        public bool OverOrUnderflowOccurred { get; set; } = false;
+        public bool SignChangedOccurred { get; set; } = false;
 
         public override string ToString()
         {

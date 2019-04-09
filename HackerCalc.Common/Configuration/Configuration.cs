@@ -10,18 +10,19 @@ namespace HisRoyalRedness.com
     {
         bool AllowMultidayTimes { get; }
         bool IgnoreLimitedIntegerMaxMinRange { get; }
+        bool AllowOverOrUnderflow { get; }
+        bool AllowSignChange { get; }
+
+        ICalcState State { get; }
     }
 
     public class Configuration : IConfiguration
     {
-        public static Configuration Default { get; } = new Configuration()
-        {
-            IgnoreLimitedIntegerMaxMinRange = false,
-            AllowMultidayTimes = false
-        };
+        public bool IgnoreLimitedIntegerMaxMinRange { get; set; } = false;
+        public bool AllowMultidayTimes { get; set; } = false;
+        public bool AllowOverOrUnderflow { get; set; } = true;
+        public bool AllowSignChange { get; set; } = true;
 
-
-        public bool IgnoreLimitedIntegerMaxMinRange { get; set; }
-        public bool AllowMultidayTimes { get; set; }
+        public ICalcState State { get; } = new CalcState();
     }
 }

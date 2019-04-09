@@ -20,8 +20,8 @@ namespace HisRoyalRedness.com
                 var dataValue = TestCommon.MakeDataType(cast.Key);
                 foreach (var val in cast.Value)
                 {
-                    ((Action)(() => dataValue.CastTo(val))).Should().NotThrow($"a cast from {cast.Key} to {val} should be supported");
-                    dataValue.CastTo(val).DataType.Should().Be(val);
+                    ((Action)(() => dataValue.CastTo(val, null))).Should().NotThrow($"a cast from {cast.Key} to {val} should be supported");
+                    dataValue.CastTo(val, null).DataType.Should().Be(val);
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace HisRoyalRedness.com
             var intB = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, b);
             var intExp = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, expected);
 
-            var actual = (LimitedIntegerType)TestCommon.Operate(OperatorType.Add, intA, intB);
+            var actual = (LimitedIntegerType)TestCommon.Operate(null, OperatorType.Add, intA, intB);
             actual.Value.Should().Be(intExp.Value);
             actual.SignAndBitWidth.Should().Be(intExp.SignAndBitWidth);
         }

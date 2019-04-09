@@ -23,9 +23,9 @@ namespace HisRoyalRedness.com
     public interface IDataType<TDataTypeEnum> : IDataType, IComparable<IDataType<TDataTypeEnum>>, IEquatable<IDataType<TDataTypeEnum>>
     {
         TDataTypeEnum DataType { get; }
-        TNewType CastTo<TNewType>()
+        TNewType CastTo<TNewType>(IConfiguration configuration)
             where TNewType : class, IDataType<TDataTypeEnum>;
-        IDataType<TDataTypeEnum> CastTo(TDataTypeEnum dataType);
+        IDataType<TDataTypeEnum> CastTo(TDataTypeEnum dataType, IConfiguration configuration);
     }
 
     public interface IDataTypeTesting

@@ -278,7 +278,7 @@ namespace HisRoyalRedness.com
         #endregion Operator parsing
 
         #region MakeDataType
-        public static IDataType<DataType> MakeDataType(DataType dataType, string tokenString = null)
+        public static IDataType<DataType> MakeDataType(DataType dataType, string tokenString = null, IConfiguration configuration = null)
         {
             ILiteralToken token;
             switch (dataType)
@@ -292,16 +292,22 @@ namespace HisRoyalRedness.com
                 default:
                     throw new TestOperationException($"Unsupported data type '{dataType}'.");
             }
-            return CalcEngine.Instance.ConvertToTypedDataType(token);
+            return CalcEngine.Instance.ConvertToTypedDataType(token, configuration);
         }
         #endregion MakeDataType
 
         public static IDataType<DataType> Evaluate(this string input, IConfiguration configuration = null)
-            => (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input, configuration));
+        {
+            configuration = configuration ?? new Configuration();
+            return (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input, configuration), configuration);
+        }
 
         public static IDataType<TDataEnum> Evaluate<TDataEnum>(this string input, ICalcEngine<TDataEnum> calcEngine, IConfiguration configuration = null)
             where TDataEnum : Enum
-            => (IDataType<TDataEnum>)new Evaluator<TDataEnum>(calcEngine).Evaluate(Parser.ParseExpression(input, configuration));
+        {
+            configuration = configuration ?? new Configuration();
+            return (IDataType<TDataEnum>)new Evaluator<TDataEnum>(calcEngine).Evaluate(Parser.ParseExpression(input, configuration), configuration);
+        }
 
         public static void CompareParseTree(string input, string expectedParseString = null, TokenPrinter.FixType fixType = TokenPrinter.FixType.Postfix)
         {
@@ -338,7 +344,10 @@ namespace HisRoyalRedness.com
         }
 
         public static InternalDataTypeBase Operate(OperatorType opType, params IDataType<DataType>[] operands)
-            => (InternalDataTypeBase)CalcEngine.Instance.Calculate(opType, operands);
+            => Operate(null, opType, operands);
+
+        public static InternalDataTypeBase Operate(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
+            => (InternalDataTypeBase)CalcEngine.Instance.Calculate(configuration, opType, operands);
 
         public static void TestThatAllPossibleOperandTypesAreSupported(Dictionary<DataType, HashSet<DataType>> supportedOperandTypes, Func<InternalDataTypeBase, InternalDataTypeBase, InternalDataTypeBase> operation, string operationDescription)
         {
@@ -366,12 +375,12 @@ namespace HisRoyalRedness.com
         {
             if (string.IsNullOrEmpty(expectedStr))
             {
-                new Action(() => actualStr.Evaluate(configuration ?? Configuration.Default)).Should().Throw<InvalidCalcOperationException>();
+                new Action(() => actualStr.Evaluate(configuration)).Should().Throw<InvalidCalcOperationException>();
                 return;
             }
 
-            var actual = actualStr.Evaluate(configuration ?? Configuration.Default);
-            var expected = expectedStr.Evaluate(configuration ?? Configuration.Default);
+            var actual = actualStr.Evaluate(configuration);
+            var expected = expectedStr.Evaluate(configuration);
 
             // Fluent assertions don't print the message correctly
             //Assert.IsNotNull(actual, $"{nameof(actualStr)} should evaluate to a valid {nameof(IDataType)}.");

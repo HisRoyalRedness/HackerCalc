@@ -55,7 +55,7 @@ namespace HisRoyalRedness.com
         public Scanner(Stream s, IConfiguration configuration)
         {
 
-            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            Configuration = configuration;
             buffer = new Buffer(s, true);
             Init();
         }

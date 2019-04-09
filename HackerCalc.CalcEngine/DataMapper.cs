@@ -30,7 +30,7 @@ namespace HisRoyalRedness.com
         public static Dictionary<OperatorType, Dictionary<DTP, DTP>> OperandTypeCastMap { get; } = new Dictionary<OperatorType, Dictionary<DTP, DTP>>();
 
         #region Map - Convert literal token to data type
-        public static IDataType<DataType> Map(ILiteralToken token)
+        public static IDataType<DataType> Map(ILiteralToken token, IConfiguration configuration)
         {
             switch (token?.LiteralType)
             {
@@ -41,7 +41,7 @@ namespace HisRoyalRedness.com
                 case LiteralTokenType.Float:
                     return ConvertToTypedDataType<double, FloatToken, FloatType>(token, typedToken => new FloatType(typedToken.TypedValue));
                 case LiteralTokenType.LimitedInteger:
-                    return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue, ((LimitedIntegerToken)token).SignAndBitWidth));
+                    return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue, ((LimitedIntegerToken)token).SignAndBitWidth, configuration));
                 case LiteralTokenType.Time:
                     return ConvertToTypedDataType<TimeSpan, TimeToken, TimeType>(token, typedToken => new TimeType(typedToken.TypedValue));
                 case LiteralTokenType.Timespan:
@@ -60,10 +60,6 @@ namespace HisRoyalRedness.com
                 ? createDataTypeFunc(typedToken)
                 : null;
         #endregion Map - Convert literal token to data type
-
-        // Not ideal, but gets the job done for now...
-        public static CalcSettings Settings { get; set; }
-        public static CalcState State { get; set; }
 
         static void BuildOperandTypeCastMap()
         {

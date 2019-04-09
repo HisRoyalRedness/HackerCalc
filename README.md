@@ -115,6 +115,7 @@ Todo
 * Find a more accurate way to do power and root
 * Remember left shift and right shift on integers is limited by number of bits. Negative shifts aren't intuitive. Maybe block negative shifts? Shifts on BigIntegers are limited to 16 bits
 * Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
+* <mark>Add tests for IConfiguration and ICalcState</mark>
 
 License
 -------

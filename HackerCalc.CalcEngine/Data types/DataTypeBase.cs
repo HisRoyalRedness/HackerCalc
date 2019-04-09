@@ -41,10 +41,10 @@ namespace HisRoyalRedness.com
         string IDataTypeTesting.TypeValue => InternalTypeValue;
         #endregion IDataTypeTesting
 
-        public abstract IDataType<DataType> CastTo(DataType dataType);
+        public abstract IDataType<DataType> CastTo(DataType dataType, IConfiguration configuration);
         public abstract string ToString(Verbosity verbosity);
 
-        public abstract TNewType CastTo<TNewType>()
+        public abstract TNewType CastTo<TNewType>(IConfiguration configuration)
             where TNewType : class, IDataType<DataType>;
 
         protected abstract int InternalGetHashCode();
@@ -72,25 +72,25 @@ namespace HisRoyalRedness.com
 
         #region Operate
         // Called by CalcEngine.Calculate()
-        internal static IDataType<DataType> Operate(OperatorType opType, params IDataType<DataType>[] operands)
+        internal static IDataType<DataType> Operate(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             if (opType.IsUnaryOperator())
             {
                 if (operands.Length != 1)
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is a unary operator, but {operands.Length + 1} operands were provided.");
-                return ((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+                return ((InternalDataTypeBase)operands[0]).OperateInternal(configuration, opType, operands);
             }
             if (opType.IsBinaryOperator())
             {
                 if (operands.Length != 2)
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is a binary operator, but {operands.Length + 1} operands were provided.");
-                return ((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+                return ((InternalDataTypeBase)operands[0]).OperateInternal(configuration, opType, operands);
             }
             throw new InvalidCalcOperationException("Only unary and binary operations are supported");
         }
 
         // Called by uniot tests. Minda mirrors what CalcEngine does
-        static InternalDataTypeBase UnitTestOperate(OperatorType opType, params IDataType<DataType>[] operands)
+        static InternalDataTypeBase UnitTestOperate(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             if (operands.Length == 0)
                 throw new InvalidCalcOperationException($"No operands were provided.");
@@ -100,7 +100,7 @@ namespace HisRoyalRedness.com
             {
                 if (!opType.IsUnaryOperator())
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a unary operator, and a single operand was provided.");
-                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands);
+                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(configuration, opType, operands);
             }
             // Binary
             else if (operands.Length == 2)
@@ -142,10 +142,14 @@ namespace HisRoyalRedness.com
                 // If it is supported, possibly cast the operands into something more useful
                 var currentDataTypePair = CalcEngine.GetDataTypePair(operands[0], operands[1]);
                 if (currentDataTypePair != targetDataTypePair)
-                    operands = new IDataType<DataType>[] { operands[0].CastTo(targetDataTypePair.Left), operands[1].CastTo(targetDataTypePair.Right) };
+                    operands = new IDataType<DataType>[] 
+                    {
+                        operands[0].CastTo(targetDataTypePair.Left, configuration),
+                        operands[1].CastTo(targetDataTypePair.Right, configuration)
+                    };
 
                 // Attempt to perform the operation
-                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(opType, operands)
+                return (InternalDataTypeBase)((InternalDataTypeBase)operands[0]).OperateInternal(configuration, opType, operands)
                     ?? throw new InvalidCalcOperationException(
                         string.Format(errorMsg,
                             currentValuePair.Left.DataType,
@@ -157,7 +161,7 @@ namespace HisRoyalRedness.com
                 throw new InvalidCalcOperationException("Only unary and binary operations are supported");
         }
 
-        protected abstract IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands);
+        protected abstract IDataType<DataType> OperateInternal(IConfiguration configuration, OperatorType opType, IDataType<DataType>[] operands);
         #endregion Operate
     }
     #endregion InternalDataTypeBase
@@ -178,30 +182,30 @@ namespace HisRoyalRedness.com
 
 
         #region Type casting
-        public override TNewType CastTo<TNewType>()
+        public override TNewType CastTo<TNewType>(IConfiguration configuration)
         {
             if (typeof(TNewType) == typeof(TConcreteDataType))
                 return this as TNewType;
-            return InternalCastTo<TNewType>()
+            return InternalCastTo<TNewType>(configuration)
             ?? throw new TypeConversionException($"Can't convert an object from type {typeof(TConcreteDataType).Name} to {typeof(TNewType).Name}.");
         }
 
-        public override IDataType<DataType> CastTo(DataType dataType)
+        public override IDataType<DataType> CastTo(DataType dataType, IConfiguration configuration)
         {
             switch(dataType)
             {
-                case DataType.Date: return CastTo<DateType>();
-                case DataType.Float: return CastTo<FloatType>();
-                case DataType.Time: return CastTo<TimeType>();
-                case DataType.Timespan: return CastTo<TimespanType>();
-                case DataType.LimitedInteger: return CastTo<LimitedIntegerType>();
-                case DataType.UnlimitedInteger: return CastTo<UnlimitedIntegerType>();
+                case DataType.Date: return CastTo<DateType>(configuration);
+                case DataType.Float: return CastTo<FloatType>(configuration);
+                case DataType.Time: return CastTo<TimeType>(configuration);
+                case DataType.Timespan: return CastTo<TimespanType>(configuration);
+                case DataType.LimitedInteger: return CastTo<LimitedIntegerType>(configuration);
+                case DataType.UnlimitedInteger: return CastTo<UnlimitedIntegerType>(configuration);
                 default:
                     throw new TypeConversionException($"Unhandled data type {dataType}.");
             }
         }
 
-        protected abstract TNewType InternalCastTo<TNewType>()
+        protected abstract TNewType InternalCastTo<TNewType>(IConfiguration configuration)
             where TNewType : class, IDataType<DataType>;
         #endregion Type casting
 

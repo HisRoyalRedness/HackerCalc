@@ -14,7 +14,7 @@ namespace HisRoyalRedness.com
     {
         [TestMethod]
         public void AllAddOperandTypesAreSupported()
-            => TestCommon.TestThatAllPossibleOperandTypesAreSupported(_supportedOperatorPairs, (l,r) => TestCommon.Operate(OperatorType.Add, l, r), "added");
+            => TestCommon.TestThatAllPossibleOperandTypesAreSupported(_supportedOperatorPairs, (l,r) => TestCommon.Operate(null, OperatorType.Add, l, r), "added");
 
         [DataTestMethod]
         // Limited

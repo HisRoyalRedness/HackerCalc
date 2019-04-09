@@ -44,8 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalcEngine.cs" />
-    <Compile Include="CalcSettings.cs" />
-    <Compile Include="CalcState.cs" />
     <Compile Include="Data types\DataTypeBase.cs" />
     <Compile Include="Data types\DateType.cs" />
     <Compile Include="Data types\FloatType.cs" />

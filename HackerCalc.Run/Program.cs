@@ -14,24 +14,19 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
-            var config = new Configuration()
-            {
-                AllowMultidayTimes = true
-            };
-
             if (args.Length > 0)
             {
                 switch (args[0].ToLower())
                 {
                     case "i":
-                        Interative(config);
+                        Interative(Configuration);
                         break;
 
                     case "d":
                         if (args.Length > 1)
-                            Debug(args[1], config);
+                            Debug(args[1], Configuration);
                         else
-                            Debug("1hr + 2019-01-23 12:34:56", config);
+                            Debug("1hr + 2019-01-23 12:34:56", Configuration);
                         break;
 
                     case "cast":
@@ -61,14 +56,16 @@ namespace HisRoyalRedness.com
 
         static void Interative(IConfiguration config)
         {
+            config = config ?? new Configuration();
             Console.WriteLine("Enter an expression, or an empty line to quit");
             string input = null;
             while (!string.IsNullOrWhiteSpace(input = Console.ReadLine()))
-                Console.WriteLine($" = {_evaluator.Value.Evaluate(Parser.ParseExpression(input, config))}");
+                Console.WriteLine($" = {_evaluator.Value.Evaluate(Parser.ParseExpression(input, config), config)}");
         }
 
         static void Debug(string input, IConfiguration config)
         {
+            config = config ?? new Configuration();
             Console.WriteLine($"                1         2         3         4         5         6         7         8         9         ");
             Console.WriteLine($"       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
             Console.WriteLine($"Input: {input}");
@@ -87,9 +84,9 @@ namespace HisRoyalRedness.com
 
             Console.WriteLine("Evaluation");
             Console.WriteLine("----------");
-            var result = DoWithCatch<IDataType>(() => _evaluator.Value.Evaluate(rootToken), "EVALUATE");
+            var result = DoWithCatch<IDataType>(() => _evaluator.Value.Evaluate(rootToken, config), "EVALUATE");
             Console.WriteLine(result?.ToString(Verbosity.ValueAndType) ?? "<null>");
-            Console.WriteLine(Engine.State);
+            //Console.WriteLine(Engine.State);
 
             Console.WriteLine();
 
@@ -263,9 +260,11 @@ namespace HisRoyalRedness.com
         }
 
         static CalcEngine Engine { get; } = CalcEngine.Instance;
-        static CalcSettings Settings => Engine.Settings;
-        static CalcState State => Engine.State;
+        static IConfiguration Configuration { get; } = new Configuration()
+        {
+            AllowMultidayTimes = true
+        };
 
-        static Lazy<IEvaluator> _evaluator = new Lazy<IEvaluator>(() => new Evaluator<DataType>(Engine, Settings));
+        static Lazy<IEvaluator> _evaluator = new Lazy<IEvaluator>(() => new Evaluator<DataType>(Engine));
     }
 }

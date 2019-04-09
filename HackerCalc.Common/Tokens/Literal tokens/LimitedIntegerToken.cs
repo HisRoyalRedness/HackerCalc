@@ -58,7 +58,7 @@ namespace HisRoyalRedness.com
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
-            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position, configuration ?? Configuration.Default);
+            return new LimitedIntegerToken(val, bitWidth, isSigned, isNeg, $"{(isNeg ? "-" : "")}{rawToken}", position, configuration);
         }
 
         public static IntegerBitWidth ParseBitWidth(string bitWidth)
@@ -119,9 +119,9 @@ namespace HisRoyalRedness.com
         #endregion ToString 
 
         public static LimitedIntegerToken Default
-            => new LimitedIntegerToken(0, IntegerBitWidth._32, true, false, null, SourcePosition.None, Configuration.Default);
+            => new LimitedIntegerToken(0, IntegerBitWidth._32, true, false, null, SourcePosition.None, null);
         public static LimitedIntegerToken One
-            => new LimitedIntegerToken(1, IntegerBitWidth._32, true, false, null, SourcePosition.None, Configuration.Default);
+            => new LimitedIntegerToken(1, IntegerBitWidth._32, true, false, null, SourcePosition.None, null);
 
         public BitWidthAndSignPair SignAndBitWidth { get; private set; }
         public bool IsSigned => SignAndBitWidth.IsSigned;

@@ -45,7 +45,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region Type casting
-        protected override TNewType InternalCastTo<TNewType>()
+        protected override TNewType InternalCastTo<TNewType>(IConfiguration configuration)
         {
             switch (typeof(TNewType).Name)
             {
@@ -57,9 +57,9 @@ namespace HisRoyalRedness.com
         #endregion Type casting
 
         #region Operate
-        protected override IDataType<DataType> OperateInternal(OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(opType, operands);
+        protected override IDataType<DataType> OperateInternal(IConfiguration configuration, OperatorType opType, IDataType<DataType>[] operands) => OperateStatic(configuration, opType, operands);
 
-        static IDataType<DataType> OperateStatic(OperatorType opType, params IDataType<DataType>[] operands)
+        static IDataType<DataType> OperateStatic(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             OperateValidate(opType, DataType.Time, operands);
             switch (opType)

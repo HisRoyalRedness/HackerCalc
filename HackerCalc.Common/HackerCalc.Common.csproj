@@ -45,8 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calc engine\DataTypePair.cs" />
-    <Compile Include="Calc engine\ICalcSettings.cs" />
-    <Compile Include="Calc engine\ICalcState.cs" />
+    <Compile Include="Configuration\CalcState.cs" />
+    <Compile Include="Configuration\ICalcSettings.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Visitors\IEvaluator.cs" />
     <Compile Include="Common.cs" />
