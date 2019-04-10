@@ -50,8 +50,8 @@ namespace HisRoyalRedness.com
                 {
                     case OperatorType.Add: errorMsg = Properties.Resources.CALCENGINE_AddErrorMessage; break;
                     case OperatorType.Subtract: errorMsg = Properties.Resources.CALCENGINE_SubtractErrorMessage; break;
-                    case OperatorType.Multiply:
-                    case OperatorType.Divide:
+                    case OperatorType.Multiply: errorMsg = Properties.Resources.CALCENGINE_MultiplyErrorMessage; break;
+                    case OperatorType.Divide: errorMsg = Properties.Resources.CALCENGINE_DivideErrorMessage; break;
                     case OperatorType.Power:
                     case OperatorType.Root:
                     case OperatorType.Modulo:

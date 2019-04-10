@@ -70,6 +70,24 @@ namespace HisRoyalRedness.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t divide a {2} ({3}) by a {0} ({1}).
+        /// </summary>
+        internal static string CALCENGINE_DivideErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_DivideErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t multiply a {0} ({1}) with a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_MultiplyErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_MultiplyErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t subtract a {2} ({3}) from a {0} ({1}).
         /// </summary>
         internal static string CALCENGINE_SubtractErrorMessage {

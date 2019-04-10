@@ -414,6 +414,8 @@ namespace HisRoyalRedness.com
 
         public const string ADD_OPERATION = "Addition";
         public const string SUBTRACT_OPERATION = "Subtraction";
+        public const string MULTIPLY_OPERATION = "Multiplication";
+        public const string DIVIDE_OPERATION = "Division";
         #endregion Test trait descriptions
 
         public static IReadOnlyList<IntegerBitWidth> IntegerBitWidths { get; }

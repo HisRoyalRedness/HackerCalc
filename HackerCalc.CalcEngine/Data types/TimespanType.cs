@@ -60,11 +60,30 @@ namespace HisRoyalRedness.com
                     switch (operands[1].DataType)
                     {
                         case DataType.Date:
-                            return new DateType(((DateType)operands[1]).Value + ((TimespanType)operands[0]).Value);
+                            // Note op1 and op2 are reversed, coz C# doesn't like Timespan + Date
+                            return new DateType(((DateType)operands[1]).Value + ((TimespanType)operands[0]).Value); 
                         case DataType.Time:
                             return new TimeType(((TimespanType)operands[0]).Value + ((TimeType)operands[1]).Value);
                         case DataType.Timespan:
                             return new TimespanType(((TimespanType)operands[0]).Value + ((TimespanType)operands[1]).Value);
+                    }
+                    break;
+                case OperatorType.Subtract:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Timespan:
+                            return new TimespanType(((TimespanType)operands[0]).Value - ((TimespanType)operands[1]).Value);
+                    }
+                    break;
+                case OperatorType.Multiply:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks * ((LimitedIntegerType)operands[1]).Value)));
+                        case DataType.UnlimitedInteger:
+                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks * ((UnlimitedIntegerType)operands[1]).Value)));
+                        case DataType.Float:
+                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds * ((FloatType)operands[1]).Value));
                     }
                     break;
             }

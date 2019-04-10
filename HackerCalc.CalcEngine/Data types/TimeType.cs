@@ -71,6 +71,15 @@ namespace HisRoyalRedness.com
                             return new TimeType(((TimeType)operands[0]).Value + ((TimespanType)operands[1]).Value);
                     }
                     break;
+                case OperatorType.Subtract:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Time:
+                            return new TimespanType(((TimeType)operands[0]).Value - ((TimeType)operands[1]).Value);
+                        case DataType.Timespan:
+                            return new TimeType(((TimeType)operands[0]).Value - ((TimespanType)operands[1]).Value);
+                    }
+                    break;
             }
             return null;
         }
