@@ -86,6 +86,19 @@ namespace HisRoyalRedness.com
                             return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds * ((FloatType)operands[1]).Value));
                     }
                     break;
+                case OperatorType.Divide:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks / ((LimitedIntegerType)operands[1]).Value)));
+                        case DataType.UnlimitedInteger:
+                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks / ((UnlimitedIntegerType)operands[1]).Value)));
+                        case DataType.Float:
+                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds / ((FloatType)operands[1]).Value));
+                        case DataType.Timespan:
+                            return new FloatType(((TimespanType)operands[0]).Value.TotalMilliseconds / ((TimespanType)operands[1]).Value.TotalMilliseconds);
+                    }
+                    break;
             }
             return null;
         }

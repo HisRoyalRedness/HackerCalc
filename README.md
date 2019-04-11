@@ -93,8 +93,8 @@ Todo
   * Implement CalcEngine operations
    * **Add** ~~implemented and tested~~
    * **Subtract** ~~implemented and tested~~
-   * **Multiply**
-   * **Divide**
+   * **Multiply** ~~implemented and tested~~
+   * **Divide** ~~implemented and tested~~
    * **Power**
    * **Root**
    * **Modulo**

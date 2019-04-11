@@ -189,6 +189,16 @@ namespace HisRoyalRedness.com
                                 configuration);
                     }
                     break;
+                case OperatorType.Divide:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new LimitedIntegerType(
+                                ((LimitedIntegerType)operands[0]).Value / ((LimitedIntegerType)operands[1]).Value,
+                                GetCommonBitWidthAndSign((LimitedIntegerType)operands[0], (LimitedIntegerType)operands[1]),
+                                configuration);
+                    }
+                    break;
             }
             return null;
         }

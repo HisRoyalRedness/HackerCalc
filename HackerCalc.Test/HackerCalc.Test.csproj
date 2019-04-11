@@ -67,6 +67,7 @@
     <Compile Include="Data mapping\MinMaxMapTest.cs" />
     <Compile Include="Data mapping\SymmetricalOperatorsTest.cs" />
     <Compile Include="Operation testing\AddOperatorTest.cs" />
+    <Compile Include="Operation testing\DivideOperatorTest.cs" />
     <Compile Include="Operation testing\MultiplyOperatorTest.cs" />
     <Compile Include="Operation testing\SubtractOperatorTest.cs" />
     <Compile Include="Parse testing\BasicOperatorParseTest.cs" />
