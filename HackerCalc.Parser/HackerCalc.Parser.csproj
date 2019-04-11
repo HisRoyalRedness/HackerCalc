@@ -73,6 +73,7 @@
     <PostBuildEvent>$(ProjectDir)Coco\PreBuild.cmd "$(ProjectDir)" "$(ConfigurationName)"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>$(ProjectDir)Coco\PreBuild.cmd "$(ProjectDir)" "$(ConfigurationName)"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
