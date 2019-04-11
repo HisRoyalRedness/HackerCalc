@@ -86,7 +86,7 @@ namespace HisRoyalRedness.com
             Console.WriteLine("----------");
             var result = DoWithCatch<IDataType>(() => _evaluator.Value.Evaluate(rootToken, config), "EVALUATE");
             Console.WriteLine(result?.ToString(Verbosity.ValueAndType) ?? "<null>");
-            //Console.WriteLine(Engine.State);
+            //Console.WriteLine(Engine.State); // Output state of calc
 
             Console.WriteLine();
 
