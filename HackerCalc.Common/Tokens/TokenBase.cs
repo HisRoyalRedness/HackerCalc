@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Numerics;
-using System.Text;
-using System.Linq;
 
 /*
     Base class for all token types

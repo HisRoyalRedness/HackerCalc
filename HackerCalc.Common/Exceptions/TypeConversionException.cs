@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 /*
     TypeConversionException
 
-        Thrown when we;re unable to convert from a token to a data type,
+        Thrown when we're unable to convert from a token to a data type,
         or from one data type to another
 
     Keith Fletcher

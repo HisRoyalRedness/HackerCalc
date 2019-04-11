@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 /*
     Base type for all functions
@@ -43,7 +40,6 @@ namespace HisRoyalRedness.com
         public string Name { get; private set; }
         public List<IToken> Parameters { get; } = new List<IToken>();
         public override TokenCategory Category => TokenCategory.FunctionToken;
-
 
         #region ToString
         public override string ToString() => this.Accept(new TokenPrinter(TokenPrinter.FixType.Infix));

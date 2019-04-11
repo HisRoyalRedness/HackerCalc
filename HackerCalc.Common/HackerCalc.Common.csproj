@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="Calc engine\DataTypePair.cs" />
     <Compile Include="Configuration\CalcState.cs" />
-    <Compile Include="Configuration\ICalcSettings.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Visitors\IEvaluator.cs" />
     <Compile Include="Common.cs" />
@@ -62,25 +61,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SignAndBitwidth.cs" />
     <Compile Include="Visitors\ExpressionEvaluator.cs" />
-    <Compile Include="Visitors\OldTokenEvaluator.cs" />
     <Compile Include="Visitors\TokenPrinter.cs" />
     <Compile Include="Tokens\FunctionToken.cs" />
     <Compile Include="Tokens\Literal tokens\DateToken.cs" />
     <Compile Include="Tokens\Literal tokens\FloatToken.cs" />
-    <Compile Include="Old\OldDateToken.cs" />
-    <Compile Include="Old\OldFloatToken.cs" />
-    <Compile Include="Old\OldIntegerToken.cs" />
     <Compile Include="Tokens\Literal tokens\LimitedIntegerToken.cs" />
-    <Compile Include="Old\OldLimitedIntegerToken.cs" />
-    <Compile Include="Old\OldRationalToken.cs" />
-    <Compile Include="Old\OldTimespanToken.cs" />
-    <Compile Include="Old\OldTimeToken.cs" />
-    <Compile Include="Old\OldUnlimitedIntegerToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimespanToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimeToken.cs" />
     <Compile Include="Tokens\Literal tokens\UnlimitedIntegerToken.cs" />
     <Compile Include="Tokens\LiteralToken.cs" />
-    <Compile Include="Old\OldLiteralToken.cs" />
     <Compile Include="Tokens\OperatorToken.cs" />
     <Compile Include="Tokens\TokenBase.cs" />
   </ItemGroup>
