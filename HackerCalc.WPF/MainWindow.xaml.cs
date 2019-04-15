@@ -24,5 +24,12 @@ namespace HisRoyalRedness.com
         {
             InitializeComponent();
         }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            KeyDown += (o, e) => (DataContext as AppVM)?.Keydown(e);
+            
+        }
     }
 }

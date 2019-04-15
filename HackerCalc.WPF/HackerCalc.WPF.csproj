@@ -78,7 +78,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="DataTemplates.xaml">
+    <Page Include="Controls\DataTypeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -95,21 +95,17 @@
     </Compile>
     <Compile Include="AppModel.cs" />
     <Compile Include="AppVM.cs" />
+    <Compile Include="Controls\DataTypeControl.xaml.cs">
+      <DependentUpon>DataTypeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NumberBase.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalcModel.cs" />
-    <Compile Include="NumberBase.xaml.cs">
-      <DependentUpon>NumberBase.xaml</DependentUpon>
-    </Compile>
     <Compile Include="OtherBasesVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -138,6 +134,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HackerCalc.CalcEngine\HackerCalc.CalcEngine.csproj">
+      <Project>{7881e80f-ef29-49de-91e8-2d46befa6d19}</Project>
+      <Name>HackerCalc.CalcEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HackerCalc.Common\HackerCalc.Common.csproj">
       <Project>{c07ad894-0d40-4c1f-b650-519f6f4ad85e}</Project>
       <Name>HackerCalc.Common</Name>

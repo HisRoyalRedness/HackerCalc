@@ -16,7 +16,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Common.xaml" />
-                <ResourceDictionary Source="DataTemplates.xaml" />
+                <!--<ResourceDictionary Source="DataTemplates.xaml" />-->
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="TextBlock">
@@ -27,6 +27,24 @@
     </Window.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="60" />
+            <RowDefinition Height="60" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBox Grid.Row="0" Text="{Binding Expression, UpdateSourceTrigger=PropertyChanged}" />
+        <local:DataTypeControl Grid.Row="1" DataType="{Binding Evaluation}" />
+        <local:DataTypeControl Grid.Row="2" DataType="{Binding CalcDisplay}" />
+        <TabControl Grid.Row="3">
+            <TabItem Header="Programmer" />
+            <TabItem Header="Numeric" />
+            <TabItem Header="Date/Time" />
+        </TabControl>
+    </Grid>
+
+    <!--<Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -77,5 +95,5 @@
             Grid.Row="4" Grid.Column="1" />
 
 
-    </Grid>
+    </Grid>-->
 </Window>

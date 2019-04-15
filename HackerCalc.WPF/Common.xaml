@@ -21,9 +21,9 @@
         <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
     </Style>    
     
-    <local:LiteralTokenToValueConverter x:Key="LiteralTokenToValue" />
-    <local:LiteralTokenToTypeConverter x:Key="LiteralTokenToType" />
-    <local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />
+    <local:DataTypeToValueConverter x:Key="DataTypeToValue" />
+    <local:DataTypeToTypeConverter x:Key="DataTypeToType" />
+    <!--<local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />-->
     <local:HiddenIfEmptyConverter x:Key="HiddenIfEmpty" />
     <local:RelativeSizeConverter x:Key="RelativeSize" />
     <local:NullConverter x:Key="Null" />
