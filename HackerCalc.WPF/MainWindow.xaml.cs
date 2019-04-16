@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,8 +29,46 @@ namespace HisRoyalRedness.com
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            KeyDown += (o, e) => (DataContext as AppVM)?.Keydown(e);
-            
+            var vm = (DataContext as AppVM);
+            if (vm == null)
+                return;
+
+            TextInput += (o, e) =>
+            {
+                foreach (var chr in e.Text.Replace("\r\n","\n").Replace("\r", "\n"))
+                    switch (chr)
+                    {
+                        case '\n':
+                        case '=':
+                            (DataContext as AppVM)?.Enter();
+                            break;
+
+                        default:
+                            (DataContext as AppVM)?.AddChar(chr);
+                            break;
+                    }
+            };
+
+            PreviewKeyDown += (o, e) =>
+            {
+                switch(e.Key)
+                {
+                    case Key.Escape:
+                    case Key.Delete:
+                        e.Handled = true;
+                        (DataContext as AppVM)?.Clear();
+                        break;
+
+                    case Key.Back:
+                        e.Handled = true;
+                        (DataContext as AppVM)?.Back();
+                        break;
+
+                    default:
+                        e.Handled = false;
+                        break;
+                }
+            };
         }
     }
 }

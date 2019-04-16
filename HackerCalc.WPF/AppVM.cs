@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -13,39 +14,51 @@ namespace HisRoyalRedness.com
     {
         public AppVM()
         {
-            Expression = "1+2+3+4+5u8";
-        }
-        //public OtherBasesVM OtherBases { get; } = new OtherBasesVM();
-
-        public void Keydown(KeyEventArgs keArgs)
-        {
-            Debug.WriteLine(keArgs.Key);
+            //Expression = "1+2+3+4+5u8";
         }
 
-        public string Expression
+        #region Key entry
+        public void AddChar(char chr) => Expression.AddChar(chr);
+        public void Clear() => Expression.Clear();
+        public void Back() => Expression.Back();
+
+
+        public void Enter()
         {
-            get => _expression;
-            set
+            if (Expression.IsValid)
             {
-                if (SetProperty(ref _expression, value))
-                    Evaluate(_expression);
+                ExpressionHistory.Add(Expression.ToString());
+                Clear();
             }
         }
-        string _expression = default(string);
+        #endregion Key entry
 
-        public IDataType<DataType> Evaluation
-        {
-            get => _evaluationToken;
-            private set { SetProperty(ref _evaluationToken, value); }
-        }
-        IDataType<DataType> _evaluationToken = null;
+        #region Bindable properties
+        //public string Expression
+        //{
+        //    get => _expression;
+        //    set
+        //    {
+        //        if (SetProperty(ref _expression, value))
+        //            Evaluate(_expression);
+        //    }
+        //}
+        //string _expression = default(string);
 
-        public IDataType<DataType> CalcDisplay
-        {
-            get => _calcDisplay;
-            private set { SetProperty(ref _calcDisplay, value); }
-        }
-        IDataType<DataType> _calcDisplay = new DisplayType();
+        //public IDataType<DataType> Evaluation
+        //{
+        //    get => _evaluationToken;
+        //    private set { SetProperty(ref _evaluationToken, value); }
+        //}
+        //IDataType<DataType> _evaluationToken = null;
+
+        //public IDataType<DataType> CalcDisplay
+        //{
+        //    get => _calcDisplay;
+        //    private set { SetProperty(ref _calcDisplay, value); }
+        //}
+        //IDataType<DataType> _calcDisplay = new DisplayType();
+        #endregion Bindable properties
 
         public string Errors
         {
@@ -56,19 +69,85 @@ namespace HisRoyalRedness.com
 
         public IConfiguration Configuration { get; } = new Configuration();
 
-        void Evaluate(string expression)
+        //void Evaluate(string expression)
+        //{
+        //    try
+        //    {
+        //        var token = Parser.ParseExpression(expression, Configuration);
+        //        Evaluation = (IDataType<DataType>)_evaluator.Evaluate(token, Configuration);
+        //        Debug.WriteLine(Evaluation);
+        //        Errors = Evaluation == null ? "Error" : string.Empty;
+        //    }
+        //    catch (ApplicationException aex)
+        //    {
+        //        Errors = aex.Message;
+        //    }
+        //}
+
+        public ExpressionVM Expression { get; set; } = new ExpressionVM();
+        public ObservableCollection<string> ExpressionHistory { get; } = new ObservableCollection<string>();
+
+        Evaluator<DataType> _evaluator = new Evaluator<DataType>(CalcEngine.Instance);
+    }
+
+    public class ExpressionVM : NotifyBase
+    {
+        public ExpressionVM()
+            : this(new Configuration())
+        { }
+
+        public ExpressionVM(IConfiguration configuration)
         {
+            Configuration = configuration;
+        }
+
+        public string Expression { get; private set; } = "";
+        public bool IsValid { get; private set; } = false;
+        public IConfiguration Configuration { get; }
+        public string Error { get; private set; } = null;
+        public IDataType<DataType> Evaluation { get; private set; }
+
+        public void AddChar(char chr)
+        {
+            Expression += chr;
+            Evaluate();
+        }
+
+        public void Clear()
+        {
+            Expression = "";
+            Evaluate();
+        }
+
+        public void Back()
+        {
+            if (Expression.Length > 0)
+                Expression = Expression.Substring(0, Expression.Length - 1);
+            Evaluate();
+        }
+
+        void Evaluate()
+        {
+            Evaluation = null;
             try
             {
-                var token = Parser.ParseExpression(expression, Configuration);
+                var token = Parser.ParseExpression(Expression, Configuration);
                 Evaluation = (IDataType<DataType>)_evaluator.Evaluate(token, Configuration);
-                Debug.WriteLine(Evaluation);
-                Errors = Evaluation == null ? "Error" : string.Empty;
             }
-            catch (ApplicationException aex)
+            catch(Exception ex)
             {
-                Errors = aex.Message;
+                Error = ex.Message;
             }
+
+            IsValid = Evaluation != null;
+            NotifyPropertyChanged(nameof(Error), nameof(IsValid), nameof(Evaluation), nameof(Expression));
+        }
+
+        public override string ToString()
+        {
+            return IsValid
+                ? $"{Expression}={Evaluation}"
+                : Expression;
         }
 
         Evaluator<DataType> _evaluator = new Evaluator<DataType>(CalcEngine.Instance);

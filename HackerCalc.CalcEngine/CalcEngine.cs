@@ -73,6 +73,11 @@ namespace HisRoyalRedness.com
                         throw new InvalidCalcOperationException($"Unsupported binary operator '{opType.GetEnumDescription()}'.");
                 }
 
+                // The equation hasn't been fully entered yet.
+                // Just return the bit that we do have
+                if (operands[1] == null && Constants.IsPartialEquationAllowed)
+                    return operands[0];
+
                 // Make sure the operation is supported for the provided types
                 var currentValuePair = GetDataTypeValuePair(operands[0], operands[1]);
                 var targetDataTypePair = DataMapper.GetOperandDataTypes(opType, currentValuePair);

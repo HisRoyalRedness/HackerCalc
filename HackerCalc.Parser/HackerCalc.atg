@@ -54,6 +54,7 @@ CHARACTERS
     closeBrac           = ')'.
     underscore          = '_'.
     comma               = ','.
+    singleQt            = '\''.
     
     /* datatype modifiers */
     signed_int_mod      = 'i'.
@@ -145,6 +146,7 @@ TOKENS
     openBracket         = openBrac.
     closeBracket        = closeBrac.
     paramDelim          = comma.
+    singleQuote         = singleQt.
 
 IGNORE cr + lf + tab
 
@@ -254,7 +256,8 @@ Term<out IToken token>                                          (. token = null;
                     | IF(IsTimespanNumber())
                         Timespan<out token>
                     | IF(IsDateTime())
-                        DateTime<out token>
+                        ( DateTime<out token> | QuotedDateTime<out token> )
+                    | QuotedDate<out token>
                     | Date<out token>
                     | Time<out token>
                     | Numeric<out token>
@@ -270,6 +273,18 @@ Bracket<out IToken token>                                       (. IToken tk = n
                     openBracket                                 (. var pos = GetPos(t); .)
                     Expr<out tk>                                (. IToken grp = new GroupingToken(tk, pos); .)
                     closeBracket                                (. token = op == null ? grp : ((OperatorToken)op).Tap(o => o.Left = grp); .)
+.
+
+QuotedDateTime<out IToken token>
+=                   singleQuote
+                    DateTime<out token>
+                    singleQuote
+.
+
+QuotedDate<out IToken token>
+=                   singleQuote
+                    Date<out token>
+                    singleQuote
 .
 
 DateTime<out IToken token>                                      

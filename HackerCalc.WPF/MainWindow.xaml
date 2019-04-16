@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HisRoyalRedness.com"
         xmlns:common="clr-namespace:HisRoyalRedness.com;assembly=HackerCalc.Common"
+        xmlns:controls="clr-namespace:WpfMath.Controls;assembly=WpfMath"
         mc:Ignorable="d"
         Title="HackerCalc" Height="450" Width="800">
 
@@ -27,21 +28,33 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="60" />
-            <RowDefinition Height="60" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
 
-        <TextBox Grid.Row="0" Text="{Binding Expression, UpdateSourceTrigger=PropertyChanged}" />
-        <local:DataTypeControl Grid.Row="1" DataType="{Binding Evaluation}" />
-        <local:DataTypeControl Grid.Row="2" DataType="{Binding CalcDisplay}" />
-        <TabControl Grid.Row="3">
-            <TabItem Header="Programmer" />
-            <TabItem Header="Numeric" />
-            <TabItem Header="Date/Time" />
-        </TabControl>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding Expression.Expression}" />
+            <local:DataTypeControl Grid.Row="1" DataType="{Binding Expression.Evaluation}" />
+            <controls:FormulaControl Grid.Row="2" Formula="{Binding Expression.Expression}" />
+            <!--<local:DataTypeControl Grid.Row="2" DataType="{Binding CalcDisplay}" />-->
+            <TabControl Grid.Row="3">
+                <TabItem Header="Programmer" />
+                <TabItem Header="Numeric" />
+                <TabItem Header="Date/Time" />
+            </TabControl>
+        </Grid>
+
+        <ListView Grid.Column="1" ItemsSource="{Binding ExpressionHistory}">
+            
+        </ListView>
     </Grid>
 
     <!--<Grid>

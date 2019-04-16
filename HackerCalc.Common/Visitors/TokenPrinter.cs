@@ -38,7 +38,7 @@ namespace HisRoyalRedness.com
             {
                 case null:
 #if INCOMPLETE_EQ
-                    Builder.Append("<null> ");
+                    //Builder.Append("<null> ");
 #endif
                     return null;
 

@@ -121,14 +121,24 @@ namespace HisRoyalRedness.com
 
         public bool IsDateTime()
         {
-            if (la.kind == _date || la.kind == _date_rev)
+            var isDate = false;
+            if(la.kind == _singleQuote)
             {
                 var next = scanner.Peek().kind;
+                if (next == _date || next == _date_rev)
+                {
+                    next = scanner.Peek().kind;
+                    isDate = next == _time;
+                }
                 scanner.ResetPeek();
-                return next == _time;
             }
-            else
-                return false;
+            else if (la.kind == _date || la.kind == _date_rev)
+            {
+                var next = scanner.Peek().kind;
+                isDate = next == _time;
+                scanner.ResetPeek();
+            }
+            return isDate;
         }
 
         public bool IsBracket()
