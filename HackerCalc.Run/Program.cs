@@ -26,7 +26,10 @@ namespace HisRoyalRedness.com
                         if (args.Length > 1)
                             Debug(args[1], Configuration);
                         else
-                            Debug("'2018-01-01 01:02:03'", Configuration);
+                        {
+                            Debug("8.0//", Configuration);
+                            //Debug("1+2-3*4/5", Configuration);
+                        }
                         break;
 
                     case "cast":
@@ -79,6 +82,7 @@ namespace HisRoyalRedness.com
             Console.WriteLine($"Postfix: {rootToken?.Print(TokenPrinter.FixType.Postfix)}");
             Console.WriteLine($"Infix:   {rootToken?.Print(TokenPrinter.FixType.Infix)}");
             Console.WriteLine($"Prefix:  {rootToken?.Print(TokenPrinter.FixType.Prefix)}");
+            Console.WriteLine($"LaTeX:   {rootToken?.ToLaTeX()}");
 
             Console.WriteLine();
 

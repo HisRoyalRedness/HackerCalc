@@ -199,6 +199,28 @@ namespace HisRoyalRedness.com
                                 configuration);
                     }
                     break;
+                case OperatorType.Power:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new LimitedIntegerType(
+                                BigInteger.Pow(((LimitedIntegerType)operands[0]).Value, (int)((LimitedIntegerType)operands[1]).Value),
+                                ((LimitedIntegerType)operands[0]).SignAndBitWidth,
+                                configuration);
+                    }
+                    break;
+                case OperatorType.Root:
+                    throw new NotImplementedException();
+                case OperatorType.Modulo:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new LimitedIntegerType(
+                                ((LimitedIntegerType)operands[0]).Value % ((LimitedIntegerType)operands[1]).Value,
+                                GetCommonBitWidthAndSign((LimitedIntegerType)operands[0], (LimitedIntegerType)operands[1]),
+                                configuration);
+                    }
+                    break;
             }
             return null;
         }

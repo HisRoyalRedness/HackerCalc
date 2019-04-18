@@ -52,6 +52,12 @@ namespace HisRoyalRedness.com
             => new NotSupportedException();
     }
 
+    public class TokenToLaTeXConverter : OneWayConverter<IToken>
+    {
+        protected override string ConvertTo(IToken value, object parameter, CultureInfo culture)
+            => value?.ToLaTeX() ?? string.Empty;
+    }
+
     //public class LiteralTokenToXamlConverter : IValueConverter
     //{
     //    const int DEFAULT_FONT_SIZE = 40;
@@ -163,6 +169,20 @@ namespace HisRoyalRedness.com
                 ? (val * scale).ToString()
                 : null;
         }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => new NotSupportedException();
+    }
+
+    public abstract class OneWayConverter<TType> : IValueConverter
+        where TType : class
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value == null || !typeof(TType).IsAssignableFrom(value.GetType())
+                ? ConvertTo(null, parameter, culture)
+                : ConvertTo(value as TType, parameter, culture);
+
+        protected abstract string ConvertTo(TType value, object parameter, CultureInfo culture);
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => new NotSupportedException();

@@ -33,6 +33,7 @@ namespace HisRoyalRedness.com
             if (vm == null)
                 return;
 
+
             TextInput += (o, e) =>
             {
                 foreach (var chr in e.Text.Replace("\r\n","\n").Replace("\r", "\n"))
@@ -49,7 +50,7 @@ namespace HisRoyalRedness.com
                     }
             };
 
-            PreviewKeyDown += (o, e) =>
+        PreviewKeyDown += (o, e) =>
             {
                 switch(e.Key)
                 {

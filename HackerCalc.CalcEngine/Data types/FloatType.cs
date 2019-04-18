@@ -94,6 +94,27 @@ namespace HisRoyalRedness.com
                             return new FloatType(((FloatType)operands[0]).Value / ((FloatType)operands[1]).Value);
                     }
                     break;
+                case OperatorType.Power:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Float:
+                            return new FloatType(Math.Pow(((FloatType)operands[0]).Value, ((FloatType)operands[1]).Value));
+                    }
+                    break;
+                case OperatorType.Root:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Float:
+                            return new FloatType(Math.Pow(((FloatType)operands[0]).Value, 1.0 / ((FloatType)operands[1]).Value));
+                    }
+                    break;
+                case OperatorType.Modulo:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.Float:
+                            return new FloatType(((FloatType)operands[0]).Value % ((FloatType)operands[1]).Value);
+                    }
+                    break;
             }
             return null;
         }

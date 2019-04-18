@@ -70,11 +70,38 @@ namespace HisRoyalRedness.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t AND a {0} ({1}) to a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_AndErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_AndErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t divide a {2} ({3}) by a {0} ({1}).
         /// </summary>
         internal static string CALCENGINE_DivideErrorMessage {
             get {
                 return ResourceManager.GetString("CALCENGINE_DivideErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t left-shift a {0} ({1}) by a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_LeftShiftErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_LeftShiftErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t divide a {2} ({3}) by a {0} ({1}).
+        /// </summary>
+        internal static string CALCENGINE_ModuloErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_ModuloErrorMessage", resourceCulture);
             }
         }
         
@@ -88,11 +115,56 @@ namespace HisRoyalRedness.com.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t OR a {0} ({1}) with a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_OrErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_OrErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t raise a {0} ({1}) to the power of a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_PowerErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_PowerErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t right-shift a {0} ({1}) by a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_RightShiftErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_RightShiftErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t calculate the {2} ({3}) root of {0} ({1}).
+        /// </summary>
+        internal static string CALCENGINE_RootErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_RootErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t subtract a {2} ({3}) from a {0} ({1}).
         /// </summary>
         internal static string CALCENGINE_SubtractErrorMessage {
             get {
                 return ResourceManager.GetString("CALCENGINE_SubtractErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t XOR a {0} ({1}) with a {2} ({3}).
+        /// </summary>
+        internal static string CALCENGINE_XorErrorMessage {
+            get {
+                return ResourceManager.GetString("CALCENGINE_XorErrorMessage", resourceCulture);
             }
         }
     }

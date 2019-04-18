@@ -24,6 +24,7 @@
     <local:DataTypeToValueConverter x:Key="DataTypeToValue" />
     <local:DataTypeToTypeConverter x:Key="DataTypeToType" />
     <!--<local:LiteralTokenToXamlConverter x:Key="LiteralTokenToXaml" />-->
+    <local:TokenToLaTeXConverter x:Key="LaTeX" />
     <local:HiddenIfEmptyConverter x:Key="HiddenIfEmpty" />
     <local:RelativeSizeConverter x:Key="RelativeSize" />
     <local:NullConverter x:Key="Null" />

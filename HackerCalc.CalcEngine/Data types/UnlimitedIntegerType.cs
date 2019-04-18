@@ -96,6 +96,22 @@ namespace HisRoyalRedness.com
                             return new UnlimitedIntegerType(((UnlimitedIntegerType)operands[0]).Value / ((UnlimitedIntegerType)operands[1]).Value);
                     }
                     break;
+                case OperatorType.Power:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.UnlimitedInteger:
+                            return new UnlimitedIntegerType(BigInteger.Pow(((UnlimitedIntegerType)operands[0]).Value, (int)((UnlimitedIntegerType)operands[1]).Value));
+                    }
+                    break;
+                case OperatorType.Root:
+                    throw new NotImplementedException();
+                case OperatorType.Modulo:
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.UnlimitedInteger:
+                            return new UnlimitedIntegerType(((UnlimitedIntegerType)operands[0]).Value % ((UnlimitedIntegerType)operands[1]).Value);
+                    }
+                    break;
             }
             return null;
         }

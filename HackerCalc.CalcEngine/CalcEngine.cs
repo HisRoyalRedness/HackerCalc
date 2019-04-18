@@ -60,15 +60,14 @@ namespace HisRoyalRedness.com
                     case OperatorType.Subtract: errorMsg = Properties.Resources.CALCENGINE_SubtractErrorMessage; break;
                     case OperatorType.Multiply: errorMsg = Properties.Resources.CALCENGINE_MultiplyErrorMessage; break;
                     case OperatorType.Divide: errorMsg = Properties.Resources.CALCENGINE_DivideErrorMessage; break;
-                    case OperatorType.Power:
-                    case OperatorType.Root:
-                    case OperatorType.Modulo:
-                    case OperatorType.LeftShift:
-                    case OperatorType.RightShift:
-                    case OperatorType.And:
-                    case OperatorType.Or:
-                    case OperatorType.Xor:
-                        throw new NotImplementedException();
+                    case OperatorType.Power: errorMsg = Properties.Resources.CALCENGINE_PowerErrorMessage; break;
+                    case OperatorType.Root: errorMsg = Properties.Resources.CALCENGINE_RootErrorMessage; break;
+                    case OperatorType.Modulo: errorMsg = Properties.Resources.CALCENGINE_ModuloErrorMessage; break;
+                    case OperatorType.LeftShift: errorMsg = Properties.Resources.CALCENGINE_LeftShiftErrorMessage; break;
+                    case OperatorType.RightShift: errorMsg = Properties.Resources.CALCENGINE_RightShiftErrorMessage; break;
+                    case OperatorType.And: errorMsg = Properties.Resources.CALCENGINE_AndErrorMessage; break;
+                    case OperatorType.Or: errorMsg = Properties.Resources.CALCENGINE_OrErrorMessage; break;
+                    case OperatorType.Xor: errorMsg = Properties.Resources.CALCENGINE_XorErrorMessage; break;
                     default:
                         throw new InvalidCalcOperationException($"Unsupported binary operator '{opType.GetEnumDescription()}'.");
                 }

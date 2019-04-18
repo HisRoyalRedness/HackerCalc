@@ -121,7 +121,19 @@
     <value>Can't add a {0} ({1}) to a {2} ({3})</value>
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
+  <data name="CALCENGINE_AndErrorMessage" xml:space="preserve">
+    <value>Can't AND a {0} ({1}) to a {2} ({3})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
   <data name="CALCENGINE_DivideErrorMessage" xml:space="preserve">
+    <value>Can't divide a {2} ({3}) by a {0} ({1})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_LeftShiftErrorMessage" xml:space="preserve">
+    <value>Can't left-shift a {0} ({1}) by a {2} ({3})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_ModuloErrorMessage" xml:space="preserve">
     <value>Can't divide a {2} ({3}) by a {0} ({1})</value>
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
@@ -129,8 +141,28 @@
     <value>Can't multiply a {0} ({1}) with a {2} ({3})</value>
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
+  <data name="CALCENGINE_OrErrorMessage" xml:space="preserve">
+    <value>Can't OR a {0} ({1}) with a {2} ({3})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_PowerErrorMessage" xml:space="preserve">
+    <value>Can't raise a {0} ({1}) to the power of a {2} ({3})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_RightShiftErrorMessage" xml:space="preserve">
+    <value>Can't right-shift a {0} ({1}) by a {2} ({3})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_RootErrorMessage" xml:space="preserve">
+    <value>Can't calculate the {2} ({3}) root of {0} ({1})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
   <data name="CALCENGINE_SubtractErrorMessage" xml:space="preserve">
     <value>Can't subtract a {2} ({3}) from a {0} ({1})</value>
+    <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
+  </data>
+  <data name="CALCENGINE_XorErrorMessage" xml:space="preserve">
+    <value>Can't XOR a {0} ({1}) with a {2} ({3})</value>
     <comment>{0} = Operand 1 type, {1} = operand 2 value, {2} = operand 2 type, {3} = operand 2 value</comment>
   </data>
 </root>

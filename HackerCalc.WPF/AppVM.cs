@@ -18,7 +18,12 @@ namespace HisRoyalRedness.com
         }
 
         #region Key entry
-        public void AddChar(char chr) => Expression.AddChar(chr);
+        public void AddChar(char chr)
+        {
+            if (_alphabet.Contains(chr))
+                Expression.AddChar(chr);
+        }
+
         public void Clear() => Expression.Clear();
         public void Back() => Expression.Back();
 
@@ -88,13 +93,25 @@ namespace HisRoyalRedness.com
         public ObservableCollection<string> ExpressionHistory { get; } = new ObservableCollection<string>();
 
         Evaluator<DataType> _evaluator = new Evaluator<DataType>(CalcEngine.Instance);
+
+        // The list of allowable characters
+        static readonly HashSet<char> _alphabet =
+            ("0123456789" +                 // numerics
+             "abcdefx" +                    // hex digits, plus the leading 'x'
+             "+-*/\\%!~<>&|^()_,'." +       // operators
+             "abcdefghijklmnopqrstuvwxyz" + // alpha lower
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ")  // alpha upper
+            .ToHashSet();
     }
 
     public class ExpressionVM : NotifyBase
     {
         public ExpressionVM()
             : this(new Configuration())
-        { }
+        {
+            Expression = "1+(2-3*4/5)";
+            Evaluate();
+        }
 
         public ExpressionVM(IConfiguration configuration)
         {
@@ -106,6 +123,7 @@ namespace HisRoyalRedness.com
         public IConfiguration Configuration { get; }
         public string Error { get; private set; } = null;
         public IDataType<DataType> Evaluation { get; private set; }
+        public IToken ParsedExpression { get; private set; }
 
         public void AddChar(char chr)
         {
@@ -131,8 +149,8 @@ namespace HisRoyalRedness.com
             Evaluation = null;
             try
             {
-                var token = Parser.ParseExpression(Expression, Configuration);
-                Evaluation = (IDataType<DataType>)_evaluator.Evaluate(token, Configuration);
+                ParsedExpression = Parser.ParseExpression(Expression, Configuration);
+                Evaluation = (IDataType<DataType>)_evaluator.Evaluate(ParsedExpression, Configuration);
             }
             catch(Exception ex)
             {
@@ -140,7 +158,7 @@ namespace HisRoyalRedness.com
             }
 
             IsValid = Evaluation != null;
-            NotifyPropertyChanged(nameof(Error), nameof(IsValid), nameof(Evaluation), nameof(Expression));
+            NotifyPropertyChanged(nameof(Error), nameof(IsValid), nameof(Evaluation), nameof(Expression), nameof(ParsedExpression));
         }
 
         public override string ToString()
