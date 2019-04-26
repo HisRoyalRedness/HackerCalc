@@ -21,12 +21,15 @@ namespace HisRoyalRedness.com
         public void AddChar(char chr)
         {
             if (_alphabet.Contains(chr))
-                Expression.AddChar(chr);
+                Expression.Input += chr;
         }
 
-        public void Clear() => Expression.Clear();
-        public void Back() => Expression.Back();
-
+        public void Clear() => Expression.Input = "";
+        public void Back()
+        {
+            if (Expression.Input.Length > 0)
+                Expression.Input = Expression.Input.Substring(0, Expression.Input.Length - 1);
+        }
 
         public void Enter()
         {
@@ -39,30 +42,7 @@ namespace HisRoyalRedness.com
         #endregion Key entry
 
         #region Bindable properties
-        //public string Expression
-        //{
-        //    get => _expression;
-        //    set
-        //    {
-        //        if (SetProperty(ref _expression, value))
-        //            Evaluate(_expression);
-        //    }
-        //}
-        //string _expression = default(string);
 
-        //public IDataType<DataType> Evaluation
-        //{
-        //    get => _evaluationToken;
-        //    private set { SetProperty(ref _evaluationToken, value); }
-        //}
-        //IDataType<DataType> _evaluationToken = null;
-
-        //public IDataType<DataType> CalcDisplay
-        //{
-        //    get => _calcDisplay;
-        //    private set { SetProperty(ref _calcDisplay, value); }
-        //}
-        //IDataType<DataType> _calcDisplay = new DisplayType();
         #endregion Bindable properties
 
         public string Errors
@@ -104,72 +84,7 @@ namespace HisRoyalRedness.com
             .ToHashSet();
     }
 
-    public class ExpressionVM : NotifyBase
-    {
-        public ExpressionVM()
-            : this(new Configuration())
-        {
-            Expression = "1+(2-3*4/5)";
-            Evaluate();
-        }
-
-        public ExpressionVM(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public string Expression { get; private set; } = "";
-        public bool IsValid { get; private set; } = false;
-        public IConfiguration Configuration { get; }
-        public string Error { get; private set; } = null;
-        public IDataType<DataType> Evaluation { get; private set; }
-        public IToken ParsedExpression { get; private set; }
-
-        public void AddChar(char chr)
-        {
-            Expression += chr;
-            Evaluate();
-        }
-
-        public void Clear()
-        {
-            Expression = "";
-            Evaluate();
-        }
-
-        public void Back()
-        {
-            if (Expression.Length > 0)
-                Expression = Expression.Substring(0, Expression.Length - 1);
-            Evaluate();
-        }
-
-        void Evaluate()
-        {
-            Evaluation = null;
-            try
-            {
-                ParsedExpression = Parser.ParseExpression(Expression, Configuration);
-                Evaluation = (IDataType<DataType>)_evaluator.Evaluate(ParsedExpression, Configuration);
-            }
-            catch(Exception ex)
-            {
-                Error = ex.Message;
-            }
-
-            IsValid = Evaluation != null;
-            NotifyPropertyChanged(nameof(Error), nameof(IsValid), nameof(Evaluation), nameof(Expression), nameof(ParsedExpression));
-        }
-
-        public override string ToString()
-        {
-            return IsValid
-                ? $"{Expression}={Evaluation}"
-                : Expression;
-        }
-
-        Evaluator<DataType> _evaluator = new Evaluator<DataType>(CalcEngine.Instance);
-    }
+    
 
     public class DisplayType : IDataType<DataType>
     {

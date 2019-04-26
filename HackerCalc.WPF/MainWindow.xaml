@@ -21,6 +21,13 @@
 
             <Style TargetType="TextBlock">
                 <Setter Property="Margin" Value="2" />
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError" Value="True">
+                        <Setter Property="ToolTip" 
+                            Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                            Path=(Validation.Errors)[0].ErrorContent}"></Setter>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
         </ResourceDictionary>
@@ -40,7 +47,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Text="{Binding Expression.Expression}" />
+            <TextBlock Grid.Row="0" Text="{Binding Expression.Input, ValidatesOnDataErrors=True}" />
             <local:DataTypeControl Grid.Row="1" DataType="{Binding Expression.Evaluation}" />
             <controls:FormulaControl 
                 Grid.Row="2" 

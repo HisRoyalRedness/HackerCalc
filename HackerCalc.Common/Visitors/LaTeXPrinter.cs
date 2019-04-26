@@ -84,7 +84,7 @@ namespace HisRoyalRedness.com
                 case OperatorType.Divide: return $"\\frac{left}{right}";
                 case OperatorType.Power: return $"{left}^{right}";
                 case OperatorType.Root:
-                    return rightIsNull
+                    return rightIsNull || right == "{2}"
                         ? $"\\sqrt{left}"
                         : $"\\sqrt[{right}]{left}";
                 case OperatorType.Modulo: return $"{left}\\text{{ mod }}{right}";

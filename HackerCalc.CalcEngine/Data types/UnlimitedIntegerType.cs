@@ -104,7 +104,12 @@ namespace HisRoyalRedness.com
                     }
                     break;
                 case OperatorType.Root:
-                    throw new NotImplementedException();
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.UnlimitedInteger:
+                            return new UnlimitedIntegerType(Algoritms.IntegerNthRoot(((UnlimitedIntegerType)operands[0]).Value, (int)((UnlimitedIntegerType)operands[1]).Value));
+                    }
+                    break;
                 case OperatorType.Modulo:
                     switch (operands[1].DataType)
                     {

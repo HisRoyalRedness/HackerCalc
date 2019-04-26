@@ -7,7 +7,7 @@ Programmer mode works with numbers in different bases (binary, octal and hexadec
 math based on a particular bit width.
 
 The application supports the mixing of these modes to some degree. Expressions can be entered
-without having to explicitly set the calculater mode beforehand.
+without having to explicitly set the calculator mode beforehand.
 
 Basic date and time calculations are also supported.
 
@@ -69,6 +69,7 @@ Listed in order of precedence
 Todo
 ----
 
+* <mark>Check for divide-by-zero in nth root algorithm</mark>
 * ~~Parsing~~
   * <mark>Perhaps support timezone offsets on date/times??</mark>
 * Calculation

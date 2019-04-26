@@ -210,7 +210,15 @@ namespace HisRoyalRedness.com
                     }
                     break;
                 case OperatorType.Root:
-                    throw new NotImplementedException();
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.LimitedInteger:
+                            return new LimitedIntegerType(
+                                Algoritms.IntegerNthRoot(((LimitedIntegerType)operands[0]).Value, (int)((LimitedIntegerType)operands[1]).Value),
+                                ((LimitedIntegerType)operands[0]).SignAndBitWidth,
+                                configuration);
+                    }
+                    break;
                 case OperatorType.Modulo:
                     switch (operands[1].DataType)
                     {

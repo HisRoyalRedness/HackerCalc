@@ -14,6 +14,11 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
+            var radicand = BigInteger.Parse("11991163848716906297072720");
+            var index = 12;
+            Console.WriteLine($"{index} root of {radicand} is {Algoritms.IntegerNthRoot(radicand, index)}");
+
+            return;
             if (args.Length > 0)
             {
                 switch (args[0].ToLower())

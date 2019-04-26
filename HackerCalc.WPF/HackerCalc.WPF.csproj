@@ -77,6 +77,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="View Models\ConfigurationVM.cs" />
+    <Compile Include="View Models\ExpressionVM.cs" />
+    <Compile Include="View Models\ViewModelBase.cs" />
     <Page Include="Common.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

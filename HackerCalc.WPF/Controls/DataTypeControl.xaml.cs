@@ -16,19 +16,12 @@ using System.Windows.Shapes;
 
 namespace HisRoyalRedness.com
 {
-    /// <summary>
-    /// Interaction logic for DataTypeControl.xaml
-    /// </summary>
     public partial class DataTypeControl : UserControl
     {
         public DataTypeControl()
         {
-            //if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
-            //    DataType = new FloatType(1.23);
-
             InitializeComponent();
             FontSize = 40;
-            //DataContext = this;
         }
 
         public IDataType<DataType> DataType
@@ -43,11 +36,6 @@ namespace HisRoyalRedness.com
             typeof(DataTypeControl), 
             new PropertyMetadata(new FloatType(1.23), (o,e) =>
             {
-                Console.WriteLine();
             }));
-
-
-
-
     }
 }

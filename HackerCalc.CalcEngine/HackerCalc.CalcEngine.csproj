@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Algorithms.cs" />
     <Compile Include="CalcEngine.cs" />
     <Compile Include="Data types\DataTypeBase.cs" />
     <Compile Include="Data types\DateType.cs" />

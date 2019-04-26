@@ -26,7 +26,16 @@ namespace HisRoyalRedness.com
         public static IToken ParseExpression(string expression, IConfiguration configuration = null)
             => ParseExpression(expression, null, configuration);
 
-        public static IToken ParseExpression(string expression, List<Token> scannedTokens, IConfiguration configuration)
+        public static IToken ParseExpression(string expression, IConfiguration configuration, ref string[] errors)
+            => ParseExpression(expression, null, configuration, ref errors);
+
+        public static IToken ParseExpression(string expression, List<Token> scannedTokens, IConfiguration configuration = null)
+        {
+            string[] errors = new string[] { };
+            return ParseExpression(expression, null, configuration, ref errors);
+        }
+
+        public static IToken ParseExpression(string expression, List<Token> scannedTokens, IConfiguration configuration, ref string[] errors)
         {
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(expression)))
             {
@@ -34,12 +43,13 @@ namespace HisRoyalRedness.com
                 if (scannedTokens != null)
                     scanner.ScannedTokens = tkn => scannedTokens.Add(tkn);
                 var parser = new Parser(scanner, configuration);
-                return parser.Parse()
+                var token = parser.Parse()
                     ? parser.RootToken
                     : null;
+                errors = parser.errors.ErrorList.ToArray();
+                return token;
             }
         }
-
 
         public static IEnumerable<Token> ScanExpression(string expression, IConfiguration configuration = null)
         {
@@ -193,14 +203,18 @@ namespace HisRoyalRedness.com
 
         protected virtual void WriteLine(string format, params object[] args)
         {
+            var err = string.Format(format, args);
+            ErrorList.Add(err);
             var currentForeColour = Console.ForegroundColor;
             var currentBackColour = Console.BackgroundColor;
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine(format, args);
+            Console.WriteLine(err);
             Console.ForegroundColor = currentForeColour;
             Console.BackgroundColor = currentBackColour;
         }
+
+        public List<string> ErrorList { get; } = new List<string>();
     }
     #endregion Errors
 }
