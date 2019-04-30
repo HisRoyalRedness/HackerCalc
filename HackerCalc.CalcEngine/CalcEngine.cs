@@ -46,6 +46,14 @@ namespace HisRoyalRedness.com
                 if (!opType.IsUnaryOperator())
                     throw new InvalidCalcOperationException($"Operator '{opType.GetEnumDescription()}' is not a unary operator, and a single operand was provided.");
 
+                switch (opType)
+                {
+                    case OperatorType.Grouping:
+                        return operands[0];
+
+                    default:
+                        throw new InvalidCalcOperationException($"Unsupported unary operator '{opType.GetEnumDescription()}'.");
+                }
             }
             // Binary
             else if (operands.Length == 2)

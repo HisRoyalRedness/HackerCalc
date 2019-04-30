@@ -119,12 +119,5 @@ namespace HisRoyalRedness.com
             return null;
         }
         #endregion Operate
-
-        #region Operator implementations
-        public static FloatType pow(FloatType a, FloatType b)
-            => new FloatType(Math.Pow(a.Value, b.Value));
-        public static FloatType root(FloatType a, FloatType b)
-            => new FloatType(Math.Pow(a.Value, 1.0 / b.Value));
-        #endregion Operator implementations
     }
 }

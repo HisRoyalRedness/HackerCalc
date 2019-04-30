@@ -316,15 +316,58 @@ namespace HisRoyalRedness.com
             #endregion RightShift
 
             #region Power
-            OperandTypeCastMap.Add(OperatorType.Power, OperandTypeCastMap[OperatorType.Multiply]);
+            OperandTypeCastMap.Add(OperatorType.Power, new Dictionary<DTP, DTP>()
+            {
+                { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.UnlimitedInteger),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.UnlimitedInteger,    DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.UnlimitedInteger),     new DTP(DataType.UnlimitedInteger,      DataType.UnlimitedInteger) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.UnlimitedInteger,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.UnlimitedInteger,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.UnlimitedInteger,    DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.Float,               DataType.UnlimitedInteger),     new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported},
+
+                { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.UnlimitedInteger),     DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.UnlimitedInteger),     DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.UnlimitedInteger),     DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
+            });
             #endregion Power
 
             #region Root
-            OperandTypeCastMap.Add(OperatorType.Root, OperandTypeCastMap[OperatorType.Multiply]);
+            OperandTypeCastMap.Add(OperatorType.Root, OperandTypeCastMap[OperatorType.Power]);
             #endregion Root
 
             #region Modulo
-            OperandTypeCastMap.Add(OperatorType.Modulo, OperandTypeCastMap[OperatorType.Divide]);
+            OperandTypeCastMap.Add(OperatorType.Modulo, OperandTypeCastMap[OperatorType.Power]);
             #endregion Modulo
 
             #region And

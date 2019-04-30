@@ -121,17 +121,5 @@ namespace HisRoyalRedness.com
             return null;
         }
         #endregion Operate
-
-        #region Operator implementations
-        public static UnlimitedIntegerType pow(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => new UnlimitedIntegerType(BigInteger.Pow(a.Value, (int)b.Value));
-        public static FloatType root(UnlimitedIntegerType a, UnlimitedIntegerType b)
-            => root(a, b.CastTo<FloatType>(null));
-
-        public static FloatType pow(UnlimitedIntegerType a, FloatType b)
-            => new FloatType(Math.Pow((double)a.Value, b.Value));
-        public static FloatType root(UnlimitedIntegerType a, FloatType b)
-            => new FloatType(Math.Pow((double)a.Value, 1.0 / b.Value));
-        #endregion Operator implementations
     }
 }

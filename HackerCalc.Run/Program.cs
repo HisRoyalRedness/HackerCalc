@@ -14,11 +14,6 @@ namespace HisRoyalRedness.com
     {
         static void Main(string[] args)
         {
-            var radicand = BigInteger.Parse("11991163848716906297072720");
-            var index = 12;
-            Console.WriteLine($"{index} root of {radicand} is {Algoritms.IntegerNthRoot(radicand, index)}");
-
-            return;
             if (args.Length > 0)
             {
                 switch (args[0].ToLower())
@@ -32,7 +27,7 @@ namespace HisRoyalRedness.com
                             Debug(args[1], Configuration);
                         else
                         {
-                            Debug("8.0//", Configuration);
+                            Debug("27.0//(1.0/3.0)", Configuration);
                             //Debug("1+2-3*4/5", Configuration);
                         }
                         break;
@@ -130,7 +125,7 @@ namespace HisRoyalRedness.com
                     case LiteralTokenType.Float:
                         {
                             var typedToken = literalToken as FloatToken;
-                            val = typedToken.TypedValue.ToString("0.000");
+                            val = typedToken.TypedValue.ToString("0.###");
                         }
                         break;
                     case LiteralTokenType.Timespan:

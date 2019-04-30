@@ -129,5 +129,10 @@ namespace HisRoyalRedness.com
         [DataRow("~ 1")]
         public void BitwiseNegateParsesCorrectly(string input)
             => TestCommon.UnaryOperatorParsesCorrectly(input, OperatorType.BitwiseNegate);
+
+        [DataTestMethod]
+        [DataRow("(1)")]
+        public void GroupingParsesCorrectly(string input)
+            => TestCommon.GroupingOperatorParsesCorrectly(input);
     }
 }

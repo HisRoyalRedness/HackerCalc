@@ -89,7 +89,7 @@ namespace HisRoyalRedness.com
             throw new InvalidCalcOperationException("Only unary and binary operations are supported");
         }
 
-        // Called by uniot tests. Minda mirrors what CalcEngine does
+        // Called by unit tests. Kinda mirrors what CalcEngine does
         static InternalDataTypeBase UnitTestOperate(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
             if (operands.Length == 0)

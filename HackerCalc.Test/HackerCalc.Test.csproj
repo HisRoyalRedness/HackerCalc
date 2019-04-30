@@ -68,7 +68,10 @@
     <Compile Include="Data mapping\SymmetricalOperatorsTest.cs" />
     <Compile Include="Operation testing\AddOperatorTest.cs" />
     <Compile Include="Operation testing\DivideOperatorTest.cs" />
+    <Compile Include="Operation testing\ModuloOperatorTest.cs" />
     <Compile Include="Operation testing\MultiplyOperatorTest.cs" />
+    <Compile Include="Operation testing\PowerOperatorTest.cs" />
+    <Compile Include="Operation testing\RootOperatorTest.cs" />
     <Compile Include="Operation testing\SubtractOperatorTest.cs" />
     <Compile Include="Parse testing\BasicOperatorParseTest.cs" />
     <Compile Include="Parse testing\DateParseTest.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Type casting\LimitedIntegerTypeRangeTest.cs" />
     <Compile Include="Type casting\TypeCastTest.cs" />
     <Compile Include="Types\LimitedIntegerTypeTests.cs" />
+    <Compile Include="Visitors\EvaluatorTests.cs" />
     <Compile Include="Visitors\TokenPrinterTest.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -51,7 +51,7 @@ namespace HisRoyalRedness.com
         #endregion Comparison
 
         #region ToString
-        public override string ToString() => $"{TypedValue:0.000}";
+        public override string ToString() => $"{TypedValue:0.###}";
         #endregion ToString
 
         public static FloatToken Default

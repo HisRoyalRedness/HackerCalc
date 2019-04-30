@@ -69,7 +69,6 @@ Listed in order of precedence
 Todo
 ----
 
-* <mark>Check for divide-by-zero in nth root algorithm</mark>
 * ~~Parsing~~
   * <mark>Perhaps support timezone offsets on date/times??</mark>
 * Calculation
@@ -79,9 +78,9 @@ Todo
    * **Subtract** ~~implemented and tested~~
    * **Multiply** ~~implemented and tested~~
    * **Divide** ~~implemented and tested~~
-   * **Power**
-   * **Root**
-   * **Modulo**
+   * **Power** ~~implemented and tested~~
+   * **Root** ~~implemented and tested~~
+   * **Modulo** ~~implemented and tested~~
    * **LeftShift**
    * **RightShift**
    * **And**
@@ -98,6 +97,7 @@ Todo
 * Remember left shift and right shift on integers is limited by number of bits. Negative shifts aren't intuitive. Maybe block negative shifts? Shifts on BigIntegers are limited to 16 bits
 * Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
 * <mark>Add tests for IConfiguration and ICalcState</mark>
+* <mark>Add calc for colour (convert RGB to LAB etc., add/remove luminance)</mark>
 
 License
 -------

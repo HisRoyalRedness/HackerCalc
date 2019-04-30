@@ -23,8 +23,8 @@ namespace HisRoyalRedness.com
         [DataRow("12:34", "12:34:00")]
         [DataRow("12:34:56", "12:34:56")]
         [DataRow("12:34:56", "12:34:56")]
-        [DataRow("1f", "1.000")]
-        [DataRow(".5", "0.500")]
+        [DataRow("1f", "1")]
+        [DataRow(".5", "0.5")]
         public void TestTokenPrintingWithBasicLiteralTypes(string input, string output)
             => TestTokenPrinterAllFix(input, output);
 

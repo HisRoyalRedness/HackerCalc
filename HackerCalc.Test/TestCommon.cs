@@ -275,6 +275,25 @@ namespace HisRoyalRedness.com
 
             token.Operator.Should().Be(expectedType);
         }
+
+        public static void GroupingOperatorParsesCorrectly(string input)
+        {
+            var expr = Parser.ParseExpression(input);
+            expr.Should().NotBeNull($"parsing '{input}' should succeed.");
+
+            var token = expr as GroupingToken;
+            token.Should().NotBeNull($"parsing {input} should result in a valid GroupingToken.");
+
+            token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
+
+            var leftToken = token.Left as UnlimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            leftToken.TypedValue.Should().Be(1);
+
+            token.Right.Should().BeNull("the right token is always null for a unary operator");
+
+            token.Operator.Should().Be(OperatorType.Grouping);
+        }
         #endregion Operator parsing
 
         #region MakeDataType
@@ -301,6 +320,10 @@ namespace HisRoyalRedness.com
             configuration = configuration ?? new Configuration();
             return (IDataType<DataType>)_evaluator.Value.Evaluate(Parser.ParseExpression(input, configuration), configuration);
         }
+
+        public static TDataType Evaluate<TDataType>(this string input, IConfiguration configuration = null)
+            where TDataType : IDataType<DataType>
+            => (TDataType)Evaluate(input, configuration);
 
         public static IDataType<TDataEnum> Evaluate<TDataEnum>(this string input, ICalcEngine<TDataEnum> calcEngine, IConfiguration configuration = null)
             where TDataEnum : Enum
@@ -408,6 +431,7 @@ namespace HisRoyalRedness.com
         public const string TEST_TEST = "Test tests";
         public const string VISITOR = "Visitors";
         public const string TOKEN_PRINTER = "Token printer";
+        public const string TOKEN_EVALUATOR = "Token evaluator";
         public const string LITERAL_TOKEN_PARSE = "Literal token parse";
         public const string OPERATOR_TOKEN_PARSE = "Operator token parse";
         public const string FUNCTION_TOKEN_PARSE = "Function token parse";
@@ -416,6 +440,9 @@ namespace HisRoyalRedness.com
         public const string SUBTRACT_OPERATION = "Subtraction";
         public const string MULTIPLY_OPERATION = "Multiplication";
         public const string DIVIDE_OPERATION = "Division";
+        public const string POWER_OPERATION = "Power";
+        public const string ROOT_OPERATION = "Root";
+        public const string MODULO_OPERATION = "Modulo";
         #endregion Test trait descriptions
 
         public static IReadOnlyList<IntegerBitWidth> IntegerBitWidths { get; }

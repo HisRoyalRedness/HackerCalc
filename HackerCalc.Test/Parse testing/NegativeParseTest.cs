@@ -15,7 +15,7 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         [DataRow("1-2", "1 2 -")]
         [DataRow("1i4-2i4", "1i4 2i4 -")]
-        [DataRow("1.0-2.0", "1.000 2.000 -")]
+        [DataRow("1.0-2.0", "1 2 -")]
         public void ASingleMinusIsASimpleExpression(string stringToParse, string expectedParseString)
             => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 
@@ -23,7 +23,7 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         [DataRow("1--2", "1 -2 -")]
         [DataRow("1i4--2i4", "1i4 -2i4 -")]
-        [DataRow("1.0--2.0", "1.000 -2.000 -")]
+        [DataRow("1.0--2.0", "1 -2 -")]
         public void ADoubleMinusIsANegativeNumber(string stringToParse, string expectedParseString)
             => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 
@@ -38,16 +38,16 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         [DataRow("-1-2", "-1 2 -")]
         [DataRow("-1i4-2i4", "-1i4 2i4 -")]
-        [DataRow("-1.0-2.0", "-1.000 2.000 -")]
+        [DataRow("-1.0-2.0", "-1 2 -")]
         [DataRow("-1--2", "-1 -2 -")]
         [DataRow("-1i4--2i4", "-1i4 -2i4 -")]
-        [DataRow("-1.0--2.0", "-1.000 -2.000 -")]
+        [DataRow("-1.0--2.0", "-1 -2 -")]
         [DataRow("(-1-2)", "-1 2 -")]
         [DataRow("(-1i4-2i4)", "-1i4 2i4 -")]
-        [DataRow("(-1.0-2.0)", "-1.000 2.000 -")]
+        [DataRow("(-1.0-2.0)", "-1 2 -")]
         [DataRow("-(-1-2)", "-1 2 - !-")]
         [DataRow("-(-1i4-2i4)", "-1i4 2i4 - !-")]
-        [DataRow("-(-1.0-2.0)", "-1.000 2.000 - !-")]
+        [DataRow("-(-1.0-2.0)", "-1 2 - !-")]
         public void AMinusCanLeadTheExpression(string stringToParse, string expectedParseString)
             => TestCommon.CompareParseTree(stringToParse, expectedParseString);
 

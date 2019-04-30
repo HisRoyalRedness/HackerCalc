@@ -246,19 +246,6 @@ namespace HisRoyalRedness.com
             }
         }
 
-        //#region Operator implementations
-        //public static FloatType pow(FloatType a, FloatType b)
-        //    => new FloatType(Math.Pow(a.Value, b.Value));
-        //public static FloatType root(FloatType a, FloatType b)
-        //    => new FloatType(Math.Pow(a.Value, 1.0 / b.Value));
-        //public static FloatType neg(FloatType a)
-        //    => new FloatType(-a.Value);
-        //#endregion Operator implementations
-
-        //LimitedInteger      LimitedInteger      +, -, *, /, **, //, %, <<, >>, &, |, ^, ~, !-
-        //                    Float               **, //
-        //                    UnlimitedInteger    %, &, |, ^
-
         readonly MinAndMax _minAndMax;
     }
 }
