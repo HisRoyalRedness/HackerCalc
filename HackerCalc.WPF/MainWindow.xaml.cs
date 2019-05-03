@@ -50,7 +50,7 @@ namespace HisRoyalRedness.com
                     }
             };
 
-        PreviewKeyDown += (o, e) =>
+            PreviewKeyDown += (o, e) =>
             {
                 switch(e.Key)
                 {

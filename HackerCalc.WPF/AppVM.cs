@@ -12,10 +12,30 @@ namespace HisRoyalRedness.com
 {
     public class AppVM : NotifyBase
     {
-        public AppVM()
+        #region Singleton
+        public static AppVM Instance => _singleton.Value;
+        private AppVM()
         {
-            //Expression = "1+2+3+4+5u8";
+            Expression = new ExpressionVM(Configuration.Model);
+
+            if (IsInDesigner)
+            {
+                Expression.Input = "1+(2-3*4/5)**6//7";
+                ExpressionHistory.Add(new ExpressionVM(Configuration.Model) { Input = "1+2f/3" });
+            }
         }
+
+        static Lazy<AppVM> _singleton = new Lazy<AppVM>(() => new AppVM());
+        #endregion Singleton
+
+        #region Bindable properties
+        public ExpressionVM Expression
+        {
+            get => _expression;
+            private set { SetProperty(ref _expression, value); }
+        }
+        ExpressionVM _expression;
+        #endregion Bindable properties
 
         #region Key entry
         public void AddChar(char chr)
@@ -24,7 +44,7 @@ namespace HisRoyalRedness.com
                 Expression.Input += chr;
         }
 
-        public void Clear() => Expression.Input = "";
+        public void Clear() => Expression = new ExpressionVM(Configuration.Model);
         public void Back()
         {
             if (Expression.Input.Length > 0)
@@ -35,44 +55,10 @@ namespace HisRoyalRedness.com
         {
             if (Expression.IsValid)
             {
-                ExpressionHistory.Add(Expression.ToString());
+                ExpressionHistory.Add(Expression);
                 Clear();
             }
         }
-        #endregion Key entry
-
-        #region Bindable properties
-
-        #endregion Bindable properties
-
-        public string Errors
-        {
-            get => _errors;
-            private set { SetProperty(ref _errors, value); }
-        }
-        string _errors = default(string);
-
-        public IConfiguration Configuration { get; } = new Configuration();
-
-        //void Evaluate(string expression)
-        //{
-        //    try
-        //    {
-        //        var token = Parser.ParseExpression(expression, Configuration);
-        //        Evaluation = (IDataType<DataType>)_evaluator.Evaluate(token, Configuration);
-        //        Debug.WriteLine(Evaluation);
-        //        Errors = Evaluation == null ? "Error" : string.Empty;
-        //    }
-        //    catch (ApplicationException aex)
-        //    {
-        //        Errors = aex.Message;
-        //    }
-        //}
-
-        public ExpressionVM Expression { get; set; } = new ExpressionVM();
-        public ObservableCollection<string> ExpressionHistory { get; } = new ObservableCollection<string>();
-
-        Evaluator<DataType> _evaluator = new Evaluator<DataType>(CalcEngine.Instance);
 
         // The list of allowable characters
         static readonly HashSet<char> _alphabet =
@@ -82,10 +68,19 @@ namespace HisRoyalRedness.com
              "abcdefghijklmnopqrstuvwxyz" + // alpha lower
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ")  // alpha upper
             .ToHashSet();
+        #endregion Key entry
+
+        public void SetExpression(string input)
+        {
+            Clear();
+            Expression.Input = input;
+        }
+
+        public ConfigurationVM Configuration { get; } = new ConfigurationVM();
+        public ExpressionHistoryVM ExpressionHistory { get; } = new ExpressionHistoryVM();
     }
 
-    
-
+    #region DisplayType
     public class DisplayType : IDataType<DataType>
     {
         public DataType DataType => DataType.Unknown;
@@ -130,4 +125,5 @@ namespace HisRoyalRedness.com
             throw new NotImplementedException();
         }
     }
+    #endregion DisplayType
 }

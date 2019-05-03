@@ -10,18 +10,17 @@ using System.Windows.Media;
 
 namespace HisRoyalRedness.com
 {
-    public class DataTypeToValueConverter : IValueConverter
+    public class DataTypeToValueConverter : OneWayConverter<IDataType<DataType>>
     {
         const string TIME_FORMAT = "hh\\:mm\\:ss";
         const string DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        const string FLOAT_FORMAT = "0.000000";
+        const string FLOAT_FORMAT = "0.############";
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        protected override string ConvertTo(IDataType<DataType> value, object parameter, CultureInfo culture)
         {
-            IDataType<DataType> dataType = value as IDataType<DataType>;
-            if (dataType == null)
+            if (value == null)
                 return null;
-            switch (dataType.DataType)
+            switch (value.DataType)
             {
                 case DataType.LimitedInteger:
                     return ((LimitedIntegerType)value).Value.ToString();
@@ -43,13 +42,10 @@ namespace HisRoyalRedness.com
 
                 default:
                     if (value is DisplayType)
-                        return ((DisplayType)dataType).DisplayValue;
+                        return ((DisplayType)value).DisplayValue;
                     return string.Empty;
             }
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => new NotSupportedException();
     }
 
     public class TokenToLaTeXConverter : OneWayConverter<IToken>

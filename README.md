@@ -66,6 +66,16 @@ Listed in order of precedence
  * [Supported operations](http://en.cppreference.com/w/cpp/language/operator_arithmetic)
  * [Order of operations](http://en.cppreference.com/w/cpp/language/operator_precedence)
 
+Functions
+---------
+Still to design and implement. These are ideas that could be supported
+
+ * Trig (sin, cos, tan)
+ * Logs (Support different bases?)
+ * Factorial
+ * Constants (pi, e, etc.)
+ * Stats ()
+
 Todo
 ----
 

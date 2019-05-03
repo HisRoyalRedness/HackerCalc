@@ -77,9 +77,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\ExpressionM.cs" />
     <Compile Include="View Models\ConfigurationVM.cs" />
+    <Compile Include="View Models\ExpressionHistoryVM.cs" />
     <Compile Include="View Models\ExpressionVM.cs" />
     <Compile Include="View Models\ViewModelBase.cs" />
+    <Compile Include="Controls\ExpressionHistory.xaml.cs">
+      <DependentUpon>ExpressionHistory.xaml</DependentUpon>
+    </Compile>
     <Page Include="Common.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -109,6 +114,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Controls\ExpressionHistory.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalcModel.cs" />
@@ -152,6 +161,9 @@
       <Project>{ee6a6ec5-3106-49f7-8877-faec780e7001}</Project>
       <Name>HackerCalc.Parser</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
