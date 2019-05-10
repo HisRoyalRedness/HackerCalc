@@ -38,8 +38,6 @@ namespace HisRoyalRedness.com
                 return Value.CompareTo(dt3.Value);
             else if (other is TimeType dt4)
                 return Value.CompareTo(dt4.Value);
-            else if (other is UnlimitedIntegerType dt5)
-                return new BigInteger(Value.TotalSeconds).CompareTo(dt5.Value);
             throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
         }
         #endregion Comparison

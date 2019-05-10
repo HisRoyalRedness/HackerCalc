@@ -13,8 +13,8 @@ namespace HisRoyalRedness.com
             Input = string.Empty;
             IsValid = false;
             ParseError = string.Empty;
-            ParsedExpression = UnlimitedIntegerToken.Default;
-            Evaluation = new UnlimitedIntegerType(0);
+            ParsedExpression = RationalNumberToken.Default;
+            Evaluation = new RationalNumberType((int)0);
         }    
 
         public string Input { get; set; }

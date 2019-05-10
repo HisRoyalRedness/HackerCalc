@@ -13,7 +13,7 @@ namespace HisRoyalRedness.com
     {
         [TestMethod]
         public void UnlimitedIntegerTokenEvaluatesCorrectly()
-            => "1".Evaluate<UnlimitedIntegerType>().Value.Should().Be(1);
+            => "1".Evaluate<RationalNumberType>().Value.Should().Be(1);
 
         [TestMethod]
         public void LimitedIntegerTokenEvaluatesCorrectly()
@@ -25,6 +25,6 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         public void GroupingTokenEvaluatesCorrectly()
-            => "(1+2)".Evaluate<UnlimitedIntegerType>().Value.Should().Be(3);
+            => "(1+2)".Evaluate<RationalNumberType>().Value.Should().Be(3);
     }
 }

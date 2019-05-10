@@ -46,7 +46,7 @@ namespace HisRoyalRedness.com
 
         public override int GetHashCode() => IsSigned ? -(int)BitWidth : (int)BitWidth;
 
-        string DisplayString => $"{(IsSigned ? "I" : "U")}{BitWidth.GetEnumDescription()}";
+        string DisplayString => $"{(IsSigned ? "I" : "U")}{(BitWidth == IntegerBitWidth.Unlimited ? "" : BitWidth.GetEnumDescription())}";
         public override string ToString() => DisplayString;
     }
     #endregion SignAndBitWidthPair
@@ -65,7 +65,9 @@ namespace HisRoyalRedness.com
         [Description("64")]
         _64 = 64,
         [Description("128")]
-        _128 = 128
+        _128 = 128,
+        [Description("Unlimited")]
+        Unlimited
     }
     #endregion IntegerBitWidth
 
@@ -82,17 +84,26 @@ namespace HisRoyalRedness.com
 
         public MinAndMax(IntegerBitWidth bitWidth, bool isSigned)
         {
-            Mask = BigInteger.Pow(2, (int)bitWidth) - 1;
-            if (isSigned)
+            if (bitWidth == IntegerBitWidth.Unlimited)
             {
-                var num = BigInteger.Pow(2, (int)bitWidth - 1);
-                Min = -num;
-                Max = num - 1;
+                Mask = 0;
+                Min = 0;
+                Max = 0;
             }
             else
             {
-                Min = 0;
-                Max = Mask;
+                Mask = BigInteger.Pow(2, (int)bitWidth) - 1;
+                if (isSigned)
+                {
+                    var num = BigInteger.Pow(2, (int)bitWidth - 1);
+                    Min = -num;
+                    Max = num - 1;
+                }
+                else
+                {
+                    Min = 0;
+                    Max = Mask;
+                }
             }
         }
 

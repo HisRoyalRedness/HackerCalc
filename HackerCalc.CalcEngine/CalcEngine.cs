@@ -116,7 +116,6 @@ namespace HisRoyalRedness.com
             }
             else
                 throw new InvalidCalcOperationException("Only unary and binary operations are supported");
-            return null;
         }
 
         internal static DataTypePair<DataType> GetDataTypePair(IDataType<DataType> left, IDataType<DataType> right)

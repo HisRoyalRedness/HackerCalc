@@ -81,7 +81,7 @@
     <Compile Include="Parse testing\NegativeParseTest.cs" />
     <Compile Include="Parse testing\TimeParseTest.cs" />
     <Compile Include="Parse testing\TimespanTokenTest.cs" />
-    <Compile Include="Parse testing\UnlimitedIntegerParseTest.cs" />
+    <Compile Include="Parse testing\RationalNumberTokenParseTest.cs" />
     <Compile Include="FluentAssertionsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test tests\TestCommonTest_MakeDataType.cs" />
@@ -90,6 +90,7 @@
     <Compile Include="Type casting\LimitedIntegerTypeRangeTest.cs" />
     <Compile Include="Type casting\TypeCastTest.cs" />
     <Compile Include="Types\LimitedIntegerTypeTests.cs" />
+    <Compile Include="Types\RationalNumberTests.cs" />
     <Compile Include="Visitors\EvaluatorTests.cs" />
     <Compile Include="Visitors\TokenPrinterTest.cs" />
   </ItemGroup>

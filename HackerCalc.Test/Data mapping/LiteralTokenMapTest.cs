@@ -37,10 +37,10 @@ namespace HisRoyalRedness.com
         public void ConvertTimespanTokenToTimespanType()
             => ConvertToDataType<TimespanType>(LiteralTokenType.Timespan);
 
-        [TestCategory(nameof(UnlimitedIntegerType))]
+        [TestCategory(nameof(RationalNumberType))]
         [TestMethod]
-        public void ConvertUnlimitedIntegerTokenToUnlimitedIntegerType()
-            => ConvertToDataType<UnlimitedIntegerType>(LiteralTokenType.UnlimitedInteger);
+        public void ConvertRationalNumberTokenToRationalNumberType()
+            => ConvertToDataType<RationalNumberType>(LiteralTokenType.Rational);
 
         static TDataType ConvertToDataType<TDataType>(LiteralTokenType tokenType)
             where TDataType : class, IDataType<DataType>

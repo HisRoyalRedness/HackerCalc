@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
         #endregion Parsing
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as FloatToken);
+        public override bool Equals(object obj) => obj is FloatToken ft ? Equals(ft) : false;
         public override bool Equals(FloatToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 

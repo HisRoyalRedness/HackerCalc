@@ -18,9 +18,11 @@ namespace HisRoyalRedness.com
 
         static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth, IConfiguration configuration)
         {
+            var isUnlimited = signAndBitwidth.BitWidth == IntegerBitWidth.Unlimited;
             var minAndMax = MinAndMaxMap.Instance[signAndBitwidth];
             var oldValue = value;
-            value &= minAndMax.Mask;
+            if (!isUnlimited)
+                value &= minAndMax.Mask;
 
             var state = (configuration?.State as CalcState) ?? new CalcState();
 
@@ -32,7 +34,7 @@ namespace HisRoyalRedness.com
                     throw new InvalidCalcOperationException("Overflow or underflow of LimitedIntegerTypes is not permitted.");
             }
 
-            if (signAndBitwidth.IsSigned)
+            if (signAndBitwidth.IsSigned && !isUnlimited)
             {
                 if (value > minAndMax.Max)
                     value -= (minAndMax.Mask  + 1);
@@ -95,7 +97,7 @@ namespace HisRoyalRedness.com
                 return Value.CompareTo(new BigInteger(dt3.Value.TotalSeconds));
             else if (other is TimeType dt4)
                 return Value.CompareTo(new BigInteger(dt4.Value.TotalSeconds));
-            else if (other is UnlimitedIntegerType dt5)
+            else if (other is RationalNumberType dt5)
                 return Value.CompareTo(dt5.Value);
             throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
         }
@@ -110,8 +112,8 @@ namespace HisRoyalRedness.com
                     return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
                 case nameof(FloatType):
                     return new FloatType((double)Value) as TNewType;
-                case nameof(UnlimitedIntegerType):
-                    return new UnlimitedIntegerType(Value) as TNewType;
+                case nameof(RationalNumberType):
+                    return new RationalNumberType(new RationalNumber(Value)) as TNewType;
             }
             return null;
         }
@@ -141,7 +143,7 @@ namespace HisRoyalRedness.com
             //715 Otherwise, if the type of the operand with signed integer type can represent all of the 
             //    values of the type of the operand with unsigned integer type, then the operand with unsigned 
             //    integer type is converted to the type of the operand with signed integer type.
-            if (a.IsSigned && b.Value <= a.Max)
+            if (a.IsSigned && (a.BitWidth == IntegerBitWidth.Unlimited || b.Value <= a.Max))
                 return a.SignAndBitWidth;
             if (b.IsSigned && a.Value <= b.Max)
                 return b.SignAndBitWidth;

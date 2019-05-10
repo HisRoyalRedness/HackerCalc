@@ -38,8 +38,8 @@ namespace HisRoyalRedness.com
                 return Value.CompareTo(dt3.Value);
             else if (other is TimeType dt4)
                 return Value.CompareTo(dt4.Value);
-            else if (other is UnlimitedIntegerType dt5)
-                return new BigInteger(Value.TotalSeconds).CompareTo(dt5.Value);
+            //else if (other is UnlimitedIntegerType dt5)
+            //    return new BigInteger(Value.TotalSeconds).CompareTo(dt5.Value);
             throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
         }
         #endregion Comparison
@@ -80,8 +80,8 @@ namespace HisRoyalRedness.com
                     {
                         case DataType.LimitedInteger:
                             return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks * ((LimitedIntegerType)operands[1]).Value)));
-                        case DataType.UnlimitedInteger:
-                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks * ((UnlimitedIntegerType)operands[1]).Value)));
+                        case DataType.RationalNumber:
+                            return new TimespanType(TimeSpan.FromTicks((long)(BigInteger)(((TimespanType)operands[0]).Value.Ticks * ((RationalNumberType)operands[1]).Value)));
                         case DataType.Float:
                             return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds * ((FloatType)operands[1]).Value));
                     }
@@ -91,8 +91,8 @@ namespace HisRoyalRedness.com
                     {
                         case DataType.LimitedInteger:
                             return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks / ((LimitedIntegerType)operands[1]).Value)));
-                        case DataType.UnlimitedInteger:
-                            return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks / ((UnlimitedIntegerType)operands[1]).Value)));
+                        case DataType.RationalNumber:
+                            return new TimespanType(TimeSpan.FromTicks((long)(BigInteger)(((TimespanType)operands[0]).Value.Ticks / ((RationalNumberType)operands[1]).Value)));
                         case DataType.Float:
                             return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds / ((FloatType)operands[1]).Value));
                         case DataType.Timespan:

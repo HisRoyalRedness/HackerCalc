@@ -75,10 +75,10 @@ namespace HisRoyalRedness.com
         [DataRow("", "1")]
         [DataRow("123456", "123456")]
         [DataRow("-48", "-48")]
-        public void MakeDataType_UnlimitedInteger(string tokenValue, string expectedValue)
+        public void MakeDataType_Rational(string tokenValue, string expectedValue)
         {
-            var dataType = MakeDataType<UnlimitedIntegerType>(DataType.UnlimitedInteger, tokenValue);
-            dataType.Value.Should().Be(BigInteger.Parse(expectedValue));
+            var dataType = MakeDataType<RationalNumberType>(DataType.RationalNumber, tokenValue);
+            dataType.Value.Should().Be(TestCommon.ParseFraction(expectedValue).ToRationalNumber());
         }
 
         static internal TDataType MakeDataType<TDataType>(DataType dataType, string value = "")

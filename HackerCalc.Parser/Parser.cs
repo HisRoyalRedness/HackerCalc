@@ -86,7 +86,7 @@ namespace HisRoyalRedness.com
                 case _typed_ts_seconds:
                     return portion == TimePortion.Seconds || portion == TimePortion.Any;
 
-                case _dec_unlimited_int:
+                case _dec_rational_int:
                 case _true_float:
                     // true_float could be a time portion or just a numeric value.
                     // Return true if it's a time portion. Assume anything else is a numeric

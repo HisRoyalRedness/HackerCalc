@@ -63,7 +63,7 @@ namespace HisRoyalRedness.com
             if (string.IsNullOrWhiteSpace(Input))
             {
                 ParsedExpression = null;
-                Evaluation = new UnlimitedIntegerType(0);
+                Evaluation = new RationalNumberType(0);
                 IsValid = false;
             }
             else

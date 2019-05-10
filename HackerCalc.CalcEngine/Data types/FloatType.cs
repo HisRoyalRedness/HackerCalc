@@ -38,8 +38,8 @@ namespace HisRoyalRedness.com
                 return Value.CompareTo(dt3.Value.TotalSeconds);
             else if (other is TimeType dt4)
                 return Value.CompareTo(dt4.Value.TotalSeconds);
-            else if (other is UnlimitedIntegerType dt5)
-                return Value.CompareTo((float)dt5.Value);
+            //else if (other is UnlimitedIntegerType dt5)
+            //    return Value.CompareTo((float)dt5.Value);
             throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
         }
         #endregion Comparison
@@ -51,8 +51,8 @@ namespace HisRoyalRedness.com
             {
                 case nameof(TimespanType):
                     return new TimespanType(TimeSpan.FromSeconds(Value)) as TNewType;
-                case nameof(UnlimitedIntegerType):
-                    return new UnlimitedIntegerType(new BigInteger(Value)) as TNewType;
+                //case nameof(UnlimitedIntegerType):
+                //    return new UnlimitedIntegerType(new BigInteger(Value)) as TNewType;
             }
             return null;
         }

@@ -108,6 +108,7 @@ Todo
 * Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
 * <mark>Add tests for IConfiguration and ICalcState</mark>
 * <mark>Add calc for colour (convert RGB to LAB etc., add/remove luminance)</mark>
+* <mark>Relook at data type comparison. Why compare TimespanType to LimitedInteger??</mark>
 
 License
 -------

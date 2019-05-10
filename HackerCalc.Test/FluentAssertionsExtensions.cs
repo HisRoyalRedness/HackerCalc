@@ -78,20 +78,20 @@ namespace HisRoyalRedness.com
             => Subject.TypedValue.Equals(expected);
     }
     #endregion TimeTokenAssertions
-    #region UnlimitedIntegerTokenAssertions
-    public class UnlimitedIntegerTokenAssertions : LiteralTokenAssertions<UnlimitedIntegerToken, BigInteger>
+    #region RationalNumberTokenAssertions
+    public class RationalNumberTokenAssertions : LiteralTokenAssertions<RationalNumberToken, RationalNumber>
     {
-        public UnlimitedIntegerTokenAssertions(UnlimitedIntegerToken value)
+        public RationalNumberTokenAssertions(RationalNumberToken value)
             : base(value)
         { }
 
-        protected override bool TokenEquals(UnlimitedIntegerToken expected)
+        protected override bool TokenEquals(RationalNumberToken expected)
             => Subject.Equals(expected);
 
-        protected override bool TypedValueEqual(BigInteger expected)
+        protected override bool TypedValueEqual(RationalNumber expected)
             => Subject.TypedValue.Equals(expected);
     }
-    #endregion UnlimitedIntegerTokenAssertions
+    #endregion RationalNumberTokenAssertions
     #region LiteralTokenAssertions
     public abstract class LiteralTokenAssertions<TToken, TTypedValue> : ReferenceTypeAssertions<TToken, LiteralTokenAssertions<TToken, TTypedValue>>
         where TToken : class, ILiteralToken
@@ -151,7 +151,7 @@ namespace HisRoyalRedness.com
         public static LimitedIntegerTokenAssertions Should(this LimitedIntegerToken token) => new LimitedIntegerTokenAssertions(token);
         public static TimespanTokenAssertions Should(this TimespanToken token) => new TimespanTokenAssertions(token);
         public static TimeTokenAssertions Should(this TimeToken token) => new TimeTokenAssertions(token);
-        public static UnlimitedIntegerTokenAssertions Should(this UnlimitedIntegerToken token) => new UnlimitedIntegerTokenAssertions(token);
+        public static RationalNumberTokenAssertions Should(this RationalNumberToken token) => new RationalNumberTokenAssertions(token);
 
         public static IDataTypeAssertions Should(this IDataType<DataType> dataType) => new IDataTypeAssertions(dataType);
 

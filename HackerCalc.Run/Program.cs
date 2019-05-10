@@ -154,9 +154,9 @@ namespace HisRoyalRedness.com
                                 val += $"{(typedToken.IsSigned ? "I" : "U")}{(int)(typedToken.BitWidth)}";
                         }
                         break;
-                    case LiteralTokenType.UnlimitedInteger:
+                    case LiteralTokenType.Rational:
                         {
-                            var typedToken = literalToken as UnlimitedIntegerToken;
+                            var typedToken = literalToken as RationalNumberToken;
                             val = typedToken.TypedValue.ToString();
                         }
                         break;

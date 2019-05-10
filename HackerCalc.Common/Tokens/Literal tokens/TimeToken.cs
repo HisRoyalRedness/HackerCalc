@@ -38,7 +38,7 @@ namespace HisRoyalRedness.com
         #endregion Parsing
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as TimeToken);
+        public override bool Equals(object obj) => obj is TimeToken tt ? Equals(tt) : false;
         public override bool Equals(TimeToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 

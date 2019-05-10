@@ -65,6 +65,7 @@ CHARACTERS
 
 TOKENS
 
+    i0                  = signed_int_mod "0".
     i4                  = signed_int_mod "4".
     i8                  = signed_int_mod "8".
     i16                 = signed_int_mod "16".
@@ -81,16 +82,21 @@ TOKENS
 
     /* Limited integers: These are integers limited to a particular bitwidth */
     /* Sign flags and bitwidth are added with CONTEXT to ensure that we parse them with no whitespace between the number, sign flag and bit width */
-    bin_limited_int     = binary_type_mod zero_to_one { zero_to_one } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
-    oct_limited_int     = octal_type_mod zero_to_seven { zero_to_seven } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
-    dec_limited_int     = digit { digit } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
-    hex_limited_int     = "0x" hex { hex } CONTEXT ( (signed_int_mod | unsigned_int_mod) ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    /* Support is also given for a signed integer not bound by bitwidth. There is no unsigned equivalent */
+    bin_limited_int_i   = binary_type_mod zero_to_one { zero_to_one } CONTEXT ( signed_int_mod ( "0" | "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    oct_limited_int_i   = octal_type_mod zero_to_seven { zero_to_seven } CONTEXT ( signed_int_mod ( "0" | "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    dec_limited_int_i   = digit { digit } CONTEXT ( signed_int_mod ( "0" | "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    hex_limited_int_i   = "0x" hex { hex } CONTEXT ( signed_int_mod ( "0" | "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    bin_limited_int_u   = binary_type_mod zero_to_one { zero_to_one } CONTEXT ( unsigned_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    oct_limited_int_u   = octal_type_mod zero_to_seven { zero_to_seven } CONTEXT ( unsigned_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    dec_limited_int_u   = digit { digit } CONTEXT ( unsigned_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
+    hex_limited_int_u   = "0x" hex { hex } CONTEXT ( unsigned_int_mod ( "4" | "8" | "16" | "32" | "64" | "128" ) ).
 
-    /* Unlimited integers: Not bound be any limits  */
-    bin_unlimited_int   = binary_type_mod zero_to_one { zero_to_one }.
-    oct_unlimited_int   = octal_type_mod zero_to_seven { zero_to_seven }.
-    dec_unlimited_int   = digit { digit }.
-    hex_unlimited_int   = "0x" hex { hex }.
+    /* Rational numbers  */
+    bin_rational_int    = binary_type_mod zero_to_one { zero_to_one }.
+    oct_rational_int    = octal_type_mod zero_to_seven { zero_to_seven }.
+    dec_rational_int    = digit { digit }.
+    hex_rational_int    = "0x" hex { hex }.
 
     true_float          = {digit} '.' digit {digit}.
     typed_float         = digit { digit } CONTEXT ( flt_type_mod ).
@@ -217,7 +223,7 @@ NotExpr<out IToken token>                                       (. IToken tk = n
 
 //Cast<out IToken token>                                          (. IToken tk = null; OperatorToken op = null; .)
 //=                   [ 
-//                          unlimited_cast                        (. op = CastOperatorToken.UnlimitedIntegerCast(); .)
+//                          unlimited_cast                        (. op = CastOperatorToken.RationalNumberCast(); .)
 //                        | signed_cast                           (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), true); .)
 //                        | unsigned_cast                         (. op = CastOperatorToken.LimitedIntegerCast(LimitedIntegerToken.ParseBitWidth(t.val), false); .)
 //                        | float_cast                            (. op = CastOperatorToken.FloatCast(); .)
@@ -323,7 +329,7 @@ Numeric<out IToken token>                                       (. token = null;
 Integer<out IToken token, ref bool isNeg>                       (. token = null; .)
 =
                     (
-                        UnlimitedInteger<out token, ref isNeg>
+                        RationalNumber<out token, ref isNeg>
                         |
                         LimitedInteger<out token, ref isNeg>
                     )
@@ -349,35 +355,46 @@ Timespan<out IToken token>                                      (. TimespanToken
 =                   TimespanDaysOrLess<out tk>                  (. token = tk; .)
 .
 
-UnlimitedInteger<out IToken token, ref bool isNeg>
+RationalNumber<out IToken token, ref bool isNeg>
 =                                                               (. var intBase = IntegerBase.Decimal; .)
                     (
-                        dec_unlimited_int
+                        dec_rational_int
                         |
-                        hex_unlimited_int                       (. intBase = IntegerBase.Hexadecimal; .)
+                        hex_rational_int                        (. intBase = IntegerBase.Hexadecimal; .)
                         |
-                        bin_unlimited_int                       (. intBase = IntegerBase.Binary; .)
+                        bin_rational_int                        (. intBase = IntegerBase.Binary; .)
                         |
-                        oct_unlimited_int                       (. intBase = IntegerBase.Octal; .)
-                    )                                           (. token = UnlimitedIntegerToken.Parse(t.val, intBase, isNeg, GetPos(t), Configuration); .)
+                        oct_rational_int                        (. intBase = IntegerBase.Octal; .)
+                    )                                           (. token = RationalNumberToken.Parse(t.val, intBase, isNeg, false, GetPos(t), Configuration); .)
 .
 
 LimitedInteger<out IToken token, ref bool isNeg>
-=                                                               (. var intBase = IntegerBase.Decimal; .)
+=                                                               (. var intBase = IntegerBase.Decimal; var isSigned = true; .)
                     (
-                        dec_limited_int
+                        (
+                            dec_limited_int_i
+                            |
+                            hex_limited_int_i                   (. intBase = IntegerBase.Hexadecimal; .)
+                            |
+                            bin_limited_int_i                   (. intBase = IntegerBase.Binary; .)
+                            |
+                            oct_limited_int_i                   (. intBase = IntegerBase.Octal; .)
+                        )
                         |
-                        hex_limited_int                         (. intBase = IntegerBase.Hexadecimal; .)
-                        |
-                        bin_limited_int                         (. intBase = IntegerBase.Binary; .)
-                        |
-                        oct_limited_int                         (. intBase = IntegerBase.Octal; .)
-                    )                                           (. var intVal = t.val; var isSigned = true; var signAndBitWidth = ""; var pos = GetPos(t); .)
+                        (
+                            dec_limited_int_u
+                            |
+                            hex_limited_int_u                   (. intBase = IntegerBase.Hexadecimal; .)
+                            |
+                            bin_limited_int_u                   (. intBase = IntegerBase.Binary; .)
+                            |
+                            oct_limited_int_u                   (. intBase = IntegerBase.Octal; .)
+                        )                                       (. isSigned = false; .)
+                    )                                           (. var intVal = t.val; var pos = GetPos(t); .)
                     (
-                        ( i4 | i8 | i16 | i32 | i64 | i128 )    (. signAndBitWidth = t.val; .)
-                        |
-                        ( u4 | u8 | u16 | u32 | u64 | u128 )    (. signAndBitWidth = t.val; isSigned = false; .)
-                    )
+                        i0 | i4 | i8 | i16 | i32 | i64 | i128 |
+                        u4 | u8 | u16 | u32 | u64 | u128
+                    )                                           (. var signAndBitWidth = t.val; .)
                                                                 (. var bitWidth = LimitedIntegerToken.ParseBitWidth(signAndBitWidth.Substring(1)); .)
                                                                 (. var rawToken = intVal + signAndBitWidth; .)
                                                                 (. token = LimitedIntegerToken.Parse(intVal, intBase, bitWidth, isSigned, isNeg, rawToken, pos, Configuration); .)
@@ -504,7 +521,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = Times
 //                        )
 //                        |
 //                        (
-//                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+//                            dec_rational_int                    (. seconds = t.val; pos = GetPos(t); .)
 //                            ts_nanosec_type                     (. tsType = t.val; .)
 //                        )
 //                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000000.0), $"{seconds} {tsType}", pos, Configuration); .)
@@ -518,7 +535,7 @@ TimespanMilliSecondsOrLess<out TimespanToken token>             (. token = Times
 //                        )
 //                        |
 //                        (
-//                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+//                            dec_rational_int                    (. seconds = t.val; pos = GetPos(t); .)
 //                            ts_microsec_type                    (. tsType = t.val; .)
 //                        )
 //                    )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)/1000.0), $"{seconds} {tsType}", pos, Configuration); .)
@@ -532,7 +549,7 @@ TimespanMilliSeconds<out TimespanToken token>                   (. var seconds =
                         )
                         |
                         (
-                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+                            dec_rational_int                    (. seconds = t.val; pos = GetPos(t); .)
                             ts_millisec_type                    (. tsType = t.val; .)
                         )
                     )                                           (. token = TimespanToken.Parse(TimeSpan.FromMilliseconds(double.Parse(seconds)), $"{seconds} {tsType}", pos, Configuration); .)
@@ -551,7 +568,7 @@ TimespanSeconds<out TimespanToken token>                        (. var seconds =
                         )
                         |
                         (
-                            dec_unlimited_int                   (. seconds = t.val; pos = GetPos(t); .)
+                            dec_rational_int                    (. seconds = t.val; pos = GetPos(t); .)
                             ts_seconds_type                     (. tsType = t.val; .)
                         )
                     )                                           (. token = TimespanToken.Parse(TimeSpan.FromSeconds(double.Parse(seconds)), $"{seconds} {tsType}", pos, Configuration); .)
@@ -567,7 +584,7 @@ TimespanMinutes<out TimespanToken token>
                         )
                         |
                         (
-                            dec_unlimited_int                   (. minutes = t.val; pos = GetPos(t); .)
+                            dec_rational_int                    (. minutes = t.val; pos = GetPos(t); .)
                             ts_minutes_type                     (. tsType = t.val; .)
                         )
                     )                                           (. token = TimespanToken.Parse(TimeSpan.FromMinutes(double.Parse(minutes)), $"{minutes} {tsType}", pos, Configuration); .)
@@ -583,7 +600,7 @@ TimespanHours<out TimespanToken token>
                         )
                         |
                         (
-                            dec_unlimited_int                   (. hours = t.val; pos = GetPos(t); .)
+                            dec_rational_int                    (. hours = t.val; pos = GetPos(t); .)
                             ts_hours_type                       (. tsType = t.val; .)
                         )
                     )                                           (. token = TimespanToken.Parse(TimeSpan.FromHours(double.Parse(hours)), $"{hours} {tsType}", pos, Configuration); .)
@@ -599,7 +616,7 @@ TimespanDays<out TimespanToken token>
                         )
                         |
                         (
-                            dec_unlimited_int                   (. days = t.val; pos = GetPos(t); .)
+                            dec_rational_int                    (. days = t.val; pos = GetPos(t); .)
                             ts_days_type                        (. tsType = t.val; .)
                         )
                     )                                           (. token = TimespanToken.Parse(TimeSpan.FromDays(double.Parse(days)), $"{days} {tsType}", pos, Configuration); .)

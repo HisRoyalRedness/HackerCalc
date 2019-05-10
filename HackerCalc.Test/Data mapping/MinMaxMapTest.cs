@@ -20,8 +20,12 @@ namespace HisRoyalRedness.com
             {
                 var isSigned = signAndBitwidth.IsSigned;
                 var bitWidth = signAndBitwidth.BitWidth;
-                var expectedMin = isSigned ? BigInteger.Pow(new BigInteger(2), (int)bitWidth - 1) * -1 : 0;
-                var expectedMax = isSigned ? BigInteger.Pow(new BigInteger(2), (int)bitWidth - 1) -1 : BigInteger.Pow(new BigInteger(2), (int)bitWidth) - 1;
+                var expectedMin = signAndBitwidth.BitWidth == IntegerBitWidth.Unlimited
+                    ? 0
+                    : (isSigned ? BigInteger.Pow(new BigInteger(2), (int)bitWidth - 1) * -1 : 0);
+                var expectedMax = signAndBitwidth.BitWidth == IntegerBitWidth.Unlimited
+                    ? 0
+                    : (isSigned ? BigInteger.Pow(new BigInteger(2), (int)bitWidth - 1) -1 : BigInteger.Pow(new BigInteger(2), (int)bitWidth) - 1);
 
                 MinAndMaxMap.Instance.ContainsKey(signAndBitwidth).Should().BeTrue();
                 var minMax = MinAndMaxMap.Instance[signAndBitwidth];

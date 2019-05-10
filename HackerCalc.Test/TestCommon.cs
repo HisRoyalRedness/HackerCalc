@@ -64,8 +64,8 @@ namespace HisRoyalRedness.com
                         return LimitedIntegerToken.Parse(num, numBase, bitWidth, isSigned, isNeg, tokenArg, SourcePosition.None, configuration ?? new Configuration() { IgnoreLimitedIntegerMaxMinRange = true });
                     }
 
-                case "unlimitedinteger":
-                case "unlimitedintegertoken":
+                case "rationalnumber":
+                case "rationalnumbertoken":
                     {
                         var portions = _unlimitedIntegerRegex.Match(tokenArg);
                         var isNeg = portions.Groups[1].Value == "-";
@@ -79,7 +79,7 @@ namespace HisRoyalRedness.com
                             default: throw new ArgumentOutOfRangeException($"Unhandled numeric base indicator '{portions.Groups[2].Value}'");
                         }
                         var num = portions.Groups[3].Value;
-                        return UnlimitedIntegerToken.Parse(num, numBase, isNeg, SourcePosition.None, configuration);
+                        return RationalNumberToken.Parse(num, numBase, isNeg, false, SourcePosition.None, configuration);
                     }
 
                 case "timespan":
@@ -124,10 +124,10 @@ namespace HisRoyalRedness.com
                         ? TimespanToken.One
                         : MakeLiteralToken($"timespan {value}");
 
-                case LiteralTokenType.UnlimitedInteger:
+                case LiteralTokenType.Rational:
                     return string.IsNullOrEmpty(value)
-                        ? UnlimitedIntegerToken.One
-                        : MakeLiteralToken($"unlimitedinteger {value}");
+                        ? RationalNumberToken.One
+                        : MakeLiteralToken($"rationalnumber {value}");
 
                 default:
                     throw new TestOperationException($"Unsupported literal token type {tokenType}");
@@ -198,8 +198,8 @@ namespace HisRoyalRedness.com
                 case nameof(TimeToken):
                     LiteralTokenValueCheck(token as TimeToken, TimeSpan.Parse(expectedValue));
                     break;
-                case nameof(UnlimitedIntegerToken):
-                    LiteralTokenValueCheck(token as UnlimitedIntegerToken, BigInteger.Parse(expectedValue));
+                case nameof(RationalNumberToken):
+                    LiteralTokenValueCheck(token as RationalNumberToken, ParseFraction(expectedValue).ToRationalNumber());
                     break;
                 default:
                     throw new TestOperationException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
@@ -226,8 +226,8 @@ namespace HisRoyalRedness.com
                 case nameof(TimeToken):
                     (token as TimeToken).Should().BeTypedValue((expectedValue as TimeSpan?).Value);
                     break;
-                case nameof(UnlimitedIntegerToken):
-                    (token as UnlimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
+                case nameof(RationalNumberToken):
+                    (token as RationalNumberToken).Should().BeTypedValue((expectedValue as RationalNumber?).Value);
                     break;
                 default:
                     throw new TestOperationException($"Could not do a comparison of {typeof(TToken).Name}. The type is unsuppported.");
@@ -246,12 +246,12 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(UnlimitedIntegerToken)}");
+            var leftToken = token.Left as LimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(LimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(leftValue);
 
-            var rightToken = token.Right as UnlimitedIntegerToken;
-            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            var rightToken = token.Right as LimitedIntegerToken;
+            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(LimitedIntegerToken)}");
             rightToken.TypedValue.Should().Be(rightValue);
 
             token.Operator.Should().Be(expectedType);
@@ -267,8 +267,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            var leftToken = token.Left as LimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(LimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
@@ -286,8 +286,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as UnlimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(UnlimitedIntegerToken)}");
+            var leftToken = token.Left as LimitedIntegerToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(LimitedIntegerToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
@@ -307,13 +307,46 @@ namespace HisRoyalRedness.com
                 case DataType.LimitedInteger: token = MakeLiteralToken(LiteralTokenType.LimitedInteger, tokenString); break;
                 case DataType.Time: token = MakeLiteralToken(LiteralTokenType.Time, tokenString); break;
                 case DataType.Timespan: token = MakeLiteralToken(LiteralTokenType.Timespan, tokenString); break;
-                case DataType.UnlimitedInteger: token = MakeLiteralToken(LiteralTokenType.UnlimitedInteger, tokenString); break;
+                case DataType.RationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
                 default:
                     throw new TestOperationException($"Unsupported data type '{dataType}'.");
             }
             return CalcEngine.Instance.ConvertToTypedDataType(token, configuration);
         }
         #endregion MakeDataType
+
+        #region Rational numbers
+        public static Tuple<BigInteger, BigInteger> ParseFraction(this string fraction)
+        {
+            var nums = fraction.Split(new[] { '/' });
+            if (nums.Length == 2)
+                return new Tuple<BigInteger, BigInteger>(BigInteger.Parse(nums[0]), BigInteger.Parse(nums[1]));
+
+            if (nums.Length == 1)
+                return new Tuple<BigInteger, BigInteger>(BigInteger.Parse(nums[0]), 1);
+
+            throw new ApplicationException("Not a valid fraction");
+        }
+
+        public static RationalNumber ToRationalNumber(this Tuple<BigInteger, BigInteger> frac) 
+            => new RationalNumber(frac.Item1, frac.Item2);
+
+        public static RationalNumber ToRationalNumber(this string fraction)
+            => fraction.ParseFraction().ToRationalNumber();
+
+        public static void TestRationalNumber(string actual, string expected)
+        {
+            if (expected == null)
+                new Action(() => actual.ToRationalNumber()).Should().Throw<ParseException>();
+            else
+            {
+                var rat = actual.ToRationalNumber();
+                var exp = expected.ParseFraction();
+                rat.Numerator.Should().Be(exp.Item1, $"numerator was expected to be {exp.Item1}, but was {rat.Numerator}");
+                rat.Denominator.Should().Be(exp.Item2, $"denominator was expected to be {exp.Item2}, but was {rat.Denominator}");
+            }
+        }
+        #endregion Rational numbers
 
         public static IDataType<DataType> Evaluate(this string input, IConfiguration configuration = null)
         {

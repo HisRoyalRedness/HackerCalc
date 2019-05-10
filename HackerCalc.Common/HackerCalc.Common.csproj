@@ -47,6 +47,8 @@
     <Compile Include="Calc engine\DataTypePair.cs" />
     <Compile Include="Configuration\CalcState.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Tokens\Literal tokens\RationalNumberToken.cs" />
+    <Compile Include="Types\RationalNumber.cs" />
     <Compile Include="Visitors\IEvaluator.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Constants.cs" />
@@ -68,7 +70,6 @@
     <Compile Include="Tokens\Literal tokens\LimitedIntegerToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimespanToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimeToken.cs" />
-    <Compile Include="Tokens\Literal tokens\UnlimitedIntegerToken.cs" />
     <Compile Include="Tokens\LiteralToken.cs" />
     <Compile Include="Tokens\OperatorToken.cs" />
     <Compile Include="Tokens\TokenBase.cs" />

@@ -27,7 +27,7 @@ namespace HisRoyalRedness.com
             SignAndBitWidth = new BitWidthAndSignPair(bitWidth, isSigned);
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
 
-            if (!(configuration?.IgnoreLimitedIntegerMaxMinRange ?? false))
+            if (!(configuration?.IgnoreLimitedIntegerMaxMinRange ?? false) && bitWidth != IntegerBitWidth.Unlimited)
             {
                 if (typedValue < _minAndMax.Min)
                     throw new ParseException($"{typedValue} is less than the minimum of {_minAndMax.Min} for a {bitWidth.GetEnumDescription()}-bit {(isSigned ? "signed" : "unsigned")} {nameof(LimitedIntegerToken)} ");
@@ -44,10 +44,10 @@ namespace HisRoyalRedness.com
             BigInteger val;
             switch (numBase)
             {
-                case IntegerBase.Binary: val = value.Replace("b", "").Replace("B", "").BigIntegerFromBinary(); break;
-                case IntegerBase.Octal: val = value.Replace("o", "").Replace("O", "").BigIntegerFromOctal(); break;
+                case IntegerBase.Binary: val = value.StripLeadingType("b").BigIntegerFromBinary(); break;
+                case IntegerBase.Octal: val = value.StripLeadingType("o").BigIntegerFromOctal(); break;
                 case IntegerBase.Decimal: val = BigInteger.Parse(value, NumberStyles.Integer); break;
-                case IntegerBase.Hexadecimal: val = BigInteger.Parse(value.Replace("0x", "00").Replace("0X", "00"), NumberStyles.HexNumber); break;
+                case IntegerBase.Hexadecimal: val = BigInteger.Parse(value.StripLeadingType("0x", "00"), NumberStyles.HexNumber); break;
                 default:
                     throw new ParseException($"Unhandled integer base {numBase}.");
             }
@@ -58,6 +58,9 @@ namespace HisRoyalRedness.com
         {
             switch (bitWidth.ToLower())
             {
+                case "0":
+                case "(i0)":
+                    return IntegerBitWidth.Unlimited;
                 case "4":
                 case "(i4)":
                 case "(u4)":
@@ -88,7 +91,7 @@ namespace HisRoyalRedness.com
         #endregion Parsing
 
         #region Equality
-        public override bool Equals(object obj) => Equals(obj as LimitedIntegerToken);
+        public override bool Equals(object obj) => obj is LimitedIntegerToken lit ? Equals(lit) : false;
         public override bool Equals(LimitedIntegerToken other) => other is null ? false : (TypedValue == other.TypedValue);
         public override int GetHashCode() => TypedValue.GetHashCode();
 

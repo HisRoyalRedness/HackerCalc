@@ -77,10 +77,10 @@ namespace HisRoyalRedness.com
         [DataRow("", "1")]
         [DataRow("123456", "123456")]
         [DataRow("-48", "-48")]
-        public void MakeLiteralToken_UnlimitedInteger(string tokenValue, string expectedValue)
+        public void MakeLiteralToken_RationalNumber(string tokenValue, string expectedValue)
         {
-            var token = MakeToken<UnlimitedIntegerToken>(LiteralTokenType.UnlimitedInteger, tokenValue);
-            token.TypedValue.Should().Be(BigInteger.Parse(expectedValue));
+            var token = MakeToken<RationalNumberToken>(LiteralTokenType.Rational, tokenValue);
+            token.TypedValue.Should().Be(TestCommon.ParseFraction(expectedValue).ToRationalNumber());
         }
 
         static TToken MakeToken<TToken>(LiteralTokenType tokenType, string value = "")

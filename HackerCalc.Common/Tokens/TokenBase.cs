@@ -69,6 +69,16 @@ namespace HisRoyalRedness.com
         public int Line { get; private set; }
         public int Column { get; private set; }
     }
+
+    internal static class TokenExtensions
+    {
+        internal static string StripLeadingType(this string valueStr, string typeStr, string replacement = "")
+        {
+            return valueStr.StartsWith(typeStr, StringComparison.CurrentCultureIgnoreCase)
+                ? $"{replacement}{valueStr.Substring(typeStr.Length)}"
+                : valueStr;
+        }
+    }
 }
 
 /*

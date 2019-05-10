@@ -22,8 +22,6 @@ namespace HisRoyalRedness.com
     {
         [Description("Limited Integer")]
         LimitedInteger,
-        [Description("Unlimited Integer")]
-        UnlimitedInteger,
         [Description("Float")]
         Float,
         [Description("Date")]
@@ -32,6 +30,8 @@ namespace HisRoyalRedness.com
         Time,
         [Description("Timespan")]
         Timespan,
+        [Description("Rational")]
+        Rational,
     }
 
     public interface ILiteralToken : IToken
@@ -59,7 +59,7 @@ namespace HisRoyalRedness.com
         public LiteralTokenType LiteralType { get; private set; }
         public bool IsFloat => LiteralType == LiteralTokenType.Float;
         public bool IsLimitedInteger => LiteralType == LiteralTokenType.LimitedInteger;
-        public bool IsUnlimitedInteger => LiteralType == LiteralTokenType.UnlimitedInteger;
+        public bool IsRationalNumber => LiteralType == LiteralTokenType.Rational;
         public bool IsDate => LiteralType == LiteralTokenType.Date;
         public bool IsTime => LiteralType == LiteralTokenType.Time;
         public bool IsTimespan => LiteralType == LiteralTokenType.Timespan;

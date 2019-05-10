@@ -43,6 +43,7 @@ namespace HisRoyalRedness.com
         [DataRow("B1111111111111111111111111111111i32", "2147483647")]
         [DataRow("b111111111111111111111111111111111111111111111111111111111111111i64", "9223372036854775807")]
         [DataRow("B1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111i128", "170141183460469231731687303715884105727")]
+        [DataRow("B111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111i0", "348449143727040986586495598010130648530943")]
         public void BinSignedLimitedIntegerValuesAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
@@ -111,6 +112,7 @@ namespace HisRoyalRedness.com
         [DataRow("O17777777777i32", "2147483647")]
         [DataRow("o777777777777777777777i64", "9223372036854775807")]
         [DataRow("O1777777777777777777777777777777777777777777i128", "170141183460469231731687303715884105727")]
+        [DataRow("O7777777777777777777777777777777777777777777777777i0", "178405961588244985132285746181186892047843327")]
         public void OctSignedLimitedIntegerValuesAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
@@ -179,6 +181,7 @@ namespace HisRoyalRedness.com
         [DataRow("2147483647i32", "2147483647")]
         [DataRow("9223372036854775807i64", "9223372036854775807")]
         [DataRow("170141183460469231731687303715884105727i128", "170141183460469231731687303715884105727")]
+        [DataRow("340282366920938463463374607431768211455340282366920938463463374607431768211455i0", "340282366920938463463374607431768211455340282366920938463463374607431768211455")]
         public void DecSignedLimitedIntegerValuesAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
@@ -247,6 +250,7 @@ namespace HisRoyalRedness.com
         [DataRow("0x7fffffffi32", "2147483647")]
         [DataRow("0x7fffffffffffffffi64", "9223372036854775807")]
         [DataRow("0x7fffffffffffffffffffffffffffffffi128", "170141183460469231731687303715884105727")]
+        [DataRow("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFi0", "1766847064778384329583297500742918515827483896875618958121606201292619775")]
         public void HexSignedLimitedIntegerValuesAreParsedCorrectly(string stringToParse, string expectedValue)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken, BigInteger>(stringToParse, BigInteger.Parse(expectedValue));
 
@@ -284,5 +288,13 @@ namespace HisRoyalRedness.com
         public void HexLimitedIntegerValuesWithInvalidDigitsAreNotParsed(string stringToParse)
             => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken>(stringToParse, null);
         #endregion Hexadecimal
+
+        [DataTestMethod]
+        [DataRow("b1010u0")]
+        [DataRow("o123u0")]
+        [DataRow("123u0")]
+        [DataRow("0xffu0")]
+        public void NoSuchThingAsAnUnsignedUnlimitedInteger(string stringToParse)
+            => TestCommon.LiteralTokensAreParsedCorrectly<LimitedIntegerToken>(stringToParse, null);
     }
 }

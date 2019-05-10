@@ -21,6 +21,8 @@ namespace HisRoyalRedness.com
         Time,
         [Description("Timespan")]
         Timespan,
+        [Description("Rational Number")]
+        RationalNumber,
 
         [DontEnumerate]
         Unknown
@@ -199,7 +201,7 @@ namespace HisRoyalRedness.com
                 case DataType.Time: return CastTo<TimeType>(configuration);
                 case DataType.Timespan: return CastTo<TimespanType>(configuration);
                 case DataType.LimitedInteger: return CastTo<LimitedIntegerType>(configuration);
-                case DataType.UnlimitedInteger: return CastTo<UnlimitedIntegerType>(configuration);
+                case DataType.RationalNumber: return CastTo<RationalNumberType>(configuration);
                 default:
                     throw new TypeConversionException($"Unhandled data type {dataType}.");
             }
