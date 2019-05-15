@@ -78,6 +78,28 @@ namespace HisRoyalRedness.com
             => Subject.TypedValue.Equals(expected);
     }
     #endregion RationalNumberTokenAssertions
+    #region RationalNumberAssertions
+    public sealed class RationalNumberAssertions 
+    {
+        public RationalNumberAssertions(RationalNumber rat)
+        {
+            Subject = rat;
+        }
+
+        string Identifier => nameof(RationalNumber);
+
+        public AndConstraint<RationalNumber> Be(RationalNumber expected, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(expected.Equals(Subject))
+                .FailWith($"Expected {Identifier} to be '{expected.Fraction}', but it was '{Subject.Fraction}'");
+            return new AndConstraint<RationalNumber>(Subject);
+        }
+
+        public RationalNumber Subject { get; }
+    }
+    #endregion RationalNumberAssertions
     #region LiteralTokenAssertions
     public abstract class LiteralTokenAssertions<TToken, TTypedValue> : ReferenceTypeAssertions<TToken, LiteralTokenAssertions<TToken, TTypedValue>>
         where TToken : class, ILiteralToken
@@ -137,6 +159,7 @@ namespace HisRoyalRedness.com
         public static TimespanTokenAssertions Should(this TimespanToken token) => new TimespanTokenAssertions(token);
         public static TimeTokenAssertions Should(this TimeToken token) => new TimeTokenAssertions(token);
         public static RationalNumberTokenAssertions Should(this RationalNumberToken token) => new RationalNumberTokenAssertions(token);
+        public static RationalNumberAssertions Should(this RationalNumber rat) => new RationalNumberAssertions(rat);
 
         public static IDataTypeAssertions Should(this IDataType<DataType> dataType) => new IDataTypeAssertions(dataType);
 
@@ -167,9 +190,7 @@ namespace HisRoyalRedness.com
                 .Then.ForCondition((expected is null) || !(actual is null)).FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was null.")
 
                 // if neither is null, then the TypeValues should match
-                .Then.ForCondition((expected is null) || (actual is null) || 
-                    (expected.DataType == DataType.Float && Math.Abs(((FloatType)actual).Value - ((FloatType)expected).Value) < 0.0000001) || // Get approximate if they're floats
-                    (expected.DataType != DataType.Float && actual.Equals(expected)))
+                .Then.ForCondition((expected is null) || (actual is null))
                     .FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was '{actual.ToString(Verbosity.ValueAndBitwidth)}'");
     }
 }

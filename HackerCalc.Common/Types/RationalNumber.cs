@@ -74,11 +74,7 @@ namespace HisRoyalRedness.com
         #endregion Equality
 
         #region IComparable
-        public int CompareTo(RationalNumber other)
-        {
-            var lcm = LCM(Denominator, other.Denominator);
-            return (Numerator * lcm).CompareTo(other.Numerator * lcm);
-        }
+        public int CompareTo(RationalNumber other) => (Numerator * other.Denominator).CompareTo(other.Numerator * Denominator);
 
         public int CompareTo(object obj) => obj is RationalNumber rn ? CompareTo(rn) : 1;
         #endregion IComparable

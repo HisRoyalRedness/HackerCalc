@@ -69,7 +69,6 @@
     <Compile Include="Visitors\TokenPrinter.cs" />
     <Compile Include="Tokens\FunctionToken.cs" />
     <Compile Include="Tokens\Literal tokens\DateToken.cs" />
-    <Compile Include="Tokens\Literal tokens\FloatToken.cs" />
     <Compile Include="Tokens\Literal tokens\LimitedIntegerToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimespanToken.cs" />
     <Compile Include="Tokens\Literal tokens\TimeToken.cs" />

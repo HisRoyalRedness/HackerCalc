@@ -64,6 +64,15 @@ namespace HisRoyalRedness.com
         public void TestSigns(string actual, string expected)
             => TestCommon.TestRationalNumber(actual, expected);
 
+        [DataTestMethod]
+        [DataRow("1/2", "1/2", 0)]
+        [DataRow("-1/2", "1/2", -1)]
+        [DataRow("1/2", "-1/2", 1)]
+        [DataRow("2/3", "4/5", -1)]
+        [DataRow("2/3", "1/2", 1)]
+        public void TestCompare(string rat1, string rat2, int comparison)
+            => rat1.ToRationalNumber().CompareTo(rat2.ToRationalNumber()).Should().Be(comparison);
+
         #region Add
         [DataTestMethod]
         [DataRow("1/2", "1/2", "1")]
@@ -130,7 +139,7 @@ namespace HisRoyalRedness.com
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
 
         [DataTestMethod]
-        [DataRow("1/2", "2", "1")]
+        [DataRow("1/2", "2", "1/4")]
         public void TestDivideOperationRI(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
 
