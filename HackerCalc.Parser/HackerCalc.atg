@@ -340,7 +340,7 @@ Float<out IToken token, ref bool isNeg>
                     [
                         float_type                              (. rawToken += t.val; .)
                     ]
-                                                                (. token = FloatToken.Parse(fltVal, isNeg, rawToken, pos, Configuration); .)
+                                                                (. token = RationalNumberToken.Parse(fltVal, rawToken, isNeg, pos, Configuration); .)
 .
 
 NowDate<out IToken token>

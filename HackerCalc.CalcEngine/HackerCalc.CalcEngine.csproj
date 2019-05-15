@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Algorithms\Algorithms.cs" />
     <Compile Include="CalcEngine.cs" />
     <Compile Include="Data types\DataTypeBase.cs" />

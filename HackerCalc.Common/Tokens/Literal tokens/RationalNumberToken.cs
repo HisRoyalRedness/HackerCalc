@@ -29,10 +29,21 @@ namespace HisRoyalRedness.com
         #endregion Constructors
 
         #region Parsing
+        public static RationalNumberToken Parse(string value, string rawToken, bool isNeg, SourcePosition position, IConfiguration configuration)
+            => Parse(value, rawToken, IntegerBase.Decimal, isNeg, true, position, configuration);
+
         public static RationalNumberToken Parse(string value, IntegerBase numBase, bool isNeg, bool isFloat, SourcePosition position, IConfiguration configuration)
+            => Parse(value, value, numBase, isNeg, isFloat, position, configuration);
+
+        static RationalNumberToken Parse(string value, string rawToken, IntegerBase numBase, bool isNeg, bool isFloat, SourcePosition position, IConfiguration configuration)
         {
             if (isFloat)
-                throw new NotImplementedException();
+            {
+                var val = value.Trim();
+                var num = BigInteger.Parse(val.Replace(".", ""));
+                var denom = BigInteger.Parse("1" + new string('0', val.Length - val.IndexOf('.') - 1));
+                return new RationalNumberToken(new RationalNumber(isNeg ? BigInteger.Negate(num) : num, denom), $"{(isNeg ? "-" : "")}{rawToken}", position);
+            }
             else
             {
                 BigInteger val;
@@ -45,7 +56,7 @@ namespace HisRoyalRedness.com
                     default:
                         throw new ParseException($"Unhandled integer base {numBase}.");
                 }
-                return new RationalNumberToken(new RationalNumber(isNeg ? BigInteger.Negate(val) : val), $"{(isNeg ? "-" : "")}{value}", position);
+                return new RationalNumberToken(new RationalNumber(isNeg ? BigInteger.Negate(val) : val), $"{(isNeg ? "-" : "")}{rawToken}", position);
             }
         }
         #endregion Parsing
@@ -53,28 +64,17 @@ namespace HisRoyalRedness.com
         #region Equality
         public override bool Equals(object obj) => obj is RationalNumberToken rt ? Equals(rt) : false;
         public override bool Equals(RationalNumberToken other) => other is null ? false : (TypedValue == other.TypedValue);
-        public override int GetHashCode() => TypedValue.GetHashCode();
+        public override int GetHashCode() => InternalGetHashCode();
 
-        public static bool operator ==(RationalNumberToken a, RationalNumberToken b)
-        {
-            if (a is null && b is null)
-                return true;
-            if (a is null || b is null)
-                return false;
-            return a.TypedValue == b.TypedValue;
-        }
+        public static bool operator ==(RationalNumberToken a, RationalNumberToken b) => DoubleEquals(a, b);
         public static bool operator !=(RationalNumberToken a, RationalNumberToken b) => !(a == b);
         #endregion Equality
-
-        #region Comparison
-        public override int CompareTo(RationalNumberToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
-        #endregion Comparison
 
         #region ToString
         public override string ToString()
             => TypedValue.Denominator == BigInteger.One
                 ? TypedValue.Numerator.ToString()
-                : $"{((double)TypedValue.Numerator / (double)TypedValue.Denominator):0.###}";
+                : $"{((double)TypedValue.Numerator / (double)TypedValue.Denominator):0.######}";
         #endregion ToString
 
         public static RationalNumberToken Default

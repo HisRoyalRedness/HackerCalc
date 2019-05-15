@@ -34,16 +34,6 @@ namespace HisRoyalRedness.com
         }
 
         [DataTestMethod]
-        [DataRow("", "1.0")]
-        [DataRow("1.234", "1.234")]
-        [DataRow("-1.234", "-1.234")]
-        public void MakeLiteralToken_Float(string tokenValue, string expectedValue)
-        {
-            var token = MakeToken<FloatToken>(LiteralTokenType.Float, tokenValue);
-            token.TypedValue.Should().Be(double.Parse(expectedValue));
-        }
-
-        [DataTestMethod]
         [DataRow("", "1", "i", "32")]
         [DataRow("1u16", "1", "u", "16")]
         [DataRow("-65i64", "-65", "i", "64")]

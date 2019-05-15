@@ -93,22 +93,11 @@ namespace HisRoyalRedness.com
         #region Equality
         public override bool Equals(object obj) => obj is LimitedIntegerToken lit ? Equals(lit) : false;
         public override bool Equals(LimitedIntegerToken other) => other is null ? false : (TypedValue == other.TypedValue);
-        public override int GetHashCode() => TypedValue.GetHashCode();
+        public override int GetHashCode() => InternalGetHashCode();
 
-        public static bool operator ==(LimitedIntegerToken a, LimitedIntegerToken b)
-        {
-            if (a is null && b is null)
-                return true;
-            if (a is null || b is null)
-                return false;
-            return a.TypedValue == b.TypedValue;
-        }
+        public static bool operator ==(LimitedIntegerToken a, LimitedIntegerToken b) => DoubleEquals(a, b);
         public static bool operator !=(LimitedIntegerToken a, LimitedIntegerToken b) => !(a == b);
         #endregion Equality
-
-        #region Comparison
-        public override int CompareTo(LimitedIntegerToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
-        #endregion Comparison
 
         #region ToString
         public override string ToString() => $"{TypedValue}{SignAndBitWidth}";

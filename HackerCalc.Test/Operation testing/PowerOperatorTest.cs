@@ -26,7 +26,7 @@ namespace HisRoyalRedness.com
         [TypedDataRow("2u4 ** 10hrs",                   null,                       null)]
         // Unlimited
         [TypedDataRow("2 ** 3u4",                       "8u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("2 ** 3",                         "8",                        DataType.UnlimitedInteger)]
+        [TypedDataRow("2 ** 3",                         "8",                        DataType.RationalNumber)]
         [TypedDataRow("2 ** 3.1",                       "8.5741877f",                     DataType.Float)]
         [TypedDataRow("2 ** 2019-01-23 12:34:56",       null,                       null)]
         [TypedDataRow("2 ** 12:34:56",                  null,                       null)]
@@ -69,9 +69,9 @@ namespace HisRoyalRedness.com
                                 UnlimitedInteger    LimitedInteger, UnlimitedInteger, Float
                                 Float               LimitedInteger, UnlimitedInteger, Float
             */
-            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
-            { DataType.UnlimitedInteger,    new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
-            { DataType.Float,               new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
+            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
+            { DataType.RationalNumber,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
+            { DataType.Float,               new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
             { DataType.Date,                new HashSet<DataType> { } },
             { DataType.Time,                new HashSet<DataType> { } },
             { DataType.Timespan,            new HashSet<DataType> { } },

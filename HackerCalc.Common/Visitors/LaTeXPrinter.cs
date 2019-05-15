@@ -39,10 +39,16 @@ namespace HisRoyalRedness.com
         {
             if (litToken == null)
                 return null;
-
-            return litToken.LiteralType == LiteralTokenType.Timespan
-                ? $"'{litToken}'"
-                : $"{litToken}";
+            switch(litToken.LiteralType)
+            {
+                case LiteralTokenType.LimitedInteger:
+                    var lit = litToken as LimitedIntegerToken;
+                    var sign = lit.IsSigned ? "I" : "U";
+                    var bw = lit.BitWidth == IntegerBitWidth.Unlimited ? "" : lit.BitWidth.GetEnumDescription();
+                    return $"{lit.TypedValue}_{{\\text{{{sign}{bw}}}}}";
+                case LiteralTokenType.Timespan: return $"'{litToken}'";
+                default: return $"{litToken}";
+            }
         }
 
         string PrintFunction(IFunctionToken funcToken)
@@ -105,11 +111,7 @@ namespace HisRoyalRedness.com
     public static class LaTeXPrinterExtensions
     {
         public static string ToLaTeX(this IToken token)
-        {
-            var expr = token.Accept(new LaTeXPrinter());
-            Debug.WriteLine(expr);
-            return expr;
-        }
+            => token?.Accept(new LaTeXPrinter()) ?? string.Empty;
     }
 }
 

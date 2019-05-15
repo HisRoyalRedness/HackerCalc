@@ -36,22 +36,11 @@ namespace HisRoyalRedness.com
         #region Equality
         public override bool Equals(object obj) => obj is TimespanToken tst ? Equals(tst) : false;
         public override bool Equals(TimespanToken other) => other is null ? false : (TypedValue == other.TypedValue);
-        public override int GetHashCode() => TypedValue.GetHashCode();
+        public override int GetHashCode() => InternalGetHashCode();
 
-        public static bool operator ==(TimespanToken a, TimespanToken b)
-        {
-            if (a is null && b is null)
-                return true;
-            if (a is null || b is null)
-                return false;
-            return a.TypedValue == b.TypedValue;
-        }
+        public static bool operator ==(TimespanToken a, TimespanToken b) => DoubleEquals(a, b);
         public static bool operator !=(TimespanToken a, TimespanToken b) => !(a == b);
         #endregion Equality
-
-        #region Comparison
-        public override int CompareTo(TimespanToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
-        #endregion Comparison
 
         #region ToString
         public override string ToString() => ToLongString();

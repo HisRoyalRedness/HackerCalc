@@ -47,22 +47,11 @@ namespace HisRoyalRedness.com
         #region Equality
         public override bool Equals(object obj) => obj is DateToken dt ? Equals(dt) : false;
         public override bool Equals(DateToken other) => other is null ? false : (TypedValue == other.TypedValue);
-        public override int GetHashCode() => TypedValue.GetHashCode();
+        public override int GetHashCode() => InternalGetHashCode();
 
-        public static bool operator ==(DateToken a, DateToken b)
-        {
-            if (a is null && b is null)
-                return true;
-            if (a is null || b is null)
-                return false;
-            return a.TypedValue == b.TypedValue;
-        }
+        public static bool operator ==(DateToken a, DateToken b) => DoubleEquals(a, b);
         public static bool operator !=(DateToken a, DateToken b) => !(a == b);
         #endregion Equality
-
-        #region Comparison
-        public override int CompareTo(DateToken other) => other is null ? 1 : TypedValue.CompareTo(other.TypedValue);
-        #endregion Comparison
 
         public static DateToken CreateDateTime(DateToken dateToken, TimeToken timeToken)
             => new DateToken(dateToken.TypedValue + timeToken.TypedValue, $"{dateToken.RawToken} {timeToken.RawToken}", dateToken.Position);

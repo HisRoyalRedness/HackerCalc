@@ -40,10 +40,6 @@ namespace HisRoyalRedness.com
                 case "datetoken":
                     return DateToken.Parse(tokenArg, false, SourcePosition.None, configuration);
 
-                case "float":
-                case "floattoken":
-                    return FloatToken.Parse(tokenArg, configuration);
-
                 case "limitedinteger":
                 case "limitedintegertoken":
                     {
@@ -103,11 +99,6 @@ namespace HisRoyalRedness.com
                     return string.IsNullOrEmpty(value)
                         ? DateToken.Now
                         : MakeLiteralToken($"date {value}");
-
-                case LiteralTokenType.Float:
-                    return string.IsNullOrEmpty(value)
-                        ? FloatToken.One
-                        : MakeLiteralToken($"float {value}");
 
                 case LiteralTokenType.LimitedInteger:
                     return string.IsNullOrEmpty(value)
@@ -186,9 +177,6 @@ namespace HisRoyalRedness.com
                 case nameof(DateToken):
                     LiteralTokenValueCheck(token as DateToken, DateTime.Parse(expectedValue));
                     break;
-                case nameof(FloatToken):
-                    LiteralTokenValueCheck(token as FloatToken, float.Parse(expectedValue));
-                    break;
                 case nameof(LimitedIntegerToken):
                     LiteralTokenValueCheck(token as LimitedIntegerToken, BigInteger.Parse(expectedValue));
                     break;
@@ -213,9 +201,6 @@ namespace HisRoyalRedness.com
             {
                 case nameof(DateToken):
                     (token as DateToken).Should().BeTypedValue((expectedValue as DateTime?).Value);
-                    break;
-                case nameof(FloatToken):
-                    (token as FloatToken).Should().BeTypedValue((expectedValue as float?).Value);
                     break;
                 case nameof(LimitedIntegerToken):
                     (token as LimitedIntegerToken).Should().BeTypedValue((expectedValue as BigInteger?).Value);
@@ -303,7 +288,6 @@ namespace HisRoyalRedness.com
             switch (dataType)
             {
                 case DataType.Date: token = MakeLiteralToken(LiteralTokenType.Date, tokenString); break;
-                case DataType.Float: token = MakeLiteralToken(LiteralTokenType.Float, tokenString); break;
                 case DataType.LimitedInteger: token = MakeLiteralToken(LiteralTokenType.LimitedInteger, tokenString); break;
                 case DataType.Time: token = MakeLiteralToken(LiteralTokenType.Time, tokenString); break;
                 case DataType.Timespan: token = MakeLiteralToken(LiteralTokenType.Timespan, tokenString); break;

@@ -33,6 +33,9 @@
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Parser.cs" />
     <Compile Include="Parser.generated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

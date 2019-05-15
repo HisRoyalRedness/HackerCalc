@@ -52,6 +52,40 @@
                 </StackPanel>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type local:RationalDetailsTabVM}">
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Fraction" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="{Binding Fraction}" />
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type local:LimitedIntegerDetailsTabVM}">
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Bitwidth" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="{Binding Bitwidth}" />
+                </Grid>
+            </DataTemplate>
+
         </ResourceDictionary>
     </Window.Resources>
 
@@ -102,10 +136,14 @@
                 Grid.Row="3"
                 Margin="0,2,0,0"
                 Style="{StaticResource RoundedBorder}">
-                <TabControl>
-                    <TabItem Header="Programmer" />
-                    <TabItem Header="Numeric" />
-                    <TabItem Header="Date/Time" />
+                <TabControl
+                    ItemsSource="{Binding DataTypeDetails.Tabs}"
+                    SelectedItem="{Binding DataTypeDetails.SelectedTab}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Header}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
                 </TabControl>
             </Border>
         </Grid>

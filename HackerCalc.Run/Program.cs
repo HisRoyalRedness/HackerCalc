@@ -122,12 +122,6 @@ namespace HisRoyalRedness.com
                 string val = "";
                 switch (literalToken.LiteralType)
                 {
-                    case LiteralTokenType.Float:
-                        {
-                            var typedToken = literalToken as FloatToken;
-                            val = typedToken.TypedValue.ToString("0.###");
-                        }
-                        break;
                     case LiteralTokenType.Timespan:
                         {
                             var typedToken = literalToken as TimespanToken;

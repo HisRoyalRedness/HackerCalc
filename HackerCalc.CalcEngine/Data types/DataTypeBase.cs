@@ -11,8 +11,6 @@ namespace HisRoyalRedness.com
     {
         [Description("Limited Integer")]
         LimitedInteger,
-        [Description("Unlimited Integer")]
-        UnlimitedInteger,
         [Description("Float")]
         Float,
         [Description("Date")]

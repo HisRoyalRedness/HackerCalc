@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -20,6 +21,7 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
+    [DebuggerDisplay("{Fraction}")]
     public readonly struct RationalNumber : IEquatable<RationalNumber>, IComparable<RationalNumber>, IComparable
     {
         #region Constructors
@@ -87,6 +89,8 @@ namespace HisRoyalRedness.com
         public BigInteger Numerator { get; }
         public BigInteger Denominator { get; }
 
+        public string Fraction => $"{Numerator}/{Denominator}";
+
         static BigInteger LCM(BigInteger a, BigInteger b)
             => BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
 
@@ -117,11 +121,6 @@ namespace HisRoyalRedness.com
         public static implicit operator RationalNumber(long num) => new RationalNumber(num);
         public static implicit operator RationalNumber(ulong num) => new RationalNumber(num);
         public static implicit operator RationalNumber(BigInteger num) => new RationalNumber(num);
-
-        //public static explicit operator RationalNumber(float num) => new RationalNumber(num);
-        //public static explicit operator RationalNumber(double num) => new RationalNumber(num);
-        //public static explicit operator RationalNumber(decimal num) => new RationalNumber(num);
-
 
         public static explicit operator BigInteger(RationalNumber rn) => rn.Numerator / rn.Denominator;
         public static explicit operator int(RationalNumber rn) => (int)(rn.Numerator / rn.Denominator);

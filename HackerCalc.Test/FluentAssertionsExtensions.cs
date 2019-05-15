@@ -22,20 +22,6 @@ namespace HisRoyalRedness.com
             => Subject.TypedValue.Equals(expected);
     }
     #endregion DateTokenAssertions
-    #region FloatTokenAssertions
-    public class FloatTokenAssertions : LiteralTokenAssertions<FloatToken, double>
-    {
-        public FloatTokenAssertions(FloatToken value)
-            : base(value)
-        { }
-
-        protected override bool TokenEquals(FloatToken expected)
-            => Subject.Equals(expected);
-
-        protected override bool TypedValueEqual(double expected)
-            => Subject.TypedValue.Equals(expected);
-    }
-    #endregion FloatTokenAssertions
     #region LimitedIntegerTokenAssertions
     public class LimitedIntegerTokenAssertions : LiteralTokenAssertions<LimitedIntegerToken, BigInteger>
     {
@@ -147,7 +133,6 @@ namespace HisRoyalRedness.com
     public static class FluentAssertionsExtensions
     {
         public static DateTokenAssertions Should(this DateToken token) => new DateTokenAssertions(token);
-        public static FloatTokenAssertions Should(this FloatToken token) => new FloatTokenAssertions(token);
         public static LimitedIntegerTokenAssertions Should(this LimitedIntegerToken token) => new LimitedIntegerTokenAssertions(token);
         public static TimespanTokenAssertions Should(this TimespanToken token) => new TimespanTokenAssertions(token);
         public static TimeTokenAssertions Should(this TimeToken token) => new TimeTokenAssertions(token);

@@ -26,7 +26,7 @@ namespace HisRoyalRedness.com
         [TypedDataRow("8u4 // 10hrs",                   null,                       null)]
         // Unlimited
         [TypedDataRow("8 // 3u4",                       "2u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("8 // 3",                         "2",                        DataType.UnlimitedInteger)]
+        [TypedDataRow("8 // 3",                         "2",                        DataType.RationalNumber)]
         [TypedDataRow("8 // 3.1",                       "1.95577707267f",           DataType.Float)]
         [TypedDataRow("8 // 2019-01-23 12:34:56",       null,                       null)]
         [TypedDataRow("8 // 12:34:56",                  null,                       null)]
@@ -69,9 +69,9 @@ namespace HisRoyalRedness.com
                                 UnlimitedInteger    LimitedInteger, UnlimitedInteger, Float
                                 Float               LimitedInteger, UnlimitedInteger, Float
             */
-            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
-            { DataType.UnlimitedInteger,    new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
-            { DataType.Float,               new HashSet<DataType> { DataType.LimitedInteger, DataType.UnlimitedInteger, DataType.Float } },
+            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
+            { DataType.RationalNumber,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
+            { DataType.Float,               new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
             { DataType.Date,                new HashSet<DataType> { } },
             { DataType.Time,                new HashSet<DataType> { } },
             { DataType.Timespan,            new HashSet<DataType> { } },

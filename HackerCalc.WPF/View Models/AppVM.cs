@@ -20,9 +20,17 @@ namespace HisRoyalRedness.com
 
             if (IsInDesigner)
             {
-                Expression.Input = "1+(2-3*4/5)**6//7";
+                Expression.Input = "1+(2-3*4/5)"; ; // "1+(2-3*4/5)**6//7";
                 ExpressionHistory.Add(new ExpressionVM(Configuration.Model) { Input = "1+2f/3" });
             }
+            DataTypeDetails.Evaluation = Expression.Evaluation;
+            Expression.PropertyChanged += Expression_PropertyChanged;
+        }
+
+        void Expression_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ExpressionVM.Evaluation))
+                DataTypeDetails.Evaluation = Expression.Evaluation;
         }
 
         static Lazy<AppVM> _singleton = new Lazy<AppVM>(() => new AppVM());
@@ -32,7 +40,20 @@ namespace HisRoyalRedness.com
         public ExpressionVM Expression
         {
             get => _expression;
-            private set { SetProperty(ref _expression, value); }
+            private set
+            {
+                var oldExpr = _expression;
+                if (SetProperty(ref _expression, value))
+                {
+                    if (DataTypeDetails != null)
+                        DataTypeDetails.Evaluation = value?.Evaluation;
+
+                    if (oldExpr != null)
+                        oldExpr.PropertyChanged -= Expression_PropertyChanged;
+                    if (value != null)
+                        value.PropertyChanged += Expression_PropertyChanged;
+                }
+            }
         }
         ExpressionVM _expression;
         #endregion Bindable properties
@@ -78,6 +99,8 @@ namespace HisRoyalRedness.com
 
         public ConfigurationVM Configuration { get; } = new ConfigurationVM();
         public ExpressionHistoryVM ExpressionHistory { get; } = new ExpressionHistoryVM();
+
+        public DataTypeDetailsVM DataTypeDetails { get; } = new DataTypeDetailsVM();
     }
 
     #region DisplayType

@@ -22,8 +22,6 @@ namespace HisRoyalRedness.com
     {
         [Description("Limited Integer")]
         LimitedInteger,
-        [Description("Float")]
-        Float,
         [Description("Date")]
         Date,
         [Description("Time")]
@@ -42,12 +40,14 @@ namespace HisRoyalRedness.com
 
     public interface ILiteralToken<TBaseType, TTypedToken> : ILiteralToken, IEquatable<TTypedToken>, IComparable, IComparable<TTypedToken>
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
+        where TBaseType : IComparable<TBaseType>, IComparable
     {
         TBaseType TypedValue { get; }
     }
 
     public abstract class LiteralToken<TBaseType, TTypedToken> : TokenBase<LiteralToken<TBaseType, TTypedToken>>, ILiteralToken<TBaseType, TTypedToken>
         where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
+        where TBaseType : IComparable<TBaseType>, IComparable
     {
         protected LiteralToken(LiteralTokenType literalTokenType, TBaseType typedValue, string rawToken, SourcePosition position)
             : base(rawToken, position)
@@ -57,7 +57,6 @@ namespace HisRoyalRedness.com
         }
 
         public LiteralTokenType LiteralType { get; private set; }
-        public bool IsFloat => LiteralType == LiteralTokenType.Float;
         public bool IsLimitedInteger => LiteralType == LiteralTokenType.LimitedInteger;
         public bool IsRationalNumber => LiteralType == LiteralTokenType.Rational;
         public bool IsDate => LiteralType == LiteralTokenType.Date;
@@ -69,12 +68,40 @@ namespace HisRoyalRedness.com
 
         #region Equality
         public abstract bool Equals(TTypedToken other);
-        public override int GetHashCode() => TypedValue.GetHashCode();
+        public bool Equals(ILiteralToken other) => other is TTypedToken token ? Equals(token) : false;
+        public override bool Equals(object obj) => obj is TTypedToken token ? Equals(token) : false;
+        public override int GetHashCode() => InternalGetHashCode();
+
+        public static bool operator ==(LiteralToken<TBaseType, TTypedToken> a, LiteralToken<TBaseType, TTypedToken> b) => DoubleEquals(a, b);
+        public static bool operator !=(LiteralToken<TBaseType, TTypedToken> a, LiteralToken<TBaseType, TTypedToken> b) => !(a == b);
+
+        static protected bool DoubleEquals(LiteralToken<TBaseType, TTypedToken> a, LiteralToken<TBaseType, TTypedToken> b)
+        {
+            if (a is null && b is null)
+                return true;
+            if (a is null || b is null)
+                return false;
+            return a is TTypedToken aT && b is TTypedToken bT
+                ? aT.Equals(bT)
+                : false;
+        }
+
+        protected int InternalGetHashCode()
+        {
+            unchecked
+            {
+                var typedValHash = TypedValue.GetHashCode();
+                return (typedValHash << 5) ^ typedValHash;
+            }
+        }
         #endregion Equality
 
         #region Comparison
-        public abstract int CompareTo(TTypedToken other);
-        int IComparable.CompareTo(object obj) => CompareTo(obj as TTypedToken);
+        public int CompareTo(TTypedToken other) => InternalCompare(other.TypedValue);
+        public int CompareTo(ILiteralToken other) => other is TTypedToken token ? CompareTo(token) : 1;
+        int IComparable.CompareTo(object obj) => obj is TTypedToken token ? CompareTo(token) : 1;
+
+        protected virtual int InternalCompare(TBaseType other) => TypedValue.CompareTo(other);
         #endregion Comparison
 
         #region ToString

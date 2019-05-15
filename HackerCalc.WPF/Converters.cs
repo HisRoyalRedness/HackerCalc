@@ -55,6 +55,8 @@ namespace HisRoyalRedness.com
     {
         protected override string ConvertTo(IToken value, object parameter, CultureInfo culture)
             => value?.ToLaTeX() ?? string.Empty;
+
+        protected override string ConvertTo(object parameter, CultureInfo culture) => string.Empty;
     }
 
     public class DataTypeToTypeConverter : IValueConverter
@@ -96,29 +98,25 @@ namespace HisRoyalRedness.com
             => value;
     }
 
-    public class RelativeSizeConverter : IValueConverter
+    public class RelativeSizeConverter : OneWayConverter<double>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            double? val = value as double?;
-            return val.HasValue && double.TryParse((parameter as string ?? "1.0"), out double scale)
-                ? (val * scale).ToString()
-                : null;
-        }
+        protected override string ConvertTo(double value, object parameter, CultureInfo culture)
+            => double.TryParse((parameter as string ?? "1.0"), out double scale)
+                ? (value * scale).ToString()
+                : value.ToString();
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => new NotSupportedException();
+        protected override string ConvertTo(object parameter, CultureInfo culture) => "1.0";
     }
 
     public abstract class OneWayConverter<TType> : IValueConverter
-        where TType : class
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => value == null || !typeof(TType).IsAssignableFrom(value.GetType())
-                ? ConvertTo(null, parameter, culture)
-                : ConvertTo(value as TType, parameter, culture);
+            => value == null || !typeof(TType).IsAssignableFrom(value?.GetType())
+                ? ConvertTo(parameter, culture)
+                : ConvertTo((TType)value, parameter, culture);
 
         protected abstract string ConvertTo(TType value, object parameter, CultureInfo culture);
+        protected virtual string ConvertTo(object parameter, CultureInfo culture) => null;
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => new NotSupportedException();

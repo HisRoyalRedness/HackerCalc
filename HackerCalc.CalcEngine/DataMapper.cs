@@ -49,8 +49,6 @@ namespace HisRoyalRedness.com
                     return null;
                 case LiteralTokenType.Date:
                     return ConvertToTypedDataType<DateTime, DateToken, DateType>(token, typedToken => new DateType(typedToken.TypedValue));
-                case LiteralTokenType.Float:
-                    return ConvertToTypedDataType<double, FloatToken, FloatType>(token, typedToken => new FloatType(typedToken.TypedValue));
                 case LiteralTokenType.LimitedInteger:
                     return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue, ((LimitedIntegerToken)token).SignAndBitWidth, configuration));
                 case LiteralTokenType.Time:
@@ -67,6 +65,8 @@ namespace HisRoyalRedness.com
         static IDataType<DataType> ConvertToTypedDataType<TBaseType, TTypedToken, TDataType>(ILiteralToken token, Func<TTypedToken, TDataType> createDataTypeFunc)
             where TTypedToken : class, ILiteralToken, ILiteralToken<TBaseType, TTypedToken>
             where TDataType : class, IDataType<DataType>
+            where TBaseType : IComparable<TBaseType>, IComparable
+
             => (token is TTypedToken typedToken)
                 ? createDataTypeFunc(typedToken)
                 : null;

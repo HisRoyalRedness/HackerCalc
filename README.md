@@ -109,6 +109,7 @@ Todo
 * <mark>Add tests for IConfiguration and ICalcState</mark>
 * <mark>Add calc for colour (convert RGB to LAB etc., add/remove luminance)</mark>
 * <mark>Relook at data type comparison. Why compare TimespanType to LimitedInteger??</mark>
+* <mark>ICompare for LimitedIntegers. Should it consider bitwidth and sign?</mark>
 
 License
 -------

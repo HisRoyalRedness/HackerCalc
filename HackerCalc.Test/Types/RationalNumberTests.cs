@@ -83,6 +83,63 @@ namespace HisRoyalRedness.com
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 + r2);
         #endregion Add
 
+        #region Subtract
+        [DataTestMethod]
+        [DataRow("1/2", "1/4", "1/4")]
+        [DataRow("1/2", "1/2", "0")]
+        [DataRow("1/3", "-1/2", "5/6")]
+        public void TestSubtractOperationRR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
+
+        [DataTestMethod]
+        [DataRow("1/2", "2", "-3/2")]
+        public void TestSubtractOperationRI(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
+
+        [DataTestMethod]
+        [DataRow("2", "1/2", "3/2")]
+        public void TestSubtractOperationIR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
+        #endregion Subtract
+
+        #region Multiply
+        [DataTestMethod]
+        [DataRow("1/2", "1/2", "1/4")]
+        [DataRow("2/3", "1/2", "2/6")]
+        [DataRow("1/3", "-1/2", "-1/6")]
+        public void TestMultiplyOperationRR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
+
+        [DataTestMethod]
+        [DataRow("1/2", "2", "1")]
+        public void TestMultiplyOperationRI(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
+
+        [DataTestMethod]
+        [DataRow("2", "1/2", "1")]
+        public void TestMultiplyOperationIR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
+        #endregion Multiply
+
+        #region Divide
+        [DataTestMethod]
+        [DataRow("1/2", "1/2", "1")]
+        [DataRow("1/3", "1/2", "2/3")]
+        [DataRow("1/3", "-1/2", "-2/3")]
+        public void TestDivideOperationRR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
+
+        [DataTestMethod]
+        [DataRow("1/2", "2", "1")]
+        public void TestDivideOperationRI(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
+
+        [DataTestMethod]
+        [DataRow("2", "1/2", "4")]
+        public void TestDivideOperationIR(string a, string b, string expected)
+            => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
+        #endregion Divide
+
         void OperateOnRationals(string rat1, string rat2, string expected, Func<RationalNumber, RationalNumber, RationalNumber> operation)
             => operation(rat1.ToRationalNumber(), rat2.ToRationalNumber()).Should().Be(expected.ToRationalNumber());
         void OperateOnRationalAndBigInteger(string rat1, string int2, string expected, Func<RationalNumber, BigInteger, RationalNumber> operation)

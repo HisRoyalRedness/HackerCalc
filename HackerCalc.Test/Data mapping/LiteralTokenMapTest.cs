@@ -17,11 +17,6 @@ namespace HisRoyalRedness.com
         public void ConvertDateTokenToDateType() 
             => ConvertToDataType<DateType>(LiteralTokenType.Date);
 
-        [TestCategory(nameof(FloatType))]
-        [TestMethod]
-        public void ConvertFloatTokenToFloatType() 
-            => ConvertToDataType<FloatType>(LiteralTokenType.Float);
-
         [TestCategory(nameof(LimitedIntegerType))]
         [TestMethod]
         public void ConvertLimitedIntegerTokenToLimitedIntegerType() 
