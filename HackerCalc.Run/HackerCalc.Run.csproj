@@ -37,6 +37,9 @@
   <PropertyGroup>
     <StartupObject>HisRoyalRedness.com.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\HackerCalcIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,6 +74,11 @@
       <Project>{ee6a6ec5-3106-49f7-8877-faec780e7001}</Project>
       <Name>HackerCalc.Parser</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\HackerCalcIcon.ico">
+      <Link>HackerCalcIcon.ico</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

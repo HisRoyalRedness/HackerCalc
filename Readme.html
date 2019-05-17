@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>README.MD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css" type="text/css" />
+    <link rel="shortcut icon" href="HackerCalcIcon.ico" />
+    <style type="text/css">
+      .markdown-body {
+        min-width: 888px;
+        max-width: 888px;
+        overflow: auto;
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(221, 221, 221);
+        border-image: initial;
+        padding: 45px;
+        margin: 20px auto;
+      }
+  </style>
+  </head>
+  <body>
+      <div id="_html" class="markdown-body"></div>
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script>
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function(){
+          if(xmlhttp && xmlhttp.responseText && xmlhttp.readyState == 4){
+            var markup = marked(xmlhttp.responseText);
+            debugger;
+            if (markup) {
+              document.getElementById('_html').innerHTML = markup;
+            }
+          }
+        };
+        xmlhttp.open("GET","README.md",true);
+        xmlhttp.send();
+      </script>
+  </body>
+</html>

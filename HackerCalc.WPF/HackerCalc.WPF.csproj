@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\HackerCalcIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -170,5 +173,13 @@
   <ItemGroup>
     <Folder Include="Views\" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\HackerCalcIcon.ico">
+      <Link>HackerCalcIcon.ico</Link>
+    </Resource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)svg2ico.cmd" "$(SolutionDir)HackerCalcIcon.svg"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
