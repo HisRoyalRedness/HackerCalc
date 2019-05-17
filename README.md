@@ -1,3 +1,5 @@
+<img src="HackerCalcIcon.ico" alt="HackerCalc Icon" width="128" height="128">
+
 HackerCalc
 ==========
 
