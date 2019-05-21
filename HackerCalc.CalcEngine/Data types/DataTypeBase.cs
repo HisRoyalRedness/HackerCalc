@@ -11,16 +11,16 @@ namespace HisRoyalRedness.com
     {
         [Description("Limited Integer")]
         LimitedInteger,
-        [Description("Float")]
-        Float,
+        [Description("Rational Number")]
+        RationalNumber,
+        [Description("Irrational Number")]
+        IrrationalNumber,
         [Description("Date")]
         Date,
         [Description("Time")]
         Time,
         [Description("Timespan")]
         Timespan,
-        [Description("Rational Number")]
-        RationalNumber,
 
         [DontEnumerate]
         Unknown
@@ -195,7 +195,7 @@ namespace HisRoyalRedness.com
             switch(dataType)
             {
                 case DataType.Date: return CastTo<DateType>(configuration);
-                case DataType.Float: return CastTo<FloatType>(configuration);
+                case DataType.IrrationalNumber: return CastTo<IrrationalNumberType>(configuration);
                 case DataType.Time: return CastTo<TimeType>(configuration);
                 case DataType.Timespan: return CastTo<TimespanType>(configuration);
                 case DataType.LimitedInteger: return CastTo<LimitedIntegerType>(configuration);

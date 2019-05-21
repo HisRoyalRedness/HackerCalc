@@ -31,7 +31,7 @@ namespace HisRoyalRedness.com
             throw new NotImplementedException();
             //if (other is null)
             //    return 1;
-            //else if (other is FloatType dt1)
+            //else if (other is IrrationalNumberType dt1)
             //    return Value.CompareTo(dt1.Value);
             //else if (other is LimitedIntegerType dt2)
             //    return Value.CompareTo((float)dt2.Value);

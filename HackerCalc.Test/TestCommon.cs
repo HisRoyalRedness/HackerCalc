@@ -231,12 +231,12 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeFalse("we expect these to be binary operators.");
 
-            var leftToken = token.Left as LimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(LimitedIntegerToken)}");
+            var leftToken = token.Left as RationalNumberToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be a {nameof(RationalNumberToken)}");
             leftToken.TypedValue.Should().Be(leftValue);
 
-            var rightToken = token.Right as LimitedIntegerToken;
-            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(LimitedIntegerToken)}");
+            var rightToken = token.Right as RationalNumberToken;
+            rightToken.Should().NotBeNull($"the right token is expected to be an {nameof(RationalNumberToken)}");
             rightToken.TypedValue.Should().Be(rightValue);
 
             token.Operator.Should().Be(expectedType);
@@ -252,8 +252,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as LimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(LimitedIntegerToken)}");
+            var leftToken = token.Left as RationalNumberToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(RationalNumberToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
@@ -271,8 +271,8 @@ namespace HisRoyalRedness.com
 
             token.IsUnary.Should().BeTrue("we expect these to be unary operators.");
 
-            var leftToken = token.Left as LimitedIntegerToken;
-            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(LimitedIntegerToken)}");
+            var leftToken = token.Left as RationalNumberToken;
+            leftToken.Should().NotBeNull($"the left token is expected to be an {nameof(RationalNumberToken)}");
             leftToken.TypedValue.Should().Be(1);
 
             token.Right.Should().BeNull("the right token is always null for a unary operator");
@@ -287,11 +287,13 @@ namespace HisRoyalRedness.com
             ILiteralToken token;
             switch (dataType)
             {
-                case DataType.Date: token = MakeLiteralToken(LiteralTokenType.Date, tokenString); break;
                 case DataType.LimitedInteger: token = MakeLiteralToken(LiteralTokenType.LimitedInteger, tokenString); break;
+                case DataType.RationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
+                //case DataType.IrrationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
+                case DataType.Date: token = MakeLiteralToken(LiteralTokenType.Date, tokenString); break;
                 case DataType.Time: token = MakeLiteralToken(LiteralTokenType.Time, tokenString); break;
                 case DataType.Timespan: token = MakeLiteralToken(LiteralTokenType.Timespan, tokenString); break;
-                case DataType.RationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
+                
                 default:
                     throw new TestOperationException($"Unsupported data type '{dataType}'.");
             }

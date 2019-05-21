@@ -22,14 +22,14 @@ namespace HisRoyalRedness.com
     {
         [Description("Limited Integer")]
         LimitedInteger,
+        [Description("Rational")]
+        Rational,
         [Description("Date")]
         Date,
         [Description("Time")]
         Time,
         [Description("Timespan")]
         Timespan,
-        [Description("Rational")]
-        Rational,
     }
 
     public interface ILiteralToken : IToken

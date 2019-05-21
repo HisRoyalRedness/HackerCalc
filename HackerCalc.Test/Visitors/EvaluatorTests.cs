@@ -21,7 +21,7 @@ namespace HisRoyalRedness.com
 
         [TestMethod]
         public void FloatTokenEvaluatesCorrectly()
-            => "1f".Evaluate<FloatType>().Value.Should().Be(1.0);
+            => "1f".Evaluate<IrrationalNumberType>().Value.Should().Be(1.0);
 
         [TestMethod]
         public void GroupingTokenEvaluatesCorrectly()

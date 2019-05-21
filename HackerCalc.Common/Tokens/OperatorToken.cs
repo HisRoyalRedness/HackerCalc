@@ -121,7 +121,6 @@ namespace HisRoyalRedness.com
     //    public static CastOperatorToken UnlimitedIntegerCast() => new CastOperatorToken(TokenDataType.UnlimitedInteger);
     //    public static CastOperatorToken LimitedIntegerCast(OldLimitedIntegerToken.IntegerBitWidth bitWidth, bool isSigned = true) 
     //        => new CastOperatorToken(TokenDataType.LimitedInteger) { BitWidth = bitWidth, IsSigned = isSigned };
-    //    public static CastOperatorToken FloatCast() => new CastOperatorToken(TokenDataType.Float);
     //    public static CastOperatorToken TimespanCast() => new CastOperatorToken(TokenDataType.Timespan);
     //    public static CastOperatorToken TimeCast() => new CastOperatorToken(TokenDataType.Time);
     //    public static CastOperatorToken DateCast() => new CastOperatorToken(TokenDataType.Date);

@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace HisRoyalRedness.com
 {
-    public class FloatType : DataTypeBase<double, FloatType>
+    public class IrrationalNumberType : DataTypeBase<double, IrrationalNumberType>
     {
-        public FloatType(double value)
-            : base(value, DataType.Float)
+        public IrrationalNumberType(double value)
+            : base(value, DataType.IrrationalNumber)
         { }
 
         protected override int InternalGetHashCode() => Value.GetHashCode();
-        protected override string InternalTypeName => nameof(FloatType);
+        protected override string InternalTypeName => nameof(IrrationalNumberType);
 
         #region Equality
         protected override bool InternalEquals(IDataType other)
         {
-            if (other is FloatType dt)
+            if (other is IrrationalNumberType dt)
                 return dt.Value == Value;
             return false;
         }
@@ -30,7 +30,7 @@ namespace HisRoyalRedness.com
         {
             if (other is null)
                 return 1;
-            else if (other is FloatType dt1)
+            else if (other is IrrationalNumberType dt1)
                 return Value.CompareTo(dt1.Value);
             else if (other is LimitedIntegerType dt2)
                 return Value.CompareTo((float)dt2.Value);
@@ -63,56 +63,56 @@ namespace HisRoyalRedness.com
 
         static IDataType<DataType> OperateStatic(IConfiguration configuration, OperatorType opType, params IDataType<DataType>[] operands)
         {
-            OperateValidate(opType, DataType.Float, operands);
+            OperateValidate(opType, DataType.IrrationalNumber, operands);
             switch (opType)
             {
                 case OperatorType.Add:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(((FloatType)operands[0]).Value + ((FloatType)operands[1]).Value);
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(((IrrationalNumberType)operands[0]).Value + ((IrrationalNumberType)operands[1]).Value);
                     }
                     break;
                 case OperatorType.Subtract:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(((FloatType)operands[0]).Value - ((FloatType)operands[1]).Value);
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(((IrrationalNumberType)operands[0]).Value - ((IrrationalNumberType)operands[1]).Value);
                     }
                     break;
                 case OperatorType.Multiply:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(((FloatType)operands[0]).Value * ((FloatType)operands[1]).Value);
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(((IrrationalNumberType)operands[0]).Value * ((IrrationalNumberType)operands[1]).Value);
                     }
                     break;
                 case OperatorType.Divide:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(((FloatType)operands[0]).Value / ((FloatType)operands[1]).Value);
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(((IrrationalNumberType)operands[0]).Value / ((IrrationalNumberType)operands[1]).Value);
                     }
                     break;
                 case OperatorType.Power:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(Math.Pow(((FloatType)operands[0]).Value, ((FloatType)operands[1]).Value));
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(Math.Pow(((IrrationalNumberType)operands[0]).Value, ((IrrationalNumberType)operands[1]).Value));
                     }
                     break;
                 case OperatorType.Root:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(Math.Pow(((FloatType)operands[0]).Value, 1.0 / ((FloatType)operands[1]).Value));
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(Math.Pow(((IrrationalNumberType)operands[0]).Value, 1.0 / ((IrrationalNumberType)operands[1]).Value));
                     }
                     break;
                 case OperatorType.Modulo:
                     switch (operands[1].DataType)
                     {
-                        case DataType.Float:
-                            return new FloatType(((FloatType)operands[0]).Value % ((FloatType)operands[1]).Value);
+                        case DataType.IrrationalNumber:
+                            return new IrrationalNumberType(((IrrationalNumberType)operands[0]).Value % ((IrrationalNumberType)operands[1]).Value);
                     }
                     break;
             }

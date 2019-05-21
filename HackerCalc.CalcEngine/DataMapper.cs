@@ -7,7 +7,7 @@ using System.Numerics;
     DataMapper
 
         Implemention of the DataMapper. This class is responsible
-        for the conversion between different data types, as well 
+        for the conversion between different data types, as well
         as which operand types are accepted for a given operation
 
     Keith Fletcher
@@ -47,16 +47,17 @@ namespace HisRoyalRedness.com
             {
                 case null:
                     return null;
-                case LiteralTokenType.Date:
-                    return ConvertToTypedDataType<DateTime, DateToken, DateType>(token, typedToken => new DateType(typedToken.TypedValue));
                 case LiteralTokenType.LimitedInteger:
                     return ConvertToTypedDataType<BigInteger, LimitedIntegerToken, LimitedIntegerType>(token, typedToken => new LimitedIntegerType(typedToken.TypedValue, ((LimitedIntegerToken)token).SignAndBitWidth, configuration));
+                case LiteralTokenType.Rational:
+                    return ConvertToTypedDataType<RationalNumber, RationalNumberToken, RationalNumberType>(token, typedToken => new RationalNumberType(typedToken.TypedValue));
+                case LiteralTokenType.Date:
+                    return ConvertToTypedDataType<DateTime, DateToken, DateType>(token, typedToken => new DateType(typedToken.TypedValue));
                 case LiteralTokenType.Time:
                     return ConvertToTypedDataType<TimeSpan, TimeToken, TimeType>(token, typedToken => new TimeType(typedToken.TypedValue));
                 case LiteralTokenType.Timespan:
                     return ConvertToTypedDataType<TimeSpan, TimespanToken, TimespanType>(token, typedToken => new TimespanType(typedToken.TypedValue));
-                case LiteralTokenType.Rational:
-                    return ConvertToTypedDataType<RationalNumber, RationalNumberToken, RationalNumberType>(token, typedToken => new RationalNumberType(typedToken.TypedValue));
+
                 default:
                     throw new TypeConversionException($"Unhandled literal token type '{token.LiteralType}' while converting to a data type.");
             }
@@ -80,42 +81,42 @@ namespace HisRoyalRedness.com
             {
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
 
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Timespan),             new DTP(DataType.Date,                  DataType.Timespan) },
 
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Timespan),             new DTP(DataType.Time,                  DataType.Timespan) },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },                
+                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Timespan),             new DTP(DataType.Time,                  DataType.Timespan) },
 
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Date),                 new DTP(DataType.Timespan,              DataType.Date) },
                 { new DTP(DataType.Timespan,            DataType.Time),                 new DTP(DataType.Timespan,              DataType.Time) },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
@@ -128,42 +129,42 @@ namespace HisRoyalRedness.com
             {
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
 
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported},
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Date),                 new DTP(DataType.Date,                  DataType.Date) },
                 { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Timespan),             new DTP(DataType.Date,                  DataType.Timespan) },
 
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 new DTP(DataType.Time,                  DataType.Time) },
                 { new DTP(DataType.Time,                DataType.Timespan),             new DTP(DataType.Time,                  DataType.Timespan) },
 
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
@@ -175,42 +176,42 @@ namespace HisRoyalRedness.com
             {
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
 
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported},
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       new DTP(DataType.Timespan,              DataType.LimitedInteger) },
                 { new DTP(DataType.Timespan,            DataType.RationalNumber),       new DTP(DataType.Timespan,              DataType.RationalNumber) },
-                { new DTP(DataType.Timespan,            DataType.Float),                new DTP(DataType.Timespan,              DataType.Float) },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     new DTP(DataType.Timespan,              DataType.IrrationalNumber) },
                 { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
@@ -222,42 +223,42 @@ namespace HisRoyalRedness.com
             {
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
 
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported},
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       new DTP(DataType.Timespan,              DataType.LimitedInteger) },
                 { new DTP(DataType.Timespan,            DataType.RationalNumber),       new DTP(DataType.Timespan,              DataType.RationalNumber) },
-                { new DTP(DataType.Timespan,            DataType.Float),                new DTP(DataType.Timespan,              DataType.Float) },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     new DTP(DataType.Timespan,              DataType.IrrationalNumber) },
                 { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
@@ -267,47 +268,47 @@ namespace HisRoyalRedness.com
             #region LeftShift
             OperandTypeCastMap.Add(OperatorType.LeftShift, new Dictionary<DTP, DTP>()
             {
-                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       DTP.Unsupported },
-
-                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
 
-                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-
-                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
-
+                { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.RationalNumber,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.RationalNumber,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
+
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
             });
             #endregion LeftShift
 
@@ -320,42 +321,42 @@ namespace HisRoyalRedness.com
             {
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
 
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported},
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported},
 
                 { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
 
                 { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
@@ -373,47 +374,49 @@ namespace HisRoyalRedness.com
             #region And
             OperandTypeCastMap.Add(OperatorType.And, new Dictionary<DTP, DTP>()
             {
-                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
-
-                { new DTP(DataType.Float,               DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.Float,               DataType.LimitedInteger),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.Float,               DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-
-                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.LimitedInteger,      DataType.Float),                new DTP(DataType.LimitedInteger,        DataType.RationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.IrrationalNumber),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.LimitedInteger,      DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.LimitedInteger,      DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.LimitedInteger,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.RationalNumber) },
 
-                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
-
-                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Float),                DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
-
+                { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.IrrationalNumber),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
                 { new DTP(DataType.RationalNumber,      DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.Float),                new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
-                { new DTP(DataType.RationalNumber,      DataType.LimitedInteger),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
                 { new DTP(DataType.RationalNumber,      DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.RationalNumber,      DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
+
+                { new DTP(DataType.IrrationalNumber,    DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.IrrationalNumber,    DataType.RationalNumber),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.IrrationalNumber,    DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Date,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Time,                DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Time,                DataType.Timespan),             DTP.Unsupported },
+
+                { new DTP(DataType.Timespan,            DataType.LimitedInteger),       DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Date),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Time),                 DTP.Unsupported },
+                { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
+
+
             });
             #endregion And
 
@@ -429,24 +432,25 @@ namespace HisRoyalRedness.com
             #region NumericNegate
             OperandTypeCastMap.Add(OperatorType.NumericNegate, new Dictionary<DTP, DTP>()
             {
-                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.Float,                 DataType.Float) },
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     new DTP(DataType.IrrationalNumber,      DataType.IrrationalNumber) },
+                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             new DTP(DataType.Timespan,              DataType.Timespan) },
-                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
+
             });
             #endregion NumericNegate
 
             #region BitwiseNegate
             OperandTypeCastMap.Add(OperatorType.BitwiseNegate, new Dictionary<DTP, DTP>()
             {
-                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
-                { new DTP(DataType.Float,               DataType.Float),                new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
                 { new DTP(DataType.LimitedInteger,      DataType.LimitedInteger),       new DTP(DataType.LimitedInteger,        DataType.LimitedInteger) },
+                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       DTP.Unsupported },
+                { new DTP(DataType.IrrationalNumber,    DataType.IrrationalNumber),     DTP.Unsupported },
+                { new DTP(DataType.Date,                DataType.Date),                 DTP.Unsupported },
                 { new DTP(DataType.Time,                DataType.Time),                 DTP.Unsupported },
                 { new DTP(DataType.Timespan,            DataType.Timespan),             DTP.Unsupported },
-                { new DTP(DataType.RationalNumber,      DataType.RationalNumber),       new DTP(DataType.RationalNumber,        DataType.RationalNumber) },
             });
             #endregion BitwiseNegate
         }
@@ -483,8 +487,8 @@ namespace HisRoyalRedness.com
                 var opTypesByOperator = DataMapper.OperandTypeCastMap[opType]
                     .Where(kv => kv.Value.OperationSupported)
                     .Select(kv => new Tuple<OperatorType, DataType, DataType>(
-                        opType, 
-                        inputTypes ? kv.Key.Left : kv.Value.Left, 
+                        opType,
+                        inputTypes ? kv.Key.Left : kv.Value.Left,
                         inputTypes ? kv.Key.Right : kv.Value.Right))
                     .Distinct();
                 foreach (var entry in opTypesByOperator)

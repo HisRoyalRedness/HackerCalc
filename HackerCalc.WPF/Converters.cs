@@ -31,8 +31,8 @@ namespace HisRoyalRedness.com
                         ? rat.Numerator.ToString()
                         : ((double)rat.Numerator / (double)rat.Denominator).ToString(FLOAT_FORMAT);
 
-                case DataType.Float:
-                    return ((FloatType)value).Value.ToString(FLOAT_FORMAT);
+                case DataType.IrrationalNumber:
+                    return ((IrrationalNumberType)value).Value.ToString(FLOAT_FORMAT);
 
                 case DataType.Date:
                     return ((DateType)value).Value.ToString(DATE_FORMAT);
@@ -74,7 +74,7 @@ namespace HisRoyalRedness.com
                     var isSigned = signAndBitwidth.IsSigned ? "signed" : "unsigned";
                     return $"{bitWidth}{(isUnlimited ? "" : "-bit")} {isSigned}";
 
-                case DataType.Float:
+                case DataType.IrrationalNumber:
                 case DataType.Date:
                 case DataType.Time:
                 case DataType.Timespan:

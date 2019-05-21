@@ -30,7 +30,7 @@ namespace HisRoyalRedness.com
         {
             if (other is null)
                 return 1;
-            else if (other is FloatType dt1)
+            else if (other is IrrationalNumberType dt1)
                 return Value.TotalSeconds.CompareTo(dt1.Value);
             else if (other is LimitedIntegerType dt2)
                 return new BigInteger(Value.TotalSeconds).CompareTo(dt2.Value);
@@ -82,8 +82,8 @@ namespace HisRoyalRedness.com
                             return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks * ((LimitedIntegerType)operands[1]).Value)));
                         case DataType.RationalNumber:
                             return new TimespanType(TimeSpan.FromTicks((long)(BigInteger)(((TimespanType)operands[0]).Value.Ticks * ((RationalNumberType)operands[1]).Value)));
-                        case DataType.Float:
-                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds * ((FloatType)operands[1]).Value));
+                        case DataType.IrrationalNumber:
+                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds * ((IrrationalNumberType)operands[1]).Value));
                     }
                     break;
                 case OperatorType.Divide:
@@ -93,10 +93,10 @@ namespace HisRoyalRedness.com
                             return new TimespanType(TimeSpan.FromTicks((long)(((TimespanType)operands[0]).Value.Ticks / ((LimitedIntegerType)operands[1]).Value)));
                         case DataType.RationalNumber:
                             return new TimespanType(TimeSpan.FromTicks((long)(BigInteger)(((TimespanType)operands[0]).Value.Ticks / ((RationalNumberType)operands[1]).Value)));
-                        case DataType.Float:
-                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds / ((FloatType)operands[1]).Value));
+                        case DataType.IrrationalNumber:
+                            return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds / ((IrrationalNumberType)operands[1]).Value));
                         case DataType.Timespan:
-                            return new FloatType(((TimespanType)operands[0]).Value.TotalMilliseconds / ((TimespanType)operands[1]).Value.TotalMilliseconds);
+                            return new IrrationalNumberType(((TimespanType)operands[0]).Value.TotalMilliseconds / ((TimespanType)operands[1]).Value.TotalMilliseconds);
                     }
                     break;
             }

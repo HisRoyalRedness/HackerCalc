@@ -89,7 +89,7 @@ namespace HisRoyalRedness.com
         {
             if (other is null)
                 return 1;
-            else if (other is FloatType dt1)
+            else if (other is IrrationalNumberType dt1)
                 return Value.CompareTo(new BigInteger(dt1.Value));
             else if (other is LimitedIntegerType dt2)
                 return Value.CompareTo(dt2.Value);
@@ -110,8 +110,8 @@ namespace HisRoyalRedness.com
             {
                 case nameof(TimespanType):
                     return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
-                case nameof(FloatType):
-                    return new FloatType((double)Value) as TNewType;
+                case nameof(IrrationalNumberType):
+                    return new IrrationalNumberType((double)Value) as TNewType;
                 case nameof(RationalNumberType):
                     return new RationalNumberType(new RationalNumber(Value)) as TNewType;
             }

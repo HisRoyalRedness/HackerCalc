@@ -35,8 +35,11 @@ namespace HisRoyalRedness.com
             if (isFloat)
             {
                 var val = value.Trim();
+                var pointIndex = val.IndexOf('.');
                 var num = BigInteger.Parse(val.Replace(".", ""));
-                var denom = BigInteger.Parse("1" + new string('0', val.Length - val.IndexOf('.') - 1));
+                var denom = pointIndex < 0
+                    ? BigInteger.One
+                    : BigInteger.Parse("1" + new string('0', val.Length - pointIndex - 1));
                 return new RationalNumberToken(new RationalNumber(isNeg ? BigInteger.Negate(num) : num, denom), $"{(isNeg ? "-" : "")}{rawToken}", position);
             }
             else

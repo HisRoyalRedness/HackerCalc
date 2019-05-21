@@ -30,7 +30,7 @@ namespace HisRoyalRedness.com
         {
             if (other is null)
                 return 1;
-            else if (other is FloatType dt1)
+            else if (other is IrrationalNumberType dt1)
                 return Value.TotalSeconds.CompareTo(dt1.Value);
             else if (other is LimitedIntegerType dt2)
                 return new BigInteger(Value.TotalSeconds).CompareTo(dt2.Value);

@@ -20,21 +20,21 @@ namespace HisRoyalRedness.com
         // Limited
         [TypedDataRow("2u4 ** 3u4",                     "8u4",                      DataType.LimitedInteger)]
         [TypedDataRow("2u4 ** 3",                       "8u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("2u4 ** 3.1",                     "8.5741877f",               DataType.Float)]
+        [TypedDataRow("2u4 ** 3.1",                     "8.5741877f",               DataType.IrrationalNumber)]
         [TypedDataRow("2u4 ** 2019-01-23 12:34:56",     null,                       null)]
         [TypedDataRow("2u4 ** 12:34:56",                null,                       null)]
         [TypedDataRow("2u4 ** 10hrs",                   null,                       null)]
         // Unlimited
         [TypedDataRow("2 ** 3u4",                       "8u4",                      DataType.LimitedInteger)]
         [TypedDataRow("2 ** 3",                         "8",                        DataType.RationalNumber)]
-        [TypedDataRow("2 ** 3.1",                       "8.5741877f",                     DataType.Float)]
+        [TypedDataRow("2 ** 3.1",                       "8.5741877f",                     DataType.IrrationalNumber)]
         [TypedDataRow("2 ** 2019-01-23 12:34:56",       null,                       null)]
         [TypedDataRow("2 ** 12:34:56",                  null,                       null)]
         [TypedDataRow("2 ** 10hrs",                     null,                       null)]
         // Float
-        [TypedDataRow("2.6 ** 3u4",                     "17.576f",                  DataType.Float)]
-        [TypedDataRow("2.6 ** 3",                       "17.576f",                  DataType.Float)]
-        [TypedDataRow("2.6 ** 3.1",                     "19.3382592764f",           DataType.Float)]
+        [TypedDataRow("2.6 ** 3u4",                     "17.576f",                  DataType.IrrationalNumber)]
+        [TypedDataRow("2.6 ** 3",                       "17.576f",                  DataType.IrrationalNumber)]
+        [TypedDataRow("2.6 ** 3.1",                     "19.3382592764f",           DataType.IrrationalNumber)]
         [TypedDataRow("2.6 ** 2019-01-23 12:34:56",     null,                       null)]
         [TypedDataRow("2.6 ** 12:34:56",                null,                       null)]
         [TypedDataRow("2.6 ** 10hrs",                   null,                       null)]
@@ -69,9 +69,9 @@ namespace HisRoyalRedness.com
                                 UnlimitedInteger    LimitedInteger, UnlimitedInteger, Float
                                 Float               LimitedInteger, UnlimitedInteger, Float
             */
-            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
-            { DataType.RationalNumber,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
-            { DataType.Float,               new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.Float } },
+            { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
+            { DataType.RationalNumber,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
+            { DataType.IrrationalNumber,               new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
             { DataType.Date,                new HashSet<DataType> { } },
             { DataType.Time,                new HashSet<DataType> { } },
             { DataType.Timespan,            new HashSet<DataType> { } },

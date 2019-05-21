@@ -37,7 +37,7 @@ namespace HisRoyalRedness.com
         [DataRow("-1.234", "-1.234")]
         public void MakeDataType_Float(string tokenValue, string expectedValue)
         {
-            var dataType = MakeDataType<FloatType>(DataType.Float, tokenValue);
+            var dataType = MakeDataType<IrrationalNumberType>(DataType.IrrationalNumber, tokenValue);
             dataType.Value.Should().Be(double.Parse(expectedValue));
         }
 
