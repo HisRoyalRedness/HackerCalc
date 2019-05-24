@@ -51,15 +51,14 @@ namespace HisRoyalRedness.com
             return value;
         }
 
-        public static LimitedIntegerType CreateLimitedIntegerType(BigInteger value, IConfiguration configuration)
+        public static LimitedIntegerType CreateLimitedIntegerType(BigInteger value, bool allowUnlimited, IConfiguration configuration)
         {
             var isSigned = value < 0;
             var bitWidth = EnumExtensions
                 .GetEnumCollection<IntegerBitWidth>()
-                .FirstOrDefault(bw => isSigned 
-                    ? MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].Min <= value
-                    : MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].Max >= value);
-            if (bitWidth == 0)
+                .FirstOrDefault(bw => MinAndMaxMap.Instance[new BitWidthAndSignPair(bw, isSigned)].IsInRange(value));
+
+            if (bitWidth == IntegerBitWidth.Unlimited && !allowUnlimited)
                 throw new TypeConversionException($"{value} is out of range of a {nameof(LimitedIntegerType)}.");
             return new LimitedIntegerType(value, new BitWidthAndSignPair(bitWidth, isSigned), configuration);
         }
@@ -108,8 +107,6 @@ namespace HisRoyalRedness.com
         {
             switch (typeof(TNewType).Name)
             {
-                case nameof(TimespanType):
-                    return new TimespanType(TimeSpan.FromSeconds((double)Value)) as TNewType;
                 case nameof(IrrationalNumberType):
                     return new IrrationalNumberType((double)Value) as TNewType;
                 case nameof(RationalNumberType):

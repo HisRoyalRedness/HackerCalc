@@ -117,16 +117,14 @@ namespace HisRoyalRedness.com
         public static implicit operator RationalNumber(long num) => new RationalNumber(num);
         public static implicit operator RationalNumber(ulong num) => new RationalNumber(num);
         public static implicit operator RationalNumber(BigInteger num) => new RationalNumber(num);
+        public static implicit operator RationalNumber(double num) => new RationalNumber((BigInteger)num);
 
         public static explicit operator BigInteger(RationalNumber rn) => rn.Numerator / rn.Denominator;
         public static explicit operator int(RationalNumber rn) => (int)(rn.Numerator / rn.Denominator);
         public static explicit operator uint(RationalNumber rn) => (uint)(rn.Numerator / rn.Denominator);
         public static explicit operator long(RationalNumber rn) => (long)(rn.Numerator / rn.Denominator);
         public static explicit operator ulong(RationalNumber rn) => (ulong)(rn.Numerator / rn.Denominator);
-
-
-
-
+        public static explicit operator double(RationalNumber rn) => (double)rn.Numerator / (double)rn.Denominator;
     }
 }
 

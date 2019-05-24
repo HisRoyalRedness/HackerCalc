@@ -18,6 +18,7 @@ namespace HisRoyalRedness.com
         bool IgnoreLimitedIntegerMaxMinRange { get; }
         bool AllowOverOrUnderflow { get; }
         bool AllowSignChange { get; }
+        BitWidthAndSignPair PreferredSignAndBitWidth { get; }
 
         ICalcState State { get; }
     }
@@ -28,6 +29,7 @@ namespace HisRoyalRedness.com
         public bool AllowMultidayTimes { get; set; } = false;
         public bool AllowOverOrUnderflow { get; set; } = true;
         public bool AllowSignChange { get; set; } = true;
+        public BitWidthAndSignPair PreferredSignAndBitWidth { get; set; } = new BitWidthAndSignPair(IntegerBitWidth._32, true);
 
         public ICalcState State { get; } = new CalcState();
     }

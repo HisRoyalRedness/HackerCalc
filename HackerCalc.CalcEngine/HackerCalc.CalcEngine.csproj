@@ -50,14 +50,13 @@
     <Compile Include="CalcEngine.cs" />
     <Compile Include="Data types\DataTypeBase.cs" />
     <Compile Include="Data types\DateType.cs" />
-    <Compile Include="Data types\FloatType.cs" />
+    <Compile Include="Data types\IrrationalNumberType.cs" />
     <Compile Include="Data types\LimitedIntegerType.cs" />
     <Compile Include="Data types\RationalNumberType.cs" />
     <Compile Include="DataMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data types\TimespanType.cs" />
     <Compile Include="Data types\TimeType.cs" />
-    <Compile Include="Data types\UnlimitedIntegerType.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

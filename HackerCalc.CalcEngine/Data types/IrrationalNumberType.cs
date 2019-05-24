@@ -47,12 +47,12 @@ namespace HisRoyalRedness.com
         #region Type casting
         protected override TNewType InternalCastTo<TNewType>(IConfiguration configuration)
         {
-            switch(typeof(TNewType).Name)
+            switch (typeof(TNewType).Name)
             {
-                case nameof(TimespanType):
-                    return new TimespanType(TimeSpan.FromSeconds(Value)) as TNewType;
-                //case nameof(UnlimitedIntegerType):
-                //    return new UnlimitedIntegerType(new BigInteger(Value)) as TNewType;
+                case nameof(LimitedIntegerType):
+                    return LimitedIntegerType.CreateLimitedIntegerType((BigInteger)Value, true, configuration) as TNewType;
+                case nameof(RationalNumberType):
+                    return new RationalNumberType(Value) as TNewType;
             }
             return null;
         }

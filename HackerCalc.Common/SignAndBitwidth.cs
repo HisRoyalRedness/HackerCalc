@@ -75,13 +75,6 @@ namespace HisRoyalRedness.com
     [DebuggerDisplay("{DisplayString}")]
     public struct MinAndMax
     {
-        public MinAndMax(BigInteger min, BigInteger max, BigInteger mask)
-        {
-            Min = min;
-            Max = max;
-            Mask = mask;
-        }
-
         public MinAndMax(IntegerBitWidth bitWidth, bool isSigned)
         {
             if (bitWidth == IntegerBitWidth.Unlimited)
@@ -89,6 +82,7 @@ namespace HisRoyalRedness.com
                 Mask = 0;
                 Min = 0;
                 Max = 0;
+                IsUnlimited = true;
             }
             else
             {
@@ -104,17 +98,20 @@ namespace HisRoyalRedness.com
                     Min = 0;
                     Max = Mask;
                 }
+                IsUnlimited = false;
             }
         }
 
-        public BigInteger Min;
-        public BigInteger Max;
-        public BigInteger Mask;
+        public bool IsInRange(BigInteger value)
+            => IsUnlimited || (value >= Min && value <= Max);
 
-        string DisplayString => $"Min: {Min}, Max: {Max}, Mask: {Mask}";
+        public BigInteger Min { get; }
+        public BigInteger Max { get; }
+        public BigInteger Mask { get; }
+        public bool IsUnlimited { get; }
+
+        string DisplayString => IsUnlimited ? "Unlimited" : $"Min: {Min}, Max: {Max}, Mask: {Mask}";
         public override string ToString() => DisplayString;
-
-        
     }
 
     public class MinAndMaxMap : IReadOnlyDictionary<BitWidthAndSignPair, MinAndMax>
