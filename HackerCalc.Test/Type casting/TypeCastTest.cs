@@ -15,7 +15,7 @@ namespace HisRoyalRedness.com
         [TestMethod]
         public void AllSupportedTypeCastsWorkCorrectly()
         {
-            foreach(var cast in DataMapper.AllTypeCasts.Value)
+            foreach (var cast in DataMapper.AllTypeCasts.Value)
             {
                 var dataValue = TestCommon.MakeDataType(cast.Key);
                 foreach (var val in cast.Value)

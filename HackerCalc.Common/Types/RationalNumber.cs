@@ -79,6 +79,14 @@ namespace HisRoyalRedness.com
         public int CompareTo(object obj) => obj is RationalNumber rn ? CompareTo(rn) : 1;
         #endregion IComparable
 
+        public override string ToString() => ToString(true);
+
+        public string ToString(bool includeFraction) => Denominator == 1
+            ? $"{Numerator}"
+            : (includeFraction
+                ? $"{((double)Numerator / (double)Denominator).ToString("0.#####")} ({Fraction})"
+                : $"{((double)Numerator / (double)Denominator).ToString("0.#####")}");
+
         public static RationalNumber Zero { get; } = new RationalNumber(0);
         public static RationalNumber One { get; } = new RationalNumber(1);
 

@@ -289,11 +289,15 @@ namespace HisRoyalRedness.com
             {
                 case DataType.LimitedInteger: token = MakeLiteralToken(LiteralTokenType.LimitedInteger, tokenString); break;
                 case DataType.RationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
-                //case DataType.IrrationalNumber: token = MakeLiteralToken(LiteralTokenType.Rational, tokenString); break;
                 case DataType.Date: token = MakeLiteralToken(LiteralTokenType.Date, tokenString); break;
                 case DataType.Time: token = MakeLiteralToken(LiteralTokenType.Time, tokenString); break;
                 case DataType.Timespan: token = MakeLiteralToken(LiteralTokenType.Timespan, tokenString); break;
-                
+
+                case DataType.IrrationalNumber:
+                    token = MakeLiteralToken(LiteralTokenType.Rational, tokenString);
+                    var ratType = CalcEngine.Instance.ConvertToTypedDataType(token, configuration);
+                    return ratType.CastTo<IrrationalNumberType>(configuration);
+
                 default:
                     throw new TestOperationException($"Unsupported data type '{dataType}'.");
             }

@@ -19,42 +19,36 @@ namespace HisRoyalRedness.com
         [DataTestMethod]
         // Limited
         [TypedDataRow("2u4 * 3u4",                      "6u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("2u4 * 3",                        "6u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("2u4 * 3.1",                      "6.2f",                     DataType.IrrationalNumber)]
+        [TypedDataRow("2u4 * 3.1",                      "6u4",                      DataType.LimitedInteger)]
         [TypedDataRow("2u4 * 2019-01-23 12:34:56",      null,                       null)]
         [TypedDataRow("2u4 * 12:34:56",                 null,                       null)]
         [TypedDataRow("2u4 * 10hrs",                    null,                       null)]
-        // Unlimited
-        [TypedDataRow("2 * 3u4",                        "6u4",                      DataType.LimitedInteger)]
-        [TypedDataRow("2 * 3",                          "6",                        DataType.RationalNumber)]
-        [TypedDataRow("2 * 3.1",                        "6.2f",                     DataType.IrrationalNumber)]
-        [TypedDataRow("2 * 2019-01-23 12:34:56",        null,                       null)]
-        [TypedDataRow("2 * 12:34:56",                   null,                       null)]
-        [TypedDataRow("2 * 10hrs",                      null,                       null)]
-        // Float
-        [TypedDataRow("2.6 * 3u4",                      "7.8f",                     DataType.IrrationalNumber)]
-        [TypedDataRow("2.6 * 3",                        "7.8f",                     DataType.IrrationalNumber)]
-        [TypedDataRow("2.6 * 3.1",                      "8.06f",                    DataType.IrrationalNumber)]
+        // Rational
+        [TypedDataRow("2.6 * 3u4",                      "6u4",                      DataType.LimitedInteger)]
+        [TypedDataRow("2.6 * 3.1",                      "8.06",                     DataType.RationalNumber)]
         [TypedDataRow("2.6 * 2019-01-23 12:34:56",      null,                       null)]
         [TypedDataRow("2.6 * 12:34:56",                 null,                       null)]
         [TypedDataRow("2.6 * 10hrs",                    null,                       null)]
+        //// Irrational
+        //[TypedDataRow("2.6 * 3u4",                      "7.8f",                     DataType.IrrationalNumber)]
+        //[TypedDataRow("2.6 * 3.1",                      "8.06f",                    DataType.IrrationalNumber)]
+        //[TypedDataRow("2.6 * 2019-01-23 12:34:56",      null,                       null)]
+        //[TypedDataRow("2.6 * 12:34:56",                 null,                       null)]
+        //[TypedDataRow("2.6 * 10hrs",                    null,                       null)]
         // Date
         [TypedDataRow("2019-01-23 12:34:56 * 3u4",      null,                       null)]
-        [TypedDataRow("2019-01-23 12:34:56 * 3",        null,                       null)]
         [TypedDataRow("2019-01-23 12:34:56 * 3.1",      null,                       null)]
         [TypedDataRow("2019-01-23 12:34:56 * now",      null,                       null)]
         [TypedDataRow("2019-01-23 12:34:56 * 12:34:56", null,                       null)]
         [TypedDataRow("2019-01-23 12:34:56 * 10hrs",    null,                       null)]
         // Time
         [TypedDataRow("12:34:56 * 3u4",                 null,                       null)]
-        [TypedDataRow("12:34:56 * 3",                   null,                       null)]
         [TypedDataRow("12:34:56 * 3.1",                 null,                       null)]
         [TypedDataRow("12:34:56 * 2019-01-23 12:34:56", null,                       null)]
         [TypedDataRow("12:34:56 * 12:34:56",            null,                       null)]
         [TypedDataRow("12:34:56 * 10hrs",               null,                       null)]
         // Timespan 
         [TypedDataRow("12h34m56s * 3u4",                "1day13h44m48s",            DataType.Timespan)]
-        [TypedDataRow("12h34m56s * 3",                  "1day13h44m48s",            DataType.Timespan)]
         [TypedDataRow("12h34m56s * 3.1",                "1day15h0m17.6s",           DataType.Timespan)]
         [TypedDataRow("12h34m56s * 2019-01-23 12:34:56",null,                       null)]
         [TypedDataRow("12h34m56s * 12:34:56",           null,                       null)]
@@ -65,14 +59,14 @@ namespace HisRoyalRedness.com
         static readonly Dictionary<DataType, HashSet<DataType>> _supportedOperatorPairs = new Dictionary<DataType, HashSet<DataType>>
         {
             /*
-            Multiply (*)        LimitedInteger      LimitedInteger, UnlimitedInteger, Float
-                                UnlimitedInteger    LimitedInteger, UnlimitedInteger, Float
-                                Float               LimitedInteger, UnlimitedInteger, Float
-                                Timespan            LimitedInteger, UnlimitedInteger, Float
+            Multiply (*)        LimitedInteger      LimitedInteger, RationalNumber, IrrationalNumber
+                                RationalNumber      LimitedInteger, RationalNumber, IrrationalNumber
+                                IrrationalNumber    LimitedInteger, RationalNumber, IrrationalNumber
+                                Timespan            LimitedInteger, RationalNumber, IrrationalNumber
             */
             { DataType.LimitedInteger,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
             { DataType.RationalNumber,      new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
-            { DataType.IrrationalNumber,               new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
+            { DataType.IrrationalNumber,    new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },
             { DataType.Date,                new HashSet<DataType> { } },
             { DataType.Time,                new HashSet<DataType> { } },
             { DataType.Timespan,            new HashSet<DataType> { DataType.LimitedInteger, DataType.RationalNumber, DataType.IrrationalNumber } },

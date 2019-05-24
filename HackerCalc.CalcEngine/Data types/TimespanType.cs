@@ -96,7 +96,7 @@ namespace HisRoyalRedness.com
                         case DataType.IrrationalNumber:
                             return new TimespanType(TimeSpan.FromMilliseconds(((TimespanType)operands[0]).Value.TotalMilliseconds / ((IrrationalNumberType)operands[1]).Value));
                         case DataType.Timespan:
-                            return new IrrationalNumberType(((TimespanType)operands[0]).Value.TotalMilliseconds / ((TimespanType)operands[1]).Value.TotalMilliseconds);
+                            return new RationalNumberType(new RationalNumber(((TimespanType)operands[0]).Value.Ticks, ((TimespanType)operands[1]).Value.Ticks));
                     }
                     break;
             }

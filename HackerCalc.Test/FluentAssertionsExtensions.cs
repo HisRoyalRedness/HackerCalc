@@ -190,7 +190,7 @@ namespace HisRoyalRedness.com
                 .Then.ForCondition((expected is null) || !(actual is null)).FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was null.")
 
                 // if neither is null, then the TypeValues should match
-                .Then.ForCondition((expected is null) || (actual is null))
+                .Then.ForCondition((expected is null) || (actual is null) || actual.Equals(expected))
                     .FailWith($"Expected {expectedName} to be '{expected.ToString(Verbosity.ValueAndBitwidth)}', but it was '{actual.ToString(Verbosity.ValueAndBitwidth)}'");
     }
 }
