@@ -17,22 +17,16 @@ namespace HisRoyalRedness.com
 
         #region Equality
         protected override bool InternalEquals(IDataType other)
-        {
-            if (other is DateType dt)
-                return dt.Value == Value;
-            return false;
-        }
+            => other is DateType dt
+                ? dt.Value == Value
+                : false;
         #endregion Equality
 
         #region Comparison
-        protected override int InternalCompareTo(IDataType other)
-        {
-            if (other is null)
-                return 1;
-            else if (other is DateType dt)
-                return Value.CompareTo(dt.Value);
-            throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
-        }
+        protected override int InternalCompareTo(DateType other)
+            => other is null
+                ? 1
+                : Value.CompareTo(other.Value);
         #endregion Comparison
 
         #region Type casting

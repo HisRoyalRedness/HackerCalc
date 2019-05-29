@@ -15,22 +15,19 @@ Basic date and time calculations are also supported.
 
 Literals
 -------------
-
- * **Integers**
+ * **Numbers**
    * Numeric base
      * **``b1011010``**       Binary
      * **``o147``**           Octal
      * **``12345``**          Decimal
      * **``0x3c``**           Hexadecimal
-   * Unlimited integer. Can be positive or negative. No bitwidth limit
-     * e.g. ``12345`` or ``-12345``
-   * Limited integer. Defined as signed or unsigned. Limited to a particular bitwidth
+   * Rational numbers. Can be positive or negative. No lower or upper limit
+     * e.g. ``12345``, ``-123.456``, ``0xfe56``
+   * Integers. Defined as signed or unsigned.
      * **i | u**          Signed or unsigned
-     * Supported bitwidths are 4, 8, 16, 32, 64, 128
-     * e.g. ``-12i32``, ``34u8``, ``0x56i64``
- * **Floats**
-   * Floating point type
-     * e.g. ``1.2``, or ``3f``
+     * Supported bitwidths are 4, 8, 16, 32, 64, 128, or unlimited (use bitwidth 0)
+     * e.g. ``-12i32``, ``34u8``, ``0x56i64``, ``12345i0``
+	 * Unlimited integers are always signed, i.e. there is no ``12345u0``
  * **Dates**
    * Date only, or date and time
      * Support date formats 'yyyy-MM-dd', 'yy-MM-dd' or 'dd-MM-yyyy'
@@ -43,7 +40,7 @@ Literals
      * Support time formats 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.fff'
      * e.g. ``11:48``, or ``11:48:56``, or ``11:48:56.8``
      * **``TIME``** returns the current time
-     * **Times** can be configured to allow days, in the format 'd.HH:mm', 'd.HH:mm:ss' or 'd.HH:mm:ss.fff'
+     * Time types can be configured to allow days, in the format 'd.HH:mm', 'd.HH:mm:ss' or 'd.HH:mm:ss.fff'
      * <mark>Negative times?</mark>
  * **Timespans**
    * A period of time
@@ -90,9 +87,9 @@ Todo
    * **Subtract** ~~implemented and tested~~
    * **Multiply** ~~implemented and tested~~
    * **Divide** ~~implemented and tested~~
-   * **Power** ~~implemented and tested~~
-   * **Root** ~~implemented and tested~~
-   * **Modulo** ~~implemented and tested~~
+   * **Power**
+   * **Root**
+   * **Modulo**
    * **LeftShift**
    * **RightShift**
    * **And**
@@ -102,6 +99,7 @@ Todo
    * **NumericNegate**
    * **Not**
   * Implement IComparable and IEquatable on data types, with testing
+   * Limited Integers. <mark>Should it consider bitwidth and sign?</mark>
   * ~~Implement casting to/from data types~~
    * ~~Full implementation of cast from UnlimitedIntegerType to LimitedIntegerType~~
      * Casting to a specific bitwidth and sign?
@@ -110,8 +108,6 @@ Todo
 * Make sure left and right shifts make sense for the bitwidth of the LimitedIntegerTypes
 * <mark>Add tests for IConfiguration and ICalcState</mark>
 * <mark>Add calc for colour (convert RGB to LAB etc., add/remove luminance)</mark>
-* <mark>Relook at data type comparison. Why compare TimespanType to LimitedInteger??</mark>
-* <mark>ICompare for LimitedIntegers. Should it consider bitwidth and sign?</mark>
 * <mark>Add tests for Irrational</mark>
 
 License

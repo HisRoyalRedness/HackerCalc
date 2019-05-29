@@ -18,30 +18,16 @@ namespace HisRoyalRedness.com
 
         #region Equality
         protected override bool InternalEquals(IDataType other)
-        {
-            if (other is TimespanType dt)
-                return dt.Value == Value;
-            return false;
-        }
+            => other is TimespanType dt
+                ? dt.Value == Value
+                : false;
         #endregion Equality
 
         #region Comparison
-        protected override int InternalCompareTo(IDataType other)
-        {
-            if (other is null)
-                return 1;
-            else if (other is IrrationalNumberType dt1)
-                return Value.TotalSeconds.CompareTo(dt1.Value);
-            else if (other is LimitedIntegerType dt2)
-                return new BigInteger(Value.TotalSeconds).CompareTo(dt2.Value);
-            else if (other is TimespanType dt3)
-                return Value.CompareTo(dt3.Value);
-            else if (other is TimeType dt4)
-                return Value.CompareTo(dt4.Value);
-            //else if (other is UnlimitedIntegerType dt5)
-            //    return new BigInteger(Value.TotalSeconds).CompareTo(dt5.Value);
-            throw new InvalidCalcOperationException($"Can't compare a {GetType().Name} to a {other.GetType().Name}.");
-        }
+        protected override int InternalCompareTo(TimespanType other)
+            => other is null
+                ? 1
+                : Value.CompareTo(other.Value);
         #endregion Comparison
 
         #region Type casting

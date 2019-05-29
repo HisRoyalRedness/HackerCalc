@@ -180,7 +180,6 @@ namespace HisRoyalRedness.com
         public TBaseType Value { get; private set; }
         public override object ObjectValue => Value;
 
-
         #region Type casting
         public override TNewType CastTo<TNewType>(IConfiguration configuration)
         {
@@ -211,11 +210,30 @@ namespace HisRoyalRedness.com
 
         #region Equality
         public bool Equals(DataTypeBase<TBaseType, TConcreteDataType> other) => InternalEquals(other as IDataType);
-        public override bool Equals(object obj) => Equals(obj as IDataType);
+        public override bool Equals(object obj) =>  obj is DataTypeBase<TBaseType, TConcreteDataType> other ? Equals(other) : false;
         public static bool operator ==(DataTypeBase<TBaseType, TConcreteDataType> a, IDataType b) => !(a is null) && a.InternalEquals(b);
         public static bool operator !=(DataTypeBase<TBaseType, TConcreteDataType> a, IDataType b) => !(a == b);
         public override int GetHashCode() => InternalGetHashCode();
         #endregion Equality
+
+        #region Comparison
+        protected override int InternalCompareTo(IDataType other)
+        {
+            if (other is null)
+                return 1;
+            else if (other is TConcreteDataType sameType)
+                return InternalCompareTo(sameType);
+            else if (other is DataTypeBase<TBaseType, TConcreteDataType> sameBase)
+                return InternalCompareTo(sameBase as TConcreteDataType);
+            else if (other is IDataType<DataType> otherType)
+                throw new InvalidCalcOperationException($"Can't compare a {DataType} to a {otherType.DataType}.");
+            else
+                throw new InvalidCalcOperationException($"Can't compare a {DataType} to a {other.GetType().Name}.");
+        }
+
+        //protected abstract int InternalCompareTo(DataTypeBase<TBaseType, TConcreteDataType> other);
+        protected abstract int InternalCompareTo(TConcreteDataType other);
+        #endregion Comparison
 
         /// <summary>
         /// Validation for the concrete data type from the static Operate method, just in case
