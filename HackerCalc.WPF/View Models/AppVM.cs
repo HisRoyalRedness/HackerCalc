@@ -22,7 +22,7 @@ namespace HisRoyalRedness.com
             {
                 //Expression.Input = "1+(2-3*4/5)**6//7";
                 //Expression.Input = "1+(2-3*4/5)";
-                Expression.Input = "-0x5f695i128";
+                Expression.Input = "-0x123i32";
                 ExpressionHistory.Add(new ExpressionVM(Configuration.Model) { Input = "1+2f/3" });
             }
             DataTypeDetails.Evaluation = Expression.Evaluation;

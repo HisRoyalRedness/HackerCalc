@@ -13,7 +13,6 @@ namespace HisRoyalRedness.com
         public ObservableCollection<IDataTypeDetailsTabVM> Tabs { get; }
             = new ObservableCollection<IDataTypeDetailsTabVM>(new IDataTypeDetailsTabVM[]
             {
-                new NullTabVM(),
                 new RationalDetailsTabVM(),
                 new LimitedIntegerDetailsTabVM(),
                 new DateTimeDetailsTabVM()
@@ -35,9 +34,15 @@ namespace HisRoyalRedness.com
 
         void SetEvaluation(IDataType<DataType> evaluation)
         {
-            SelectedTab = Tabs.FirstOrDefault(t => t.CanSelect(evaluation));
-            if (SelectedTab != null)
-                SelectedTab.Evaluation = evaluation;
+            IDataTypeDetailsTabVM selectedTabVM = null;
+            foreach(var tab in Tabs)
+            {
+                // Find the first tab we can select
+                if (tab.CanSelect(evaluation) && selectedTabVM == null)
+                    selectedTabVM = tab;
+                tab.Evaluation = evaluation;
+            }
+            SelectedTab = selectedTabVM;
         }
     }
 }

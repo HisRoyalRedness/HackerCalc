@@ -75,30 +75,15 @@ namespace HisRoyalRedness.com
                 Value = lit.Value;
                 
                 if (lit.SignAndBitWidth.BitWidth == IntegerBitWidth.Unlimited)
-                {
-                    BitwidthText = "Unlimited";
+                    DisplayUnlimitedInteger(lit.Value);
 
-                    BinaryTextSigned = lit.Value.ToBinaryString(true);
-                    DecimalTextSigned = lit.Value.ToDecimalString(true);
-                    HexadecimalTextSigned = lit.Value.ToHexadecimalString(true);
-
-                    BinaryTextUnsigned = string.Empty;
-                    DecimalTextUnsigned = string.Empty;
-                    HexadecimalTextUnsigned = string.Empty;
-                }
                 else
-                {
-                    BitwidthText = $"{bits} bits, {bits / 8} bytes";
-
-                    BinaryTextSigned = lit.SignedValue.ToBinaryString(bits, true);
-                    DecimalTextSigned = lit.SignedValue.ToDecimalString(true, true);
-                    HexadecimalTextSigned = lit.SignedValue.ToHexadecimalString(bits / 4, true);
-
-                    BinaryTextUnsigned = lit.UnsignedValue.ToBinaryString(bits, false);
-                    DecimalTextUnsigned = lit.UnsignedValue.ToDecimalString(false, true);
-                    HexadecimalTextUnsigned = lit.UnsignedValue.ToHexadecimalString(bits / 4);
-                }
+                    DisplayLimitedInteger(lit.SignedValue, lit.UnsignedValue, bits);
             }
+
+            else if (Evaluation is RationalNumberType rat && rat != null)
+                DisplayUnlimitedInteger((BigInteger)rat.Value);
+
             else
             {
                 Value = BigInteger.Zero;
@@ -110,6 +95,32 @@ namespace HisRoyalRedness.com
                 HexadecimalTextSigned = string.Empty;
                 HexadecimalTextUnsigned = string.Empty;
             }
+        }
+
+        void DisplayUnlimitedInteger(BigInteger value)
+        {
+            BitwidthText = "Unlimited";
+
+            BinaryTextSigned = value.ToBinaryString(true);
+            DecimalTextSigned = value.ToDecimalString(true);
+            HexadecimalTextSigned = value.ToHexadecimalString(true);
+
+            BinaryTextUnsigned = string.Empty;
+            DecimalTextUnsigned = string.Empty;
+            HexadecimalTextUnsigned = string.Empty;
+        }
+
+        void DisplayLimitedInteger(BigInteger signedValue, BigInteger unsignedValue, int bits)
+        {
+            BitwidthText = $"{bits} bits, {bits / 8} bytes";
+
+            BinaryTextSigned = signedValue.ToBinaryString(bits, true);
+            DecimalTextSigned = signedValue.ToDecimalString(true, true);
+            HexadecimalTextSigned = signedValue.ToHexadecimalString(bits / 4, true);
+
+            BinaryTextUnsigned = unsignedValue.ToBinaryString(bits, false);
+            DecimalTextUnsigned = unsignedValue.ToDecimalString(false, true);
+            HexadecimalTextUnsigned = unsignedValue.ToHexadecimalString(bits / 4);
         }
 
         #region Bindings

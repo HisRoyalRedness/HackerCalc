@@ -30,51 +30,14 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition SharedSizeGroup="DigitGroup" />
                         </Grid.ColumnDefinitions>
-                        <local:BindableRichTextBox
-                            Width="{Binding Width}"
-                            Document="{Binding Document, Mode=OneWay}"
-                            IsReadOnly="True">
-                            <local:BindableRichTextBox.Template>
-                                <ControlTemplate TargetType="{x:Type RichTextBox}">
-                                    <Border
-                                        x:Name="border"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="Transparent"
-                                        BorderThickness="0"
-                                        SnapsToDevicePixels="True">
-                                        <ScrollViewer
-                                            x:Name="PART_ContentHost"
-                                            Focusable="False"
-                                            HorizontalScrollBarVisibility="Hidden"
-                                            VerticalScrollBarVisibility="Hidden" />
-                                    </Border>
-                                </ControlTemplate>
-                            </local:BindableRichTextBox.Template>
-                        </local:BindableRichTextBox>
-
-
-                        <!--<RichTextBox BorderBrush="Transparent" Focusable="False">
-                            <RichTextBox.Template>
-                                <ControlTemplate TargetType="{x:Type RichTextBox}">
-                                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </RichTextBox.Template>
-                            <FlowDocument>
-                                <Paragraph FontSize="{Binding FontSize, ElementName=uc}">
-                                    <Run Text="{Binding DataType, ElementName=uc, Converter={StaticResource DataTypeToValue}}" />
-                                    <Run
-                                        FontSize="{Binding FontSize, ElementName=uc, Converter={StaticResource RelativeSize}, ConverterParameter={StaticResource SubscriptRatio}}"
-                                        Foreground="{StaticResource SubscriptForeground}"
-                                        BaselineAlignment="Subscript"
-                                        Text="{Binding DataType, ElementName=uc, Mode=OneWay, Converter={StaticResource DataTypeToType}}" />
-                                </Paragraph>
-                            </FlowDocument>
-                        </RichTextBox>-->
-
-
-                        <!--<TextBlock Text="{Binding Value}" />-->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Foreground="#a0a0b0" Text="{Binding LeadingValue}" />
+                            <TextBlock Grid.Column="1" Text="{Binding TrailingValue}" />
+                        </Grid>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

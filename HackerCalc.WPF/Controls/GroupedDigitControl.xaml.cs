@@ -106,47 +106,39 @@ namespace HisRoyalRedness.com
 
         public ObservableCollection<NumberGroup> Groups { get; } = new ObservableCollection<NumberGroup>();
 
+        #region NumberGroup
         public class NumberGroup : ViewModelBase
         {
-            const byte LEADING_COLOUR_BYTE = 175;
-            static readonly Color LEADING_COLOUR = Color.FromRgb(LEADING_COLOUR_BYTE, LEADING_COLOUR_BYTE, LEADING_COLOUR_BYTE);
-
             public NumberGroup(string value)
                 : this(value, '\0')
             { }
 
             public NumberGroup(string value, char leadingChar)
             {
-                var para = new Paragraph();
-                Document.Blocks.Add(para);
-                Width = value.Length == 8 ? 65.0 : 40.0;
-
                 Value = value;
                 AllLeadingsChars = leadingChar != '\0' && Value.All(c => c == leadingChar);
                 var lead = leadingChar == '\0' ? "" : new string(Value.TakeWhile(c => c == leadingChar).ToArray());
 
                 if (leadingChar == '\0' || lead.Length == 0)
                 {
-                    para.Inlines.Add(new Run(Value));
+                    LeadingValue = string.Empty;
+                    TrailingValue = Value;
                     return;
                 }
 
-                para.Inlines.Add(new Run(lead)
-                {
-                    Foreground = new SolidColorBrush(LEADING_COLOUR)
-                });
+                LeadingValue = lead;
 
                 if (lead.Length < Value.Length)
-                    para.Inlines.Add(new Run(Value.Substring(lead.Length)));
+                    TrailingValue = Value.Substring(lead.Length);
             }
 
-            public bool AllLeadingsChars { get; }
+            public string LeadingValue { get; }
+            public string TrailingValue { get; }
+
+            internal bool AllLeadingsChars { get; }
 
             public string Value { get; }
-
-            public FlowDocument Document { get; } = new FlowDocument();
-
-            public double Width { get; }
         }
+        #endregion NumberGroup
     }
 }
