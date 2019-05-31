@@ -168,6 +168,29 @@ namespace HisRoyalRedness.com
                     return $"{(string.Join(delim, itemList.Take(itemList.Count - 1).ToArray()))} {joinWord} {itemList[itemList.Count - 1]}";
             }
         }
+
+        /// <summary>
+        /// Splits a string into digit groups of <paramref name="groupSize"/> length.
+        /// A split at a multiple of this group size will have extra spacing.
+        /// </summary>
+        public static string GroupDigits(this string number, int groupSize = 4)
+            => groupSize > 0
+                ? new string(InternalGroupDigits(number, groupSize).Reverse().ToArray()).Trim()
+                : number;
+
+        static IEnumerable<char> InternalGroupDigits(this string number, int groupSize)
+        {
+            foreach (var chr in number.Reverse().Select((c, i) => new { Char = c, Index = i + 1 }))
+            {
+                yield return chr.Char;
+                var mod = groupSize;
+                while (chr.Index % mod == 0)
+                {
+                    yield return ' ';
+                    mod *= 2;
+                }
+            }
+        }
     }
     #endregion StringExtensions
 
@@ -212,10 +235,13 @@ namespace HisRoyalRedness.com
         }
 
         public static string ToHexadecimalString(this BigInteger bigint, bool showSign = false)
-            => BigInteger.Abs(bigint).ToString("X").TrimStart('0').AddSign(showSign && bigint < 0);
+            => ToHexadecimalString(bigint, 0, showSign);
 
-        public static string ToDecimalString(this BigInteger bigint, bool showSign = false)
-            => BigInteger.Abs(bigint).ToString().AddSign(showSign && bigint < 0);
+        public static string ToHexadecimalString(this BigInteger bigint, int padSize, bool showSign = false)
+            => BigInteger.Abs(bigint).ToString("X").TrimStart(new[] { '0', ' ' }).PadNumber(padSize).AddSign(showSign && bigint < 0);
+
+        public static string ToDecimalString(this BigInteger bigint, bool showSign = false, bool commaThousands = false)
+            => BigInteger.Abs(bigint).ToString(commaThousands ? "#,0": "").AddSign(showSign && bigint < 0);
 
         public static string ToOctalString(this BigInteger bigint, bool showSign = false)
         {
@@ -242,10 +268,18 @@ namespace HisRoyalRedness.com
         }
 
         public static string ToBinaryString(this BigInteger bigint, bool showSign = false)
-            => new string(ToBinaryArray(bigint).Select(b => b ? '1' : '0').ToArray()).AddSign(showSign && bigint < 0);
+            => ToBinaryString(bigint, 0, showSign);
+
+        public static string ToBinaryString(this BigInteger bigint, int padSize, bool showSign = false)
+            => new string(ToBinaryArray(bigint).Select(b => b ? '1' : '0').ToArray()).PadNumber(padSize).AddSign(showSign && bigint < 0);
 
         static string AddSign(this string numString, bool addSign)
             => addSign ? $"-{numString}" : numString;
+
+        static string PadNumber(this string number, int padLen)
+            => padLen > 0
+                ? number.PadLeft(padLen, '0')
+                : number;
     }
     #endregion BigIntegerExtensions
 }

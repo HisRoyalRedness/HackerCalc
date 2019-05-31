@@ -14,6 +14,19 @@ namespace HisRoyalRedness.com
         {
             SignAndBitWidth = signAndBitwidth;
             _minAndMax = MinAndMaxMap.Instance[SignAndBitWidth];
+
+            IsUnlimited = _minAndMax.IsUnlimited;
+            IsNegative = Value < 0 || (!IsUnlimited && Value > _minAndMax.MaxSigned);
+
+            _signedUnsignedValues = new Lazy<Tuple<BigInteger, BigInteger>>(() =>
+            {
+                if (!IsNegative || IsUnlimited)
+                    return new Tuple<BigInteger, BigInteger>(Value, Value);
+
+                return new Tuple<BigInteger, BigInteger>(
+                    IsSigned ? Value : Value - _minAndMax.MaxUnsigned - 1,
+                    IsSigned ? Value + _minAndMax.MaxUnsigned + 1 : Value);
+            });
         }
 
         static BigInteger Normalise(BigInteger value, BitWidthAndSignPair signAndBitwidth, IConfiguration configuration)
@@ -37,7 +50,7 @@ namespace HisRoyalRedness.com
             if (signAndBitwidth.IsSigned && !isUnlimited)
             {
                 if (value > minAndMax.Max)
-                    value -= (minAndMax.Mask  + 1);
+                    value -= (minAndMax.Mask + 1);
             }
 
             if ((oldValue >= 0) != (value >= 0))
@@ -67,9 +80,27 @@ namespace HisRoyalRedness.com
         public bool IsSigned => SignAndBitWidth.IsSigned;
         public IntegerBitWidth BitWidth => SignAndBitWidth.BitWidth;
 
+        /// <summary>
+        /// Gets the signed equivalent of the value. If the value for this bitwidth is considered a positive
+        /// number for both signed and unsigned instances, the value is returned as-is.
+        /// If the number could be considered negative, then the signed representation (with a minus sign) is returned.
+        /// </summary>
+        public BigInteger SignedValue => _signedUnsignedValues.Value.Item1;
+
+        /// <summary>
+        /// Gets the unsigned equivalent of the value. If the value for this bitwidth is considered a positive
+        /// number for both signed and unsigned instances, the value is returned as-is.
+        /// If the number could be considered negative, then the unsigned representation (with the leading bit equal to 1) is returned.
+        /// </summary>
+        public BigInteger UnsignedValue => _signedUnsignedValues.Value.Item2;
+        Lazy<Tuple<BigInteger, BigInteger>> _signedUnsignedValues;
+
         public BigInteger Min => _minAndMax.Min;
         public BigInteger Max => _minAndMax.Max;
         public BigInteger Mask => _minAndMax.Mask;
+
+        public bool IsNegative { get; }
+        public bool IsUnlimited { get; }
 
         protected override int InternalGetHashCode() => (Value.GetHashCode() << 1) ^ (SignAndBitWidth.GetHashCode());
         protected override string InternalTypeName => nameof(LimitedIntegerType);

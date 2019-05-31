@@ -14,7 +14,8 @@ namespace HisRoyalRedness.com
     {
         const string TIME_FORMAT = "hh\\:mm\\:ss";
         const string DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-        const string FLOAT_FORMAT = "0.############";
+        const string INT_FORMAT = "#,0";
+        const string FLOAT_FORMAT = "#,0.############";
 
         protected override string ConvertTo(IDataType<DataType> value, object parameter, CultureInfo culture)
         {
@@ -23,12 +24,12 @@ namespace HisRoyalRedness.com
             switch (value.DataType)
             {
                 case DataType.LimitedInteger:
-                    return ((LimitedIntegerType)value).Value.ToString();
+                    return ((LimitedIntegerType)value).Value.ToString(INT_FORMAT);
 
                 case DataType.RationalNumber:
                     var rat = ((RationalNumberType)value).Value;
                     return rat.Denominator == 1
-                        ? rat.Numerator.ToString()
+                        ? rat.Numerator.ToString(INT_FORMAT)
                         : ((double)rat.Numerator / (double)rat.Denominator).ToString(FLOAT_FORMAT);
 
                 case DataType.IrrationalNumber:

@@ -67,6 +67,67 @@ namespace HisRoyalRedness.com
         public void LimitedIntegerTypeNormaliseTestsOutOfRangeRange(string value, string expectedStr)
             => LimitedIntegerTypeNormaliseTests(value, expectedStr);
 
+        [DataTestMethod]
+        [DataRow("0u4", false)]
+        [DataRow("7u4", false)]
+        [DataRow("8u4", true)]
+        [DataRow("15u4", true)]
+        [DataRow("-8i4", true)]
+        [DataRow("-1i4", true)]
+        [DataRow("0i4", false)]
+        [DataRow("7i4", false)]
+        [DataRow("0u8", false)]
+        [DataRow("127u8", false)]
+        [DataRow("128u8", true)]
+        [DataRow("255u8", true)]
+        [DataRow("-128i8", true)]
+        [DataRow("-1i8", true)]
+        [DataRow("0i8", false)]
+        [DataRow("127i8", false)]
+        [DataRow("0u16", false)]
+        [DataRow("32767u16", false)]
+        [DataRow("32768u16", true)]
+        [DataRow("65535u16", true)]
+        [DataRow("-32768i16", true)]
+        [DataRow("-1i16", true)]
+        [DataRow("0i16", false)]
+        [DataRow("32767i16", false)]
+        [DataRow("0u32", false)]
+        [DataRow("2147483647u32", false)]
+        [DataRow("2147483648u32", true)]
+        [DataRow("4294967295u32", true)]
+        [DataRow("-2147483648i32", true)]
+        [DataRow("-1i32", true)]
+        [DataRow("0i32", false)]
+        [DataRow("2147483647i32", false)]
+        [DataRow("0u64", false)]
+        [DataRow("9223372036854775807u64", false)]
+        [DataRow("9223372036854775808u64", true)]
+        [DataRow("18446744073709551615u64", true)]
+        [DataRow("-9223372036854775808i64", true)]
+        [DataRow("-1i64", true)]
+        [DataRow("0i64", false)]
+        [DataRow("9223372036854775807i64", false)]
+        [DataRow("0u128", false)]
+        [DataRow("170141183460469231731687303715884105727u128", false)]
+        [DataRow("170141183460469231731687303715884105728u128", true)]
+        [DataRow("340282366920938463463374607431768211455u128", true)]
+        [DataRow("-170141183460469231731687303715884105728i128", true)]
+        [DataRow("-1i128", true)]
+        [DataRow("0i128", false)]
+        [DataRow("170141183460469231731687303715884105727i128", false)]
+        [DataRow("-8934028236692093846346337460743176821145534898373927i0", true)]
+        [DataRow("-1i0", true)]
+        [DataRow("0i0", false)]
+        [DataRow("8934028236692093846346337460743176821145534898373927i0", false)]
+        public void IsNegativeProperty(string value, bool isNegative)
+        {
+            var actual = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, value);
+            actual.IsNegative.Should().Be(isNegative, $"{value} is expected to be a {(isNegative ? "negative" : "positive")} number.");
+        }
+
+
+
         static void LimitedIntegerTypeNormaliseTests(string value, string expectedStr)
         {
             var actual = (LimitedIntegerType)TestCommon.MakeDataType(DataType.LimitedInteger, value);

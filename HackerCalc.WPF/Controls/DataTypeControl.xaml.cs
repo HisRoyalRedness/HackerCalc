@@ -34,8 +34,6 @@ namespace HisRoyalRedness.com
             nameof(DataType), 
             typeof(IDataType<DataType>), 
             typeof(DataTypeControl), 
-            new PropertyMetadata(new IrrationalNumberType(1.23), (o,e) =>
-            {
-            }));
+            new PropertyMetadata(new RationalNumberType(0)));
     }
 }

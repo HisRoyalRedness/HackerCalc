@@ -82,16 +82,17 @@ namespace HisRoyalRedness.com
                 Mask = 0;
                 Min = 0;
                 Max = 0;
+                MaxSigned = 0;
                 IsUnlimited = true;
             }
             else
             {
                 Mask = BigInteger.Pow(2, (int)bitWidth) - 1;
+                MaxSigned = BigInteger.Pow(2, (int)bitWidth - 1) - 1;
                 if (isSigned)
                 {
-                    var num = BigInteger.Pow(2, (int)bitWidth - 1);
-                    Min = -num;
-                    Max = num - 1;
+                    Min = -(MaxSigned + 1);
+                    Max = MaxSigned;
                 }
                 else
                 {
@@ -108,6 +109,8 @@ namespace HisRoyalRedness.com
         public BigInteger Min { get; }
         public BigInteger Max { get; }
         public BigInteger Mask { get; }
+        public BigInteger MaxSigned { get; }
+        public BigInteger MaxUnsigned => Mask;
         public bool IsUnlimited { get; }
 
         string DisplayString => IsUnlimited ? "Unlimited" : $"Min: {Min}, Max: {Max}, Mask: {Mask}";

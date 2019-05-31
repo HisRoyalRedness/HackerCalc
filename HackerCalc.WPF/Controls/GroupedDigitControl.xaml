@@ -1,0 +1,83 @@
+﻿<UserControl
+    x:Class="HisRoyalRedness.com.GroupedDigitControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:HisRoyalRedness.com"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="100"
+    d:DesignWidth="200"
+    mc:Ignorable="d">
+
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TextBlock VerticalAlignment="Top" Text="{Binding Sign}" />
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Groups}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Grid.IsSharedSizeScope="True" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="DigitGroup" />
+                        </Grid.ColumnDefinitions>
+                        <local:BindableRichTextBox
+                            Width="{Binding Width}"
+                            Document="{Binding Document, Mode=OneWay}"
+                            IsReadOnly="True">
+                            <local:BindableRichTextBox.Template>
+                                <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                    <Border
+                                        x:Name="border"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="Transparent"
+                                        BorderThickness="0"
+                                        SnapsToDevicePixels="True">
+                                        <ScrollViewer
+                                            x:Name="PART_ContentHost"
+                                            Focusable="False"
+                                            HorizontalScrollBarVisibility="Hidden"
+                                            VerticalScrollBarVisibility="Hidden" />
+                                    </Border>
+                                </ControlTemplate>
+                            </local:BindableRichTextBox.Template>
+                        </local:BindableRichTextBox>
+
+
+                        <!--<RichTextBox BorderBrush="Transparent" Focusable="False">
+                            <RichTextBox.Template>
+                                <ControlTemplate TargetType="{x:Type RichTextBox}">
+                                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </RichTextBox.Template>
+                            <FlowDocument>
+                                <Paragraph FontSize="{Binding FontSize, ElementName=uc}">
+                                    <Run Text="{Binding DataType, ElementName=uc, Converter={StaticResource DataTypeToValue}}" />
+                                    <Run
+                                        FontSize="{Binding FontSize, ElementName=uc, Converter={StaticResource RelativeSize}, ConverterParameter={StaticResource SubscriptRatio}}"
+                                        Foreground="{StaticResource SubscriptForeground}"
+                                        BaselineAlignment="Subscript"
+                                        Text="{Binding DataType, ElementName=uc, Mode=OneWay, Converter={StaticResource DataTypeToType}}" />
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>-->
+
+
+                        <!--<TextBlock Text="{Binding Value}" />-->
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

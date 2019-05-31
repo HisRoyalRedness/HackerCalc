@@ -83,6 +83,13 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Controls\BinadableRichTextBox.cs" />
+    <Compile Include="Controls\GroupedDigitControl.xaml.cs">
+      <DependentUpon>GroupedDigitControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ProgrammerDataControl.xaml.cs">
+      <DependentUpon>ProgrammerDataControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\ExpressionM.cs" />
     <Compile Include="View Models\ConfigurationVM.cs" />
     <Compile Include="View Models\DataTypeDetailsTabVM.cs" />
@@ -98,6 +105,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\DataTypeControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\GroupedDigitControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProgrammerDataControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
