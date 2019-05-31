@@ -9,9 +9,7 @@
     <System:Double x:Key="EvaluationRichTextFontSize">40</System:Double>
     <System:String x:Key="SubscriptRatio">0.6</System:String>
 
-    <SolidColorBrush
-        x:Key="SubscriptForeground"
-        Color="#999999" />
+    <SolidColorBrush x:Key="SubscriptForeground" Color="#999999" />
     <FontFamily x:Key="DefaultFontFamily">Calibri</FontFamily>
 
     <Style TargetType="RichTextBox">
@@ -24,17 +22,13 @@
         <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
     </Style>
 
-    <Style
-        x:Key="ActionButton"
-        TargetType="Button">
+    <Style x:Key="ActionButton" TargetType="Button">
         <Setter Property="Width" Value="100" />
         <Setter Property="Height" Value="30" />
         <Setter Property="Margin" Value="5" />
     </Style>
 
-    <Style
-        x:Key="RoundedBorder"
-        TargetType="Border">
+    <Style x:Key="RoundedBorder" TargetType="Border">
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="BorderBrush" Value="#D0D0FF" />
         <!--<Setter Property="BorderBrush" Value="Gray" />-->
@@ -49,5 +43,6 @@
     <local:HiddenIfEmptyConverter x:Key="HiddenIfEmpty" />
     <local:RelativeSizeConverter x:Key="RelativeSize" />
     <local:NullConverter x:Key="Null" />
+    <local:EmptyStringToCollapsedConverter x:Key="CollapsedIfEmpty" />
 
 </ResourceDictionary>

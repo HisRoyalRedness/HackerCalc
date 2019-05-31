@@ -10,7 +10,37 @@ using System.Windows.Media;
 
 namespace HisRoyalRedness.com
 {
-    public class DataTypeToValueConverter : OneWayConverter<IDataType<DataType>>
+    #region OneWayConverter
+    public abstract class OneWayConverter<TType> : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value == null || !typeof(TType).IsAssignableFrom(value?.GetType())
+                ? ConvertTo(parameter, culture)
+                : ConvertTo((TType)value, parameter, culture);
+
+        protected abstract string ConvertTo(TType value, object parameter, CultureInfo culture);
+        protected virtual string ConvertTo(object parameter, CultureInfo culture) => null;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => new NotSupportedException();
+    }
+
+    public abstract class OneWayConverter<TTypeIn, TTypeOut> : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value == null || !typeof(TTypeIn).IsAssignableFrom(value?.GetType())
+                ? ConvertTo(parameter, culture)
+                : ConvertTo((TTypeIn)value, parameter, culture);
+
+        protected abstract TTypeOut ConvertTo(TTypeIn value, object parameter, CultureInfo culture);
+        protected virtual TTypeOut ConvertTo(object parameter, CultureInfo culture) => default(TTypeOut);
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => new NotSupportedException();
+    }
+    #endregion OneWayConverter
+
+    public class DataTypeToValueConverter : OneWayConverter<IDataType<DataType>, string>
     {
         const string TIME_FORMAT = "hh\\:mm\\:ss";
         const string DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -109,19 +139,14 @@ namespace HisRoyalRedness.com
         protected override string ConvertTo(object parameter, CultureInfo culture) => "1.0";
     }
 
-    public abstract class OneWayConverter<TType> : IValueConverter
+    public class EmptyStringToCollapsedConverter : OneWayConverter<string, Visibility>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => value == null || !typeof(TType).IsAssignableFrom(value?.GetType())
-                ? ConvertTo(parameter, culture)
-                : ConvertTo((TType)value, parameter, culture);
-
-        protected abstract string ConvertTo(TType value, object parameter, CultureInfo culture);
-        protected virtual string ConvertTo(object parameter, CultureInfo culture) => null;
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => new NotSupportedException();
+        protected override Visibility ConvertTo(string value, object parameter, CultureInfo culture)
+            => string.IsNullOrEmpty(value)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
     }
+
 
     public class NullConverter : IValueConverter
     {

@@ -10,6 +10,11 @@
     mc:Ignorable="d">
 
     <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+        <Grid.Resources>
+            <ResourceDictionary>
+                <local:EmptyStringToCollapsedConverter x:Key="CollapsedIfEmpty" />
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
@@ -35,8 +40,14 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="#a0a0b0" Text="{Binding LeadingValue}" />
-                            <TextBlock Grid.Column="1" Text="{Binding TrailingValue}" />
+                            <TextBlock
+                                Foreground="#a0a0b0"
+                                Text="{Binding LeadingValue}"
+                                Visibility="{Binding LeadingValue, Converter={StaticResource CollapsedIfEmpty}}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="{Binding TrailingValue}"
+                                Visibility="{Binding TrailingValue, Converter={StaticResource CollapsedIfEmpty}}" />
                         </Grid>
                     </Grid>
                 </DataTemplate>
