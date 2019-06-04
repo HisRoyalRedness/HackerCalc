@@ -114,7 +114,27 @@ namespace HisRoyalRedness.com
         public static RationalNumber operator /(RationalNumber rn, RationalNumber other) => new RationalNumber(rn.Numerator * other.Denominator, rn.Denominator * other.Numerator);
         public static RationalNumber operator /(RationalNumber rn, BigInteger other) => new RationalNumber(rn.Numerator, rn.Denominator * other);
         public static RationalNumber operator /(BigInteger other, RationalNumber rn) => new RationalNumber(rn.Denominator * other, rn.Numerator);
+
+        public static RationalNumber operator %(RationalNumber rn, RationalNumber other) => rn - ((BigInteger)(rn / other)) * other;
         #endregion Operators
+
+        public static RationalNumber Pow(RationalNumber num, RationalNumber exp)
+        {
+            var calcNum = num;
+            if (exp.Numerator != BigInteger.One)
+                calcNum = new RationalNumber(BigInteger.Pow(calcNum.Numerator, (int)exp.Numerator), BigInteger.Pow(calcNum.Denominator, (int)exp.Numerator));
+            if (exp.Denominator != BigInteger.One)
+            {
+                throw new NotImplementedException("Haven't implemented RationalNumber roots yet");
+                // TODO: Calculate root
+            }
+
+            return calcNum;
+        }
+
+        public static RationalNumber Root(RationalNumber num, RationalNumber exp) => Pow(num, exp.Reciprocal);
+
+        public RationalNumber Reciprocal => new RationalNumber(Denominator, Numerator);
 
         public static implicit operator RationalNumber(byte num) => new RationalNumber(num);
         public static implicit operator RationalNumber(sbyte num) => new RationalNumber(num);

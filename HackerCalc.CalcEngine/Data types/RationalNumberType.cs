@@ -81,29 +81,26 @@ namespace HisRoyalRedness.com
                     }
                     break;
                 case OperatorType.Power:
-                    throw new NotImplementedException();
-                    //switch (operands[1].DataType)
-                    //{
-                    //    case DataType.RationalNumber:
-                    //        return new RationalNumberType(BigInteger.Pow(((RationalNumberType)operands[0]).Value, (int)((RationalNumberType)operands[1]).Value));
-                    //}
-                    //break;
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.RationalNumber:
+                            return new RationalNumberType(RationalNumber.Pow(((RationalNumberType)operands[0]).Value, ((RationalNumberType)operands[1]).Value));
+                    }
+                    break;
                 case OperatorType.Root:
-                    throw new NotImplementedException();
-                    //switch (operands[1].DataType)
-                    //{
-                    //    case DataType.RationalNumber:
-                    //        return new RationalNumberType(Algoritms.IntegerNthRoot(((RationalNumberType)operands[0]).Value, (int)((RationalNumberType)operands[1]).Value));
-                    //}
-                    //break;
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.RationalNumber:
+                            return new RationalNumberType(RationalNumber.Root(((RationalNumberType)operands[0]).Value, ((RationalNumberType)operands[1]).Value));
+                    }
+                    break;
                 case OperatorType.Modulo:
-                    throw new NotImplementedException();
-                    //switch (operands[1].DataType)
-                    //{
-                    //    case DataType.RationalNumber:
-                    //        return new RationalNumberType(((RationalNumberType)operands[0]).Value % ((RationalNumberType)operands[1]).Value);
-                    //}
-                    //break;
+                    switch (operands[1].DataType)
+                    {
+                        case DataType.RationalNumber:
+                            return new RationalNumberType(((RationalNumberType)operands[0]).Value % ((RationalNumberType)operands[1]).Value);
+                    }
+                    break;
             }
             return null;
         }

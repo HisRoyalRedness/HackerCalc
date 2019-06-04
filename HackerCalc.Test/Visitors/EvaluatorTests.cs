@@ -20,8 +20,8 @@ namespace HisRoyalRedness.com
             => "1i32".Evaluate<LimitedIntegerType>().Value.Should().Be(1);
 
         [TestMethod]
-        public void FloatTokenEvaluatesCorrectly()
-            => "1f".Evaluate<IrrationalNumberType>().Value.Should().Be(1.0);
+        public void RationalTokenEvaluatesCorrectly()
+            => "1f".Evaluate<RationalNumberType>().Value.Should().Be(1.0);
 
         [TestMethod]
         public void GroupingTokenEvaluatesCorrectly()
