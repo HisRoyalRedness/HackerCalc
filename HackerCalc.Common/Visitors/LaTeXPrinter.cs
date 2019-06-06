@@ -44,8 +44,10 @@ namespace HisRoyalRedness.com
                 case LiteralTokenType.LimitedInteger:
                     var lit = litToken as LimitedIntegerToken;
                     var sign = lit.IsSigned ? "I" : "U";
-                    var bw = lit.BitWidth == IntegerBitWidth.Unlimited ? "" : lit.BitWidth.GetEnumDescription();
-                    return $"{lit.TypedValue}_{{\\text{{{sign}{bw}}}}}";
+                    return lit.BitWidth == IntegerBitWidth.Unlimited
+                        ? $"{lit.TypedValue}_{{{sign}\\infty}}"
+                        : $"{lit.TypedValue}_{{{sign}{lit.BitWidth.GetEnumDescription()}}}";
+                    //return $"{lit.TypedValue}_{{\\text{{{sign}{bw}}}}}";
                 case LiteralTokenType.Timespan: return $"'{litToken}'";
                 default: return $"{litToken}";
             }

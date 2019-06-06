@@ -313,7 +313,24 @@ namespace HisRoyalRedness.com
                 return new Tuple<BigInteger, BigInteger>(BigInteger.Parse(nums[0]), BigInteger.Parse(nums[1]));
 
             if (nums.Length == 1)
-                return new Tuple<BigInteger, BigInteger>(BigInteger.Parse(nums[0]), 1);
+            {
+                var decNum = nums[0].Split('.');
+                if (decNum.Length == 1)
+                    return new Tuple<BigInteger, BigInteger>(BigInteger.Parse(nums[0]), 1);
+
+                else if (decNum.Length == 2)
+                {
+                    var val = nums[0].Trim();
+                    var pointIndex = val.IndexOf('.');
+                    var num = BigInteger.Parse(val.Replace(".", ""));
+                    var denom = pointIndex < 0
+                        ? BigInteger.One
+                        : BigInteger.Parse("1" + new string('0', val.Length - pointIndex - 1));
+                    return new Tuple<BigInteger, BigInteger>(num, denom);
+                }
+                else
+                    throw new ApplicationException("Not a valid fraction");
+            }
 
             throw new ApplicationException("Not a valid fraction");
         }
@@ -329,12 +346,14 @@ namespace HisRoyalRedness.com
             if (expected == null)
                 new Action(() => actual.ToRationalNumber()).Should().Throw<ParseException>();
             else
-            {
-                var rat = actual.ToRationalNumber();
-                var exp = expected.ParseFraction();
-                rat.Numerator.Should().Be(exp.Item1, $"numerator was expected to be {exp.Item1}, but was {rat.Numerator}");
-                rat.Denominator.Should().Be(exp.Item2, $"denominator was expected to be {exp.Item2}, but was {rat.Denominator}");
-            }
+                TestRationalNumber(actual.ToRationalNumber(), expected);
+        }
+
+        public static void TestRationalNumber(RationalNumber actual, string expected)
+        {
+            var exp = expected.ParseFraction();
+            actual.Numerator.Should().Be(exp.Item1, $"numerator was expected to be {exp.Item1}, but was {actual.Numerator}");
+            actual.Denominator.Should().Be(exp.Item2, $"denominator was expected to be {exp.Item2}, but was {actual.Denominator}");
         }
         #endregion Rational numbers
 

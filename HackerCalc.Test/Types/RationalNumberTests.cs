@@ -73,79 +73,98 @@ namespace HisRoyalRedness.com
         public void TestCompare(string rat1, string rat2, int comparison)
             => rat1.ToRationalNumber().CompareTo(rat2.ToRationalNumber()).Should().Be(comparison);
 
+        [DataTestMethod]
+        [DataRow("1/2", "2")]
+        [DataRow("-1/3", "-3")]
+        [DataRow("0.75", "4/3")]
+        public void TestReciprocal(string actual, string expected)
+            => TestCommon.TestRationalNumber(actual.ToRationalNumber().Reciprocal, expected);
+
         #region Add
+        [TestCategory(TestCommon.ADD_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "1/2", "1")]
         [DataRow("1/3", "1/2", "5/6")]
         [DataRow("1/3", "-1/2", "-1/6")]
-        public void TestAddOperationRR(string a, string b, string expected)
+        public void TestRationalAddOperationRR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 + r2);
 
+        [TestCategory(TestCommon.ADD_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "2", "5/2")]
-        public void TestAddOperationRI(string a, string b, string expected)
+        public void TestRationalAddOperationRI(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 + r2);
 
+        [TestCategory(TestCommon.ADD_OPERATION)]
         [DataTestMethod]
         [DataRow("2", "1/2", "5/2")]
-        public void TestAddOperationIR(string a, string b, string expected)
+        public void TestRationalAddOperationIR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 + r2);
         #endregion Add
 
         #region Subtract
+        [TestCategory(TestCommon.SUBTRACT_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "1/4", "1/4")]
         [DataRow("1/2", "1/2", "0")]
         [DataRow("1/3", "-1/2", "5/6")]
-        public void TestSubtractOperationRR(string a, string b, string expected)
+        public void TestRationalSubtractOperationRR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
 
+        [TestCategory(TestCommon.SUBTRACT_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "2", "-3/2")]
-        public void TestSubtractOperationRI(string a, string b, string expected)
+        public void TestRationalSubtractOperationRI(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
 
+        [TestCategory(TestCommon.SUBTRACT_OPERATION)]
         [DataTestMethod]
         [DataRow("2", "1/2", "3/2")]
-        public void TestSubtractOperationIR(string a, string b, string expected)
+        public void TestRationalSubtractOperationIR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 - r2);
         #endregion Subtract
 
         #region Multiply
+        [TestCategory(TestCommon.MULTIPLY_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "1/2", "1/4")]
         [DataRow("2/3", "1/2", "2/6")]
         [DataRow("1/3", "-1/2", "-1/6")]
-        public void TestMultiplyOperationRR(string a, string b, string expected)
+        public void TestRationalMultiplyOperationRR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
 
+        [TestCategory(TestCommon.MULTIPLY_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "2", "1")]
-        public void TestMultiplyOperationRI(string a, string b, string expected)
+        public void TestRationalMultiplyOperationRI(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
 
+        [TestCategory(TestCommon.MULTIPLY_OPERATION)]
         [DataTestMethod]
         [DataRow("2", "1/2", "1")]
-        public void TestMultiplyOperationIR(string a, string b, string expected)
+        public void TestRationalMultiplyOperationIR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 * r2);
         #endregion Multiply
 
         #region Divide
+        [TestCategory(TestCommon.DIVIDE_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "1/2", "1")]
         [DataRow("1/3", "1/2", "2/3")]
         [DataRow("1/3", "-1/2", "-2/3")]
-        public void TestDivideOperationRR(string a, string b, string expected)
+        public void TestRationalDivideOperationRR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
 
+        [TestCategory(TestCommon.DIVIDE_OPERATION)]
         [DataTestMethod]
         [DataRow("1/2", "2", "1/4")]
-        public void TestDivideOperationRI(string a, string b, string expected)
+        public void TestRationalDivideOperationRI(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
 
+        [TestCategory(TestCommon.DIVIDE_OPERATION)]
         [DataTestMethod]
         [DataRow("2", "1/2", "4")]
-        public void TestDivideOperationIR(string a, string b, string expected)
+        public void TestRationalDivideOperationIR(string a, string b, string expected)
             => OperateOnRationals(a, b, expected, (r1, r2) => r1 / r2);
         #endregion Divide
 

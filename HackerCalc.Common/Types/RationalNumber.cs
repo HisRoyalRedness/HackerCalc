@@ -79,6 +79,7 @@ namespace HisRoyalRedness.com
         public int CompareTo(object obj) => obj is RationalNumber rn ? CompareTo(rn) : 1;
         #endregion IComparable
 
+        #region ToString
         public override string ToString() => ToString(true);
 
         public string ToString(bool includeFraction) => Denominator == 1
@@ -87,16 +88,21 @@ namespace HisRoyalRedness.com
                 ? $"{((double)Numerator / (double)Denominator).ToString("0.#####")} ({Fraction})"
                 : $"{((double)Numerator / (double)Denominator).ToString("0.#####")}");
 
+        public string Fraction => $"{Numerator}/{Denominator}";
+        #endregion ToString
+
+        #region Constants
         public static RationalNumber Zero { get; } = new RationalNumber(0);
         public static RationalNumber One { get; } = new RationalNumber(1);
+        #endregion Constants
 
         public BigInteger Numerator { get; }
         public BigInteger Denominator { get; }
 
-        public string Fraction => $"{Numerator}/{Denominator}";
-
         static BigInteger LCM(BigInteger a, BigInteger b)
             => BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
+
+        public RationalNumber Reciprocal => new RationalNumber(Denominator, Numerator);
 
         #region Operators
         public static RationalNumber operator +(RationalNumber rn, RationalNumber other) => new RationalNumber(rn.Numerator * other.Denominator + other.Numerator * rn.Denominator, rn.Denominator * other.Denominator);
@@ -116,7 +122,6 @@ namespace HisRoyalRedness.com
         public static RationalNumber operator /(BigInteger other, RationalNumber rn) => new RationalNumber(rn.Denominator * other, rn.Numerator);
 
         public static RationalNumber operator %(RationalNumber rn, RationalNumber other) => rn - ((BigInteger)(rn / other)) * other;
-        #endregion Operators
 
         public static RationalNumber Pow(RationalNumber num, RationalNumber exp)
         {
@@ -133,8 +138,7 @@ namespace HisRoyalRedness.com
         }
 
         public static RationalNumber Root(RationalNumber num, RationalNumber exp) => Pow(num, exp.Reciprocal);
-
-        public RationalNumber Reciprocal => new RationalNumber(Denominator, Numerator);
+        #endregion Operators
 
         public static implicit operator RationalNumber(byte num) => new RationalNumber(num);
         public static implicit operator RationalNumber(sbyte num) => new RationalNumber(num);
